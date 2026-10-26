@@ -63,6 +63,12 @@ export default defineConfig({
       },
     },
     {
+      name: 'accuracy',
+      testMatch: /accuracy\.record\.ts/,
+      timeout: 900_000,
+      use: { browserName: 'chromium', viewport: { width: 800, height: 600 }, launchOptions: { args: ['--enable-unsafe-swiftshader'] } },
+    },
+    {
       name: 'record',
       testMatch: /(demo|landing)\.record\.ts/,
       use: {

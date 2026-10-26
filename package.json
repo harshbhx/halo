@@ -21,7 +21,8 @@
     "serve": "node scripts/serve-dist.mjs",
     "check:external": "node scripts/check-no-external.mjs",
     "screens": "npm run build && playwright test --project=screens",
-    "icons": "node scripts/make-icons.mjs"
+    "icons": "node scripts/make-icons.mjs",
+    "accuracy": "npm run build && playwright test --project=accuracy"
   },
   "dependencies": {
     "@fontsource/atkinson-hyperlegible-next": "^5.3.0",

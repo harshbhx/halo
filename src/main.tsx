@@ -13,6 +13,13 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 );
 
+// Test hook: the accuracy script measures the real engine. Only present when a test sets __fwDebug.
+if ((window as unknown as { __fwDebug?: boolean }).__fwDebug) {
+  void import('./lib/faceEngine').then((engine) => {
+    (window as unknown as { __fwEval?: unknown }).__fwEval = engine;
+  });
+}
+
 // Offline support for the built app (never in development, where files change constantly).
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
