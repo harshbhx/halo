@@ -447,9 +447,11 @@ export function Settings() {
         onCancel={() => setConfirmEnhanced(false)}
       >
         <span className="stack">
-          <span>{BRAND.name}’s own server (on Cloudflare, same address as this app) will receive only:</span>
-          <span>• the exact line it will whisper, to make a natural voice or a translation, once per person;</span>
-          <span>• a name and note you type, only if you turn on the cloud writer.</span>
+          <span>{BRAND.name}’s own server (on Cloudflare, at the same address as this app) will receive only:</span>
+          <ul className="sheet__list">
+            <li>the exact line it will whisper, to make a natural voice or a translation, once per person</li>
+            <li>a name and note you type, only if you turn on the cloud writer</li>
+          </ul>
           <span>Never sent: faces, photos or face fingerprints. Nothing is stored there. Every request is listed in Privacy, under “What has left this phone”.</span>
         </span>
       </ConfirmSheet>

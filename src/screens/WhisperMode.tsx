@@ -599,6 +599,12 @@ export function WhisperMode({ demo }: { demo: boolean }) {
         </div>
       )}
 
+      {phase === 'running' && !settings.speakAllowed && settings.outputMode === 'voice' && (
+        <button type="button" className="silent-chip" onClick={() => navigate('/settings')}>
+          Silent until you check your earbud
+        </button>
+      )}
+
       {loaded && !hasPeople && !demo && (
         <div className="night__panel">
           <div>
@@ -664,11 +670,6 @@ export function WhisperMode({ demo }: { demo: boolean }) {
         {whispersOff && phase === 'running' && (
           <button type="button" className="paused-banner" onClick={() => updateSettings({ whispersPaused: false })}>
             Whispers paused. Tap to turn them back on.
-          </button>
-        )}
-        {!settings.speakAllowed && settings.outputMode === 'voice' && phase === 'running' && (
-          <button type="button" className="paused-banner" onClick={() => navigate('/settings')}>
-            Whispers are silent until you check your earbud in Settings.
           </button>
         )}
         {hint && !caption && phase === 'running' && (

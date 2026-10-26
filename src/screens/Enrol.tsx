@@ -109,7 +109,8 @@ export function PhotoStep({
     if (!cameraOn) return;
     const timer = setInterval(() => {
       const v = videoRef.current;
-      if (v && v.videoWidth) setDark(frameBrightness(v) < DARK_BELOW);
+      // Judge the light where the face goes (the oval), not the whole frame.
+      if (v && v.videoWidth) setDark(frameBrightness(v, { x: v.videoWidth * 0.25, y: v.videoHeight * 0.15, width: v.videoWidth * 0.5, height: v.videoHeight * 0.55 }) < DARK_BELOW);
     }, 1000);
     return () => clearInterval(timer);
   }, [cameraOn]);
