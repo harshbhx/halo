@@ -9,7 +9,7 @@ Build mode: fast (Harsh's brief asked the agent to build and verify autonomously
 
 ## Slices
 
-- [ ] **1. Enrol someone and hear their whisper**
+- [x] **1. Enrol someone and hear their whisper**
   Becomes usable: Add a person with consent, photos from the camera and a typed note; open Whisper mode, point the camera at them, see the ring and caption and hear the whisper.
   Why now: This is the kernel (on-device recognition turning into a spoken whisper with context) and the riskiest part (face-api under Vite, models in a headless browser with a fake camera). Bootstrapping lives inside it.
   PRD ref: `prd.md > The Core Journey` (steps 3–7), `prd.md > Features and Behavior > Enrolling a person`, `prd.md > Features and Behavior > Turning a note into a whisper`, `prd.md > Features and Behavior > Whisper mode`
@@ -71,3 +71,6 @@ Reflection: not started
 Activity mode: not started
 
 ## Revisions
+
+- Slice 1 also built the design tokens, bottom bar and people list — enrolment needed somewhere to land, and the look and feel was cheaper to set once than to retrofit.
+- Fake-camera clips are portrait 480x640 with the face at about arm's length — Chromium delivers the clip at its native size, and a landscape clip cropped to a phone screen made the face fill the whole view.
