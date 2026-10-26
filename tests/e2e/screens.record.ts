@@ -20,13 +20,15 @@ const settle = (page: Page, ms = 450) => page.waitForTimeout(ms);
 
 /** Lazy images load as they come into view, so scroll the whole page before a full-page capture. */
 async function scrollThrough(page: Page) {
+  // The landing page scrolls smoothly by default; jump instead, or the lazy images never come into view.
   await page.evaluate(async () => {
-    for (let y = 0; y < document.body.scrollHeight; y += 500) {
-      window.scrollTo(0, y);
-      await new Promise((r) => setTimeout(r, 60));
+    for (let y = 0; y < document.body.scrollHeight; y += 400) {
+      window.scrollTo({ top: y, behavior: 'instant' });
+      await new Promise((r) => setTimeout(r, 80));
     }
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'instant' });
   });
+  await page.waitForFunction(() => [...document.images].every((i) => i.complete && i.naturalWidth > 0), undefined, { timeout: 30_000 });
   await page.waitForLoadState('networkidle');
   await settle(page, 600);
 }

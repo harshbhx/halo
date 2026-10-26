@@ -371,6 +371,8 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
   .shell { height: min(900px, calc(100dvh - 96px)); min-height: 0; width: 26rem; overflow-y: auto; overflow-x: clip; border-radius: 36px; box-shadow: 0 0 0 10px var(--color-ink), var(--shadow-panel); transform: translateZ(0); scrollbar-width: none; }
   .shell .screen--flow, .shell .welcome { min-height: 100%; }
   .tabbar, .toasts { max-width: 26rem; }
+  /* Sheets sit over the phone frame, as wide as it, rather than across the desk. */
+  .sheet { max-width: calc(26rem - 2 * var(--space-md)); margin: auto; border-radius: var(--radius-card); }
 }
 
 @media (prefers-reduced-motion: reduce) {
