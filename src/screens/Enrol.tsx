@@ -373,6 +373,7 @@ export function Enrol() {
   useEffect(() => {
     document.getElementById('step-title')?.focus({ preventScroll: true });
     window.scrollTo({ top: 0 });
+    document.querySelector('.app')?.scrollTo({ top: 0 });
   }, [step]);
 
   const cleanName = name.trim();
@@ -432,6 +433,7 @@ export function Enrol() {
           next();
         }}
       >
+        <div className="step-anim" key={step}>
         {step === 0 && (
           <>
             <div>
@@ -507,6 +509,8 @@ export function Enrol() {
             </div>
           </>
         )}
+
+        </div>
 
         <div className="flow-foot">
           <button type="submit" className="btn btn--primary btn--block btn--lg" disabled={!canContinue || saving}>
