@@ -1,0 +1,4 @@
+# Halo: a public landing page and an app that runs entirely in the visitor's browser.
+User-agent: *
+Allow: /
+Disallow: /app/

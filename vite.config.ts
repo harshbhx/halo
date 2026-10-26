@@ -25,7 +25,7 @@ function precacheList(): Plugin {
         }
       };
       walk(outDir);
-      const skip = (f: string) => f === 'sw.js' || f === 'precache.json' || f.endsWith('.md') || f.endsWith('.woff');
+      const skip = (f: string) => f === 'sw.js' || f === 'precache.json' || f.startsWith('_') || f.endsWith('.md') || f.endsWith('.woff');
       const list = files.filter((f) => !skip(f)).sort();
       const hash = createHash('sha256');
       for (const f of list) hash.update(f).update(readFileSync(join(outDir, f)));

@@ -37,7 +37,7 @@ export default defineConfig({
     permissions: ['camera', 'microphone'],
   },
   webServer: {
-    command: 'npx vite preview --port 4173 --strictPort',
+    command: 'node scripts/serve-dist.mjs',
     url: 'http://localhost:4173',
     reuseExistingServer: true,
     timeout: 60_000,
