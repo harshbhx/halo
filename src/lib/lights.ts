@@ -1,6 +1,6 @@
 /**
- * Ribbon's "hour drawn as light": two strings of lamps across a terrace at
- * night, drawn once and still. Colours come from the design tokens.
+ * Ribbon's "hour drawn as light": a far horizon at night with a few lit windows
+ * and a distant train, drawn once and still. Colours come from the design tokens.
  */
 export function drawLamps(canvas: HTMLCanvasElement, options: { low?: number } = {}): void {
   const css = getComputedStyle(document.documentElement);
@@ -15,40 +15,34 @@ export function drawLamps(canvas: HTMLCanvasElement, options: { low?: number } =
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, w, h);
   const lamp = css.getPropertyValue('--halo').trim();
-  const wire = css.getPropertyValue('--night-rule').trim();
-  const low = options.low ?? 0.86;
-  const strings = [
-    { y: h * low, sag: h * 0.06, n: Math.max(10, Math.round(w / 52)), size: 2.6 },
-    { y: h * Math.min(low + 0.07, 0.97), sag: h * 0.035, n: Math.max(14, Math.round(w / 40)), size: 1.8 },
-  ];
-  let seed = 7;
+  const land = css.getPropertyValue('--night-paper').trim();
+  const ridge = css.getPropertyValue('--night-rule').trim();
+  const horizon = h * (options.low ?? 0.9);
+
+  // The land: a low, slightly uneven ridge, darker than the sky.
+  let seed = 11;
   const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const at = (s: (typeof strings)[number], x: number) => s.y + Math.sin((x / w) * Math.PI * 3) * s.sag * 0.5 + s.sag * Math.sin((x / w) * Math.PI);
-  for (const s of strings) {
-    ctx.strokeStyle = wire;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    for (let i = 0; i <= 60; i += 1) {
-      const x = (i / 60) * w;
-      if (i === 0) ctx.moveTo(x, at(s, x));
-      else ctx.lineTo(x, at(s, x));
-    }
-    ctx.stroke();
-    for (let i = 0; i < s.n; i += 1) {
-      const x = ((i + 0.5) / s.n) * w;
-      const y = at(s, x) + 4;
-      const r = s.size * (0.75 + rand() * 0.6);
-      const alpha = 0.35 + rand() * 0.55;
-      ctx.fillStyle = lamp;
-      ctx.globalAlpha = alpha;
-      ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.globalAlpha = alpha * 0.18;
-      ctx.beginPath();
-      ctx.arc(x, y, r * 4, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.globalAlpha = 1;
+  ctx.fillStyle = land;
+  ctx.beginPath();
+  ctx.moveTo(0, h);
+  for (let x = 0; x <= w; x += 24) ctx.lineTo(x, horizon + Math.sin(x / 140) * 4 + Math.sin(x / 37) * 1.5);
+  ctx.lineTo(w, h);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = ridge;
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // A few lit windows scattered along the horizon, small and far.
+  ctx.fillStyle = lamp;
+  for (let i = 0; i < Math.round(w / 60); i += 1) {
+    const x = rand() * w;
+    ctx.globalAlpha = 0.25 + rand() * 0.45;
+    ctx.fillRect(Math.round(x), Math.round(horizon - 3 + rand() * 6), 2, 2);
   }
+  // A distant train: one short row of lit windows.
+  const start = w * 0.58;
+  ctx.globalAlpha = 0.85;
+  for (let i = 0; i < 14; i += 1) ctx.fillRect(Math.round(start + i * 5), Math.round(horizon - 2), 3, 1.6);
+  ctx.globalAlpha = 1;
 }

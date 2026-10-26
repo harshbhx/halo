@@ -47,6 +47,11 @@ async function flow(page: Page, dir: string, captureLanding: boolean) {
   await page.getByRole('button', { name: 'Next' }).click();
   await settle(page);
   await shot('03-tour-promise');
+  // The earbud check: confirming it lets Halo speak whispers.
+  await page.getByRole('button', { name: 'Check your earbud' }).click();
+  await settle(page, 300);
+  await shot('03b-earbud-check');
+  await page.getByRole('button', { name: 'Yes, in my earbud' }).click();
   await page.getByRole('button', { name: /I understand/ }).click();
   await settle(page);
   await shot('04-people-empty');
