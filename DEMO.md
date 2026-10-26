@@ -33,8 +33,10 @@ For recording the submission video on a real phone. Bullets and questions only: 
 12. **Settings**: output (voice, chime, buzz, silent), quiet hours, pocket mode's buzz codes (**Feel it**), bigger text, dark theme. Optional: Enhanced mode sheet (read what would leave the phone, then **Keep everything**).
 13. **A person**: where you met, **Never whisper**.
 14. (Optional) **A helper**: on a second phone or laptop, open `/helper/`, prepare a card for Raj, send the link; open it on the phone, **Start adding Raj**.
-15. **Privacy and honest limits**: the ledger ("0 faces, photos or face fingerprints sent"), scroll the six limits.
-16. **Delete everything**, confirm, back to the tour.
+15. **Privacy and honest limits**: the ledger ("0 faces, photos or face fingerprints sent"), scroll the six limits; then **Your data**: what's stored, the two-tap **Wipe now** (do this last, or on a second phone).
+    - (Optional) **Lock**: set a passcode in Settings, close and reopen Halo, type it.
+    - (Optional) The full **privacy page** in the browser: `/privacy/`.
+16. **Wipe now** in Your data (two taps), or **Delete everything** in Settings: back to a fresh start.
 
 ## Shot checklist
 
@@ -62,6 +64,7 @@ For recording the submission video on a real phone. Bullets and questions only: 
 - Why is "No match" said instead of "stranger"?
 - Why would someone wear the phone instead of holding it up, and what does a buzz code tell them?
 - Who helps you prepare before a family event, and what would they put on a card?
+- If you lost your phone tomorrow, what would someone find, and what would you do?
 - What does "on this phone" mean, in plain words?
 - How does someone prepare before a dinner or a meeting?
 - What did scoping make you cut, and what did the build force you to change?

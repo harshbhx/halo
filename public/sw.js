@@ -1,4 +1,4 @@
-/* Face Whisper offline cache.
+/* Halo's offline cache.
    Caches the app's own files (code, fonts, face models, WebAssembly) so it keeps
    working without a connection after the first visit. It never caches or sees
    personal data: people live in IndexedDB, not in HTTP responses. */
@@ -16,9 +16,14 @@ self.addEventListener('install', (event) => {
       const { version, files } = await precacheList();
       const cache = await caches.open(PREFIX + version);
       await cache.addAll(['./', ...files]);
-      await self.skipWaiting();
+      // The first install takes over at once; an update waits until the app says "Reload".
+      if (!self.registration.active) await self.skipWaiting();
     })(),
   );
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data === 'skip-waiting') self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -54,6 +59,7 @@ self.addEventListener('fetch', (event) => {
           return (
             (await caches.match(req, { ignoreSearch: true, ignoreVary: true })) ||
             (await caches.match(page, { ignoreSearch: true, ignoreVary: true })) ||
+            (await caches.match(new URL('offline/index.html', self.registration.scope).href, { ignoreSearch: true, ignoreVary: true })) ||
             Response.error()
           );
         }

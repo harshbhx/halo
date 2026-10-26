@@ -57,6 +57,13 @@ function brandPlugin(): Plugin {
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
           { src: 'icons/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
+        id: './app/',
+        categories: ['accessibility', 'health', 'lifestyle'],
+        shortcuts: [
+          { name: 'Whisper mode', short_name: 'Whisper', url: './app/#/whisper', icons: [{ src: 'icons/icon-192.png', sizes: '192x192' }] },
+          { name: 'Today’s list', short_name: 'Today', url: './app/#/today', icons: [{ src: 'icons/icon-192.png', sizes: '192x192' }] },
+          { name: 'Your data', short_name: 'Data', url: './app/#/data', icons: [{ src: 'icons/icon-192.png', sizes: '192x192' }] },
+        ],
       },
       null,
       2,
@@ -91,7 +98,7 @@ export default defineConfig({
     chunkSizeWarningLimit: 2500,
     rollupOptions: {
       // The landing page at / and the app at /app/.
-      input: { main: resolve(root, 'index.html'), app: resolve(root, 'app/index.html'), consent: resolve(root, 'consent/index.html'), helper: resolve(root, 'helper/index.html') },
+      input: { main: resolve(root, 'index.html'), app: resolve(root, 'app/index.html'), consent: resolve(root, 'consent/index.html'), helper: resolve(root, 'helper/index.html'), privacy: resolve(root, 'privacy/index.html'), terms: resolve(root, 'terms/index.html'), safety: resolve(root, 'safety/index.html'), offline: resolve(root, 'offline/index.html') },
     },
   },
   server: { host: true },

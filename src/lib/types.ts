@@ -38,4 +38,6 @@ export interface Person {
   met?: string;
   /** Never whisper: Halo still shows who it is on screen, but says nothing and doesn't buzz. */
   quiet?: boolean;
+  /** Held at "Could be": after wrong matches, Halo only ever suggests this person, like a child. */
+  hold?: boolean;
 }

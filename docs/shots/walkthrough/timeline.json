@@ -12,19 +12,19 @@
     "event": "Tour 3 of 3: the promise and the earbud check"
   },
   {
-    "t": 9.9,
+    "t": 10,
     "event": "Empty people list"
   },
   {
-    "t": 11.8,
+    "t": 12,
     "event": "Add someone: name"
   },
   {
-    "t": 13,
+    "t": 13.2,
     "event": "Add someone: typing the note; the whisper line updates"
   },
   {
-    "t": 17.8,
+    "t": 17.7,
     "event": "Handoff: Sam reads the exact line and agrees"
   },
   {
@@ -32,15 +32,15 @@
     "event": "Photos: three shots with the oval guide and light check"
   },
   {
-    "t": 28.9,
+    "t": 28.8,
     "event": "Cue notes"
   },
   {
-    "t": 33,
+    "t": 32.9,
     "event": "Saved"
   },
   {
-    "t": 34.9,
+    "t": 34.8,
     "event": "Whisper mode opens: \"Recognised on this phone only\""
   },
   {
@@ -48,67 +48,71 @@
     "event": "Confident: halo, caption, whisper spoken: \"Sam, your teammate from the hackathon. Loves climbing.\""
   },
   {
-    "t": 40.2,
+    "t": 40.5,
     "event": "Who was that? The last few, in memory only"
   },
   {
-    "t": 44.8,
+    "t": 45.5,
     "event": "Settings: add the AI-generated sample people"
   },
   {
-    "t": 47.1,
+    "t": 47.9,
     "event": "Today: pick who you will see"
   },
   {
-    "t": 49.6,
+    "t": 50.4,
     "event": "Today’s list: lines and cues before you walk in"
   },
   {
-    "t": 51.9,
+    "t": 52.7,
     "event": "Event mode: Whisper mode looks only for these three"
   },
   {
-    "t": 58.6,
+    "t": 59.1,
     "event": "Demo camera: Maya, confident, \"On today’s list\""
   },
   {
-    "t": 63.1,
+    "t": 64.2,
     "event": "A face never added: \"No match\", nothing spoken, nothing stored"
   },
   {
-    "t": 71.8,
+    "t": 72.7,
     "event": "The next sample person"
   },
   {
-    "t": 73.4,
+    "t": 74.4,
     "event": "Pocket mode: screen dark and kept awake, whispers go to the earbud"
   },
   {
-    "t": 79.4,
+    "t": 80.6,
     "event": "Practice from cues"
   },
   {
-    "t": 86.1,
+    "t": 87.3,
     "event": "Privacy: what has left this phone (nothing) and the six honest limits"
   },
   {
-    "t": 92.1,
+    "t": 93.5,
     "event": "Network off (like airplane mode), page reloaded"
   },
   {
-    "t": 95.3,
+    "t": 96.5,
     "event": "Offline: still recognised on the phone"
   },
   {
-    "t": 100.3,
-    "event": "Delete everything"
+    "t": 100.9,
+    "event": "Your data: everything stored on this phone, with counts"
   },
   {
-    "t": 102.3,
-    "event": "A fresh start"
+    "t": 106.4,
+    "event": "Wipe now: two taps"
   },
   {
-    "t": 104.8,
+    "t": 107.6,
+    "event": "Wiped: no database, cache, service worker or settings left"
+  },
+  {
+    "t": 110.2,
     "event": "End"
   }
 ]

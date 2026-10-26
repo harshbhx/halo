@@ -6,4 +6,5 @@ try {
   if (s.theme === 'light' || s.theme === 'dark') r.setAttribute('data-mode', s.theme);
   if (s.bigText) r.setAttribute('data-big-text', '');
   if (s.highContrast) r.setAttribute('data-high-contrast', '');
+  if (s.language === 'hi' || s.language === 'gu') r.lang = s.language;
 } catch (e) {}

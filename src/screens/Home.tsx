@@ -1,4 +1,5 @@
 import { Pause, Play, ScanFace, Sparkles, UserPlus, Volume2 } from 'lucide-react';
+import { useT } from '../lib/i18n';
 import { useState } from 'react';
 import { Avatar, EmptyState, toast, Wordmark } from '../components/ui';
 import { loadSamplePeople, SAMPLE_AVAILABLE } from '../lib/demo';
@@ -17,6 +18,7 @@ function remind(person: Person) {
 }
 
 export function Home() {
+  const t = useT();
   const { loaded, people, error } = usePeople();
   const settings = useSettings();
   const [loadingSamples, setLoadingSamples] = useState(false);
@@ -46,19 +48,17 @@ export function Home() {
             onClick={() => updateSettings({ whispersPaused: !settings.whispersPaused })}
           >
             {settings.whispersPaused ? <Play size={18} aria-hidden="true" /> : <Pause size={18} aria-hidden="true" />}
-            {settings.whispersPaused ? 'Paused' : 'Pause'}
+            {settings.whispersPaused ? t('home.paused') : t('home.pause')}
           </button>
         )}
       </div>
 
       <div className="page-head">
         <h1 id="home-title" tabIndex={-1}>
-          Your people
+          {t('home.title')}
         </h1>
         {people.length > 0 && (
-          <p className="lead">
-            {people.length === 1 ? 'One person' : `${people.length} people`} your phone can recognise, each added with their agreement.
-          </p>
+          <p className="lead">{people.length === 1 ? t('home.lead.one') : t('home.lead.many', { n: people.length })}</p>
         )}
       </div>
 
@@ -77,24 +77,23 @@ export function Home() {
 
       {loaded && people.length === 0 && (
         <EmptyState
-          title="No one here yet"
+          title={t('home.empty.title')}
           actions={
             <>
               <button type="button" className="btn btn--primary btn--block" onClick={() => navigate('/enrol')}>
                 <UserPlus size={20} aria-hidden="true" />
-                Add someone
+                {t('home.add')}
               </button>
               {SAMPLE_AVAILABLE && (
                 <button type="button" className="btn btn--block" onClick={trySamples} disabled={loadingSamples} aria-busy={loadingSamples}>
                   <Sparkles size={20} aria-hidden="true" />
-                  {loadingSamples ? 'Preparing sample people…' : 'Try with sample people'}
+                  {loadingSamples ? t('home.samples.busy') : t('home.samples')}
                 </button>
               )}
             </>
           }
         >
-          Add someone you meet often who agreed to it: three photos and a short note, about twenty seconds. Sample people use
-          AI-generated faces of people who don’t exist.
+          {t('home.empty.body')}
         </EmptyState>
       )}
 
@@ -102,7 +101,7 @@ export function Home() {
         <>
           <button type="button" className="btn btn--primary btn--block" onClick={() => navigate('/enrol')}>
             <UserPlus size={20} aria-hidden="true" />
-            Add someone
+            {t('home.add')}
           </button>
 
           <section className="section" aria-label="Everyone you’ve added">

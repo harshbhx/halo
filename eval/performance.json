@@ -1,0 +1,25 @@
+{
+  "measuredAt": "2026-10-26T09:55:00.646Z",
+  "where": "headless Chromium, WebAssembly backend, demo camera, 390x844",
+  "normal": {
+    "seconds": 20.3,
+    "framesPerSecond": 6.6,
+    "busyShare": 0.56,
+    "msPerFrame": 85,
+    "backend": "wasm"
+  },
+  "batterySaver": {
+    "seconds": 20.1,
+    "framesPerSecond": 2,
+    "busyShare": 0.17,
+    "msPerFrame": 84,
+    "backend": "wasm"
+  },
+  "hidden": {
+    "seconds": 10,
+    "framesPerSecond": 0,
+    "busyShare": 0,
+    "msPerFrame": 0,
+    "backend": "wasm"
+  }
+}

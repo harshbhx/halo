@@ -2,6 +2,7 @@ import { BackButton } from '../components/ui';
 import { useSettings } from '../lib/settings';
 import { clearLedger, originsContacted, useLedger } from '../lib/ledger';
 import { BRAND } from '../brand';
+import { navigate } from '../lib/router';
 
 export function Privacy() {
   const { welcomeSeen, enhanced } = useSettings();
@@ -127,7 +128,16 @@ export function Privacy() {
             <b>Delete everything</b> in Settings removes every person, note, fingerprint, practice record and setting, and the encryption key.
           </li>
           <li>Clearing this site’s data in your browser, or using a private window, also removes everything.</li>
+          <li>
+            <button type="button" className="link-btn" onClick={() => navigate('/data')}>
+              Your data
+            </button>{' '}
+            shows everything stored here, and has a two-tap <b>Wipe now</b>.
+          </li>
         </ul>
+        <p>
+          The full documents, in plain words: <a href="../privacy/">Privacy</a>, <a href="../terms/">Terms</a> and <a href="../safety/">Safety</a>.
+        </p>
 
         <h2>How it works</h2>
         <p>

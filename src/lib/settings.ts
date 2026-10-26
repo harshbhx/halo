@@ -41,6 +41,24 @@ export interface Settings {
   quietHours: QuietHours;
   /** Pocket mode: the phone hangs at chest height with the screen dark; whispers in the earbud or buzz codes. */
   pocketMode: boolean;
+  /** Battery saver: Whisper mode reads about two frames a second instead of about six. */
+  batterySaver: boolean;
+  /** The app lock: none, a passcode (only a salted hash is kept) or the phone's own lock through WebAuthn. */
+  lock: LockSettings;
+  /** Interface language. */
+  language: 'en' | 'hi' | 'gu';
+}
+
+export interface LockSettings {
+  kind: 'none' | 'passcode' | 'device';
+  /** PBKDF2-SHA-256 of the passcode, base64url, with its salt and iteration count. */
+  hash?: string;
+  salt?: string;
+  iterations?: number;
+  /** The WebAuthn credential id for the phone's own lock, base64url. */
+  credentialId?: string;
+  /** Lock again after this many minutes away or idle; 0 means only when Halo is reopened. */
+  autoLockMinutes: number;
 }
 
 export interface QuietHours {
@@ -75,6 +93,9 @@ export const DEFAULT_SETTINGS: Settings = {
   cloudWriter: false,
   quietHours: { on: false, from: '22:00', to: '07:00' },
   pocketMode: false,
+  batterySaver: false,
+  lock: { kind: 'none', autoLockMinutes: 5 },
+  language: 'en',
 };
 
 const KEY = 'fw.settings';
@@ -135,4 +156,5 @@ export function applyDocumentSettings(s: Settings): void {
   else root.setAttribute('data-mode', s.theme);
   root.toggleAttribute('data-big-text', s.bigText);
   root.toggleAttribute('data-high-contrast', s.highContrast);
+  root.lang = s.language ?? 'en';
 }

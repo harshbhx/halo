@@ -8,6 +8,9 @@ export type Route =
   | { name: 'enrol' }
   | { name: 'whisper'; demo: boolean }
   | { name: 'try' }
+  | { name: 'data' }
+  | { name: 'help' }
+  | { name: 'wiped' }
   | { name: 'card'; data: string }
   | { name: 'person'; id: string }
   | { name: 'settings' }
@@ -29,6 +32,12 @@ export function parseHash(hash: string): Route {
       return { name: 'enrol' };
     case 'try':
       return { name: 'try' };
+    case 'data':
+      return { name: 'data' };
+    case 'help':
+      return { name: 'help' };
+    case 'wiped':
+      return { name: 'wiped' };
     case 'card':
       return { name: 'card', data: new URLSearchParams(query).get('d') ?? '' };
     case 'whisper':

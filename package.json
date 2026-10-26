@@ -22,7 +22,8 @@
     "check:external": "node scripts/check-no-external.mjs",
     "screens": "npm run build && playwright test --project=screens",
     "icons": "node scripts/make-icons.mjs",
-    "accuracy": "npm run build && playwright test --project=accuracy"
+    "accuracy": "npm run build && playwright test --project=accuracy",
+    "perf": "npm run build && playwright test --project=perf"
   },
   "dependencies": {
     "@fontsource/atkinson-hyperlegible-next": "^5.3.0",

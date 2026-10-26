@@ -34,6 +34,22 @@ That is why Halo speaks only when it is confident for at least a second and five
 2. **Your own folder of faces:** `EVAL_DIR=/path/to/faces npm run accuracy` reads any folder laid out as `<person>/<photo>.jpg` (two to six photos each) and writes `eval/accuracy-custom.json`. Use only photos you have permission to use. Public research sets such as LFW are skewed (about 77% male and 83% White, per [Datasheets for Datasets](https://arxiv.org/pdf/1803.09010)), so prefer a balanced set.
 3. **Thresholds per person** (a planned improvement): measure each person's own spread at enrolment and tighten the limit for people with look-alikes.
 
+## Speed and battery
+
+`npm run perf` opens Whisper mode on the demo camera and measures, from the app's own counters, how many frames it reads a second and how much of each second it spends reading them. Measured on 26 Oct 2026 in headless Chromium on the build machine (a 2-core ARM server, WebAssembly backend, no GPU), written to [`eval/performance.json`](../eval/performance.json):
+
+| Setting | Frames read a second | Time per frame | Share of each second spent reading |
+|---|---|---|---|
+| Normal | 6.6 | 85 ms | 56% |
+| Battery saver | 2.0 | 84 ms | 17% |
+| Page hidden (another app in front, or the screen off) | 0 | none | 0% |
+
+- **Normal** reads at most about six frames a second (a gap of 150 ms less the time the last read took), which is enough to follow someone walking up.
+- **Battery saver** (Settings) waits about half a second between reads: about a third of the work, a little slower to notice someone.
+- **Hidden:** when the page is hidden, Whisper mode reads nothing and checks again every half second; phones also stop the camera when the screen locks, and Halo restarts it on return.
+
+What these numbers don't say: a phone with WebGL is usually faster per frame than this server; heat, battery drain in milliamps and the camera's own cost weren't measured. The ratio between the settings is the useful part.
+
 ## Known limitation of the engine
 
 [@vladmandic/face-api](https://github.com/vladmandic/face-api) was archived in February 2025. It still works, and its models are bundled here, but it gets no fixes. A move to a maintained engine is planned after the hackathon.

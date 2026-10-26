@@ -4,6 +4,7 @@
 /* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4 · weakest: H, eight screens fight for the one accent; indigo is kept for the primary action and the lit tab, the resist white for the halo, madder for the mark */
 /* Hallmark · waive 28b · both videos take srcObject from getUserMedia or the demo canvas, no src file · the live camera has no frame to set as a poster before it starts */
 /* Hallmark · dismissed F5 · the round icon buttons are Ribbon's machined parts lit from above, not a tinted coin; the icon is at text size in currentColor */
+/* Hallmark · dismissed F4 · .btn--wipe is a red danger fill for the panic Wipe now, alone in its own red panel, never beside the indigo primary */
 /* Hallmark · dismissed F7 · the pill radius sits on controls (segments, faders, the Whisper lamp) and on circular face thumbnails, where a face is round by convention */
 /* Hallmark · dismissed 49 · the flagged labels are two-line list rows and nowrap buttons; the button class already sets white-space: nowrap */
 /* Hallmark · dismissed 70 · nothing here posts anywhere: the flagged lines report local actions that really happened (a file chosen, a list saved on the phone) */
@@ -315,6 +316,31 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 .time-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-sm); }
 .buzz-list { margin: 0; padding: 0 var(--space-lg); list-style: none; }
 .buzz-list li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); padding-block: var(--space-xs); border-top: var(--rule-hair) solid var(--color-rule); }
+.lock { min-height: 100dvh; display: grid; place-items: center; padding: var(--space-xl) var(--space-lg); background: var(--color-paper); }
+.lock__body { width: min(100%, 22rem); display: grid; gap: var(--space-lg); }
+.lock__body h1 { font-size: var(--text-2xl); }
+.lock__input { font-size: var(--text-xl); letter-spacing: 0.2em; text-align: center; }
+.lock__forgot { display: grid; gap: var(--space-xs); padding-top: var(--space-lg); border-top: var(--rule-hair) solid var(--color-rule); }
+.btn--danger-text { color: var(--color-error); justify-self: start; }
+.data-rows { margin: 0; padding: 0; }
+.data-rows > div { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: var(--space-sm); padding: var(--space-sm) var(--space-lg); }
+.data-rows > div + div { border-top: var(--rule-hair) solid var(--color-rule); }
+.data-rows dt { font-weight: 700; }
+.data-rows dd { margin: 0; color: var(--color-ink-2); }
+.wipe { display: grid; gap: var(--space-sm); padding: var(--space-lg); border: var(--rule-hair) solid var(--color-error); border-radius: var(--radius-card); background: var(--color-error-soft); }
+.btn--wipe { border-color: var(--color-error); background: var(--color-error); box-shadow: var(--edge-light), var(--shadow-part); color: var(--color-paper); }
+.btn--wipe:hover { border-color: var(--color-ink); }
+.help h2 { margin-top: var(--space-xl); }
+.faq-rows { margin: 0; display: grid; gap: var(--space-md); }
+.faq-rows dt { font-weight: 700; }
+.faq-rows dd { margin: var(--space-2xs) 0 0; color: var(--color-ink-2); }
+.link-btn { padding: 0; border: 0; background: none; color: var(--color-accent-strong); font: inherit; text-decoration: underline; text-underline-offset: 0.16em; cursor: pointer; }
+.link-btn:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; border-radius: var(--radius-part); }
+.update-bar { position: sticky; top: 0; z-index: var(--z-toast); display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); padding: var(--space-xs) var(--space-md); background: var(--color-accent); color: var(--color-accent-ink); font-weight: 700; }
+.caption__wrong { justify-self: center; min-height: 44px; padding: 0 var(--space-md); border: var(--rule-hair) solid var(--night-rule); border-radius: var(--radius-pill); background: var(--night-scrim); color: var(--night-ink); font: 700 var(--text-sm)/1 var(--font-body); cursor: pointer; }
+.caption__wrong:hover { border-color: var(--night-muted); }
+.caption__wrong:focus-visible { outline: 3px solid var(--halo); outline-offset: 2px; }
+.doc-links a { color: var(--color-accent-strong); }
 .event-panel { margin-block: var(--space-lg); }
 .brief__met { color: var(--color-muted); font-size: var(--text-sm); }
 .caption__met { color: var(--night-muted); font-size: var(--text-sm); }

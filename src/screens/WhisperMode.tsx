@@ -15,6 +15,8 @@ import type { Person } from '../lib/types';
 import { haptic, stopSpeaking, unlockAudio } from '../lib/voice';
 import { captionLine, sayPerson } from '../lib/say';
 import { recentWhispers, remember, type RecentWhisper } from '../lib/recent';
+import { addReport } from '../lib/reports';
+import { useT } from '../lib/i18n';
 import { cueItems } from '../lib/whisperStyle';
 import { BUZZ, inQuietHours, searchList } from '../lib/rules';
 
@@ -104,6 +106,7 @@ const COACH_STEPS = [
 ];
 
 export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: boolean }) {
+  const t = useT();
   const settings = useSettings();
   const { loaded, people } = usePeople();
   const { list: today } = useToday();
@@ -111,6 +114,7 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const facesRef = useRef<DrawnFace[]>([]);
   const peopleRef = useRef<Person[]>(people);
+  const lastMatchRef = useRef(new Map<string, { distance: number; runnerUp: number }>());
   const todayRef = useRef(today);
   todayRef.current = today;
   const pocketRef = useRef(settings.pocketMode);
@@ -168,7 +172,7 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
   mutedRef.current = muted || whispersOff;
 
   useEffect(() => {
-    trackerRef.current.configure(STATE_LIMITS[settings.strictness], settings.repeatSeconds * 1000, (id) => !!peopleRef.current.find((p) => p.id === id)?.child);
+    trackerRef.current.configure(STATE_LIMITS[settings.strictness], settings.repeatSeconds * 1000, (id) => { const p = peopleRef.current.find((x) => x.id === id); return !!(p?.child || p?.hold); });
   }, [settings.repeatSeconds, settings.strictness]);
 
   // Phones stop the camera when the screen locks; restart it on return.
@@ -324,8 +328,14 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
       let frames = 0;
       let light = 128;
 
+      let busyMs = 0;
       const tick = async () => {
         if (cancelled) return;
+        // Hidden tab or locked screen: read nothing, check again in a moment.
+        if (document.hidden) {
+          timer = setTimeout(tick, 500);
+          return;
+        }
         const v = videoRef.current;
         let delay = 120;
         if (v && !pausedRef.current && v.readyState >= 2 && v.videoWidth > 0) {
@@ -426,11 +436,18 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
               ),
             );
             for (const f of confident) {
+              if (f.personId) lastMatchRef.current.set(f.personId, { distance: f.distance, runnerUp: observations[faces.indexOf(f)]?.runnerUp ?? 1 });
               if (f.personId && trackerRef.current.shouldSpeak(f.personId, now) && !queueRef.current.includes(f.personId)) queueRef.current.push(f.personId);
             }
             void pumpSpeech();
             if (import.meta.env.DEV || (window as unknown as { __fwDebug?: boolean }).__fwDebug) {
-              (window as unknown as { __fwPerf?: unknown }).__fwPerf = { backend: engineBackend(), detectMs: Math.round(performance.now() - started), light: Math.round(light) };
+              (window as unknown as { __fwPerf?: unknown }).__fwPerf = {
+                backend: engineBackend(),
+                detectMs: Math.round(performance.now() - started),
+                light: Math.round(light),
+                frames,
+                busyMs: Math.round(busyMs + performance.now() - started),
+              };
               (window as unknown as { __fwLastFrame?: unknown }).__fwLastFrame = faces.map((f, i) => ({
                 state: f.state,
                 personId: f.personId,
@@ -441,7 +458,10 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
           } catch {
             // A bad frame is skipped; the next one is read.
           }
-          delay = Math.max(60, (performance.now() - started) * 0.4);
+          const spent = performance.now() - started;
+          busyMs += spent;
+          // About six reads a second at most; about two with Battery saver on.
+          delay = Math.max(30, (getSettings().batterySaver ? 500 : 150) - spent);
         }
         timer = setTimeout(tick, delay);
       };
@@ -636,6 +656,15 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
   const caption = useMemo(() => people.find((p) => p.id === captionId) ?? null, [people, captionId]);
   const onToday = caption && today?.ids.includes(caption.id);
 
+  async function reportWrong(person: Person) {
+    const m = lastMatchRef.current.get(person.id) ?? { distance: 0, runnerUp: 1 };
+    setCaptionId(null);
+    captionSeenRef.current = 0;
+    stopSpeaking();
+    await addReport({ at: Date.now(), personId: person.id, name: person.name, distance: m.distance, runnerUp: m.runnerUp, strictness: getSettings().strictness });
+    toast(`Noted on this phone: it wasn’t ${person.name}. Settings has a suggestion.`);
+  }
+
   function repeatCaption() {
     if (!caption) return;
     unlockAudio();
@@ -668,14 +697,16 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
   }
 
   const statusText = paused
-    ? 'Paused'
+    ? t('whisper.paused')
     : faceCount.known > 0
-      ? `${faceCount.known === 1 ? 'Someone' : `${faceCount.known} people`} you know`
+      ? faceCount.known === 1
+        ? t('whisper.known.one')
+        : t('whisper.known.many', { n: faceCount.known })
       : faceCount.maybe > 0
-        ? 'Could be someone you know'
+        ? t('whisper.maybe')
         : faceCount.unknown > 0
-          ? 'No match'
-          : 'Looking for faces';
+          ? t('whisper.none')
+          : t('whisper.looking');
 
   return (
     <main className="night" aria-label="Whisper mode">
@@ -683,7 +714,7 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
       <canvas ref={canvasRef} aria-hidden="true" />
 
       <div className="night__top">
-        <button type="button" className="night-btn" onClick={() => (stopSpeaking(), navigate('/'))} aria-label="Close Whisper mode">
+        <button type="button" className="night-btn" onClick={() => (stopSpeaking(), navigate('/'))} aria-label={t('whisper.close')}>
           <X size={24} aria-hidden="true" />
         </button>
         <span className="spacer" />
@@ -736,7 +767,7 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
         <div className="night__notes">
           {!guided && !settings.speakAllowed && settings.outputMode === 'voice' && (
             <button type="button" className="silent-chip" onClick={() => navigate('/settings')}>
-              Silent until you check your earbud
+              {t('whisper.silent')}
             </button>
           )}
           {quietNow && <p className="night-note">Quiet hours: a buzz and the caption, nothing aloud</p>}
@@ -837,11 +868,11 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
       {phase === 'starting' && (hasPeople || demo) && (
         <div className="night__panel">
           <div>
-            <h2>{guided && preparingSamples ? 'Preparing three sample people…' : 'Getting ready on your phone…'}</h2>
+            <h2>{guided && preparingSamples ? 'Preparing three sample people…' : t('whisper.ready')}</h2>
             <div className="loader" aria-hidden="true">
               <span style={{ transform: `scaleX(${Math.max(0.06, progress)})` }} />
             </div>
-            <p>The face reader runs here, on this device. Nothing is uploaded.</p>
+            <p>{t('whisper.readyBody')}</p>
             <p>One earbud in, phone held at chest height.</p>
           </div>
         </div>
@@ -854,6 +885,9 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
             <p>{CAMERA_MESSAGES[problem].body}</p>
             <button type="button" className="btn btn--block" onClick={() => setAttempt((a) => a + 1)}>
               <RefreshCw size={20} aria-hidden="true" /> Try the camera again
+            </button>
+            <button type="button" className="btn btn--quiet" onClick={() => navigate('/help')}>
+              How to allow the camera
             </button>
             {SAMPLE_AVAILABLE && people.some((p) => p.sample) && (
               <button type="button" className="btn btn--block" onClick={() => navigate('/whisper?demo=1')}>
@@ -894,13 +928,13 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
             <span className="caption__who">
               {caption.thumb && <img className="caption__avatar" src={caption.thumb} alt="" width={44} height={44} />}
               <span className="caption__name">{caption.name}</span>
-              {onToday && <span className="tag tag--sample">On today’s list</span>}
-              {caption.quiet && <span className="tag tag--sample">Never whispered</span>}
+              {onToday && <span className="tag tag--sample">{t('whisper.onToday')}</span>}
+              {caption.quiet && <span className="tag tag--sample">{t('whisper.never')}</span>}
             </span>
             <span className="caption__text">{captionLine(caption)}</span>
             {caption.met && (
               <span className="caption__met">
-                Where you met: <b>{caption.met}</b>
+                {t('whisper.met')} <b>{caption.met}</b>
               </span>
             )}
             {cueItems(caption.cues).length > 0 && (
@@ -912,13 +946,18 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
                 ))}
               </ul>
             )}
-            <span className="caption__hint">Tap to hear it again</span>
+            <span className="caption__hint">{t('whisper.again')}</span>
+          </button>
+        )}
+        {caption && phase === 'running' && captionKind === 'confident' && (
+          <button type="button" className="caption__wrong" onClick={() => void reportWrong(caption)}>
+            {t('whisper.wrong', { name: caption.name })}
           </button>
         )}
         {caption && phase === 'running' && captionKind === 'maybe' && (
           <button type="button" className="caption caption--maybe" key={`maybe-${caption.id}`} onClick={repeatCaption}>
             <span className="caption__who">
-              <span className="caption__name">Could be {caption.name}?</span>
+              <span className="caption__name">{t('whisper.couldBe', { name: caption.name })}</span>
             </span>
             <span className="caption__check">
               {cueItems(caption.cues)[0] ? (
@@ -977,7 +1016,7 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
                 <Smartphone size={24} aria-hidden="true" />
               </button>
             </div>
-            <p className="limits">Silence doesn’t mean a stranger. A hint, not proof: never use it to decide who to trust.</p>
+            <p className="limits">{t('whisper.limits')}</p>
           </>
         )}
       </div>

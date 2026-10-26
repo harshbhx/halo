@@ -175,6 +175,35 @@ async function flow(page: Page, dir: string, captureLanding: boolean) {
   await page.getByRole('button', { name: /Privacy and honest limits/ }).click();
   await settle(page);
   await shot('25-privacy-ledger');
+  await page.getByRole('button', { name: 'Back', exact: true }).click();
+
+  // Your data, Help, a language, and the lock.
+  await page.getByRole('button', { name: /Everything on this phone/ }).click();
+  await settle(page);
+  await shot('32-your-data');
+  await page.getByRole('button', { name: 'Back to settings' }).click();
+  await page.getByRole('button', { name: /Help and questions/ }).click();
+  await settle(page);
+  await shot('33-help');
+  await page.getByRole('button', { name: 'Back to settings' }).click();
+  await page.getByRole('radio', { name: 'हिन्दी' }).click();
+  await page.getByRole('button', { name: 'लोग', exact: true }).click();
+  await settle(page, 600);
+  await shot('34-people-hindi');
+  await page.getByRole('button', { name: 'सेटिंग्स', exact: true }).click();
+  await page.getByRole('radio', { name: 'English' }).click();
+  await page.getByRole('radio', { name: 'A passcode' }).click();
+  const sheet = page.getByRole('dialog', { name: 'Set a passcode' });
+  await sheet.getByLabel('Passcode').fill('2468');
+  await sheet.getByLabel('Same again').fill('2468');
+  await sheet.getByRole('button', { name: 'Set passcode' }).click();
+  await expect(page.getByRole('button', { name: 'Lock now' })).toBeVisible();
+  await page.getByRole('button', { name: 'Lock now' }).click();
+  await expect(page.getByRole('heading', { name: 'Halo is locked' })).toBeVisible();
+  await page.waitForTimeout(4500); // let the "Passcode set" note fade first
+  await shot('35-lock-screen');
+  await page.getByLabel('Passcode').fill('2468');
+  await page.getByRole('button', { name: 'Open Halo' }).click();
 }
 
 for (const viewport of ['phone', 'desktop'] as const) {
@@ -212,6 +241,11 @@ for (const viewport of ['phone', 'desktop'] as const) {
         await expect(page.getByRole('heading', { name: 'A card for Raj' })).toBeVisible();
         await settle(page, 400);
         await page.screenshot({ path: `${dir}/31-card-received.png` });
+        for (const [n, doc] of [['36', 'privacy'], ['37', 'terms'], ['38', 'safety']]) {
+          await page.goto(`/${doc}/`);
+          await settle(page, 400);
+          await page.screenshot({ path: `${dir}/${n}-${doc}-page.png` });
+        }
       });
     });
   }

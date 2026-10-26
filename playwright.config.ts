@@ -69,6 +69,11 @@ export default defineConfig({
       use: { browserName: 'chromium', viewport: { width: 800, height: 600 }, launchOptions: { args: ['--enable-unsafe-swiftshader'] } },
     },
     {
+      name: 'perf',
+      testMatch: /perf\.record\.ts/,
+      use: { ...phone, browserName: 'chromium', launchOptions: { args: chromiumArgs('friend') } },
+    },
+    {
       name: 'record',
       testMatch: /(demo|landing|try)\.record\.ts/,
       use: {

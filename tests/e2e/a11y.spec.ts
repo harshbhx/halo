@@ -35,6 +35,10 @@ test('pages outside the app', async ({ page, baseURL }) => {
   await scan(page, 'helper page');
   await page.goto(askLink(baseURL!, 'Sam', 'Sam, your teammate from the hackathon. Loves climbing.'));
   await scan(page, 'consent page');
+  for (const doc of ['privacy', 'terms', 'safety']) {
+    await page.goto(`/${doc}/`);
+    await scan(page, `${doc} page`);
+  }
 });
 
 test('the app, light and dark', async ({ page }) => {
@@ -71,6 +75,12 @@ test('the app, light and dark', async ({ page }) => {
     await scan(page, `add someone (${theme})`);
     await page.getByRole('button', { name: 'Cancel adding' }).click();
   }
+  await page.goto(`${APP}#/data`);
+  await expect(page.getByRole('heading', { name: 'Your data' })).toBeVisible();
+  await scan(page, 'your data (dark)');
+  await page.goto(`${APP}#/help`);
+  await scan(page, 'help (dark)');
+  await page.goto(APP);
   await page.getByRole('button', { name: 'Open the demo camera' }).click();
   await expect(page.locator('.caption__name')).toHaveText(/Maya|Arjun|Walter/, { timeout: 90_000 });
   await scan(page, 'Whisper mode');
@@ -109,4 +119,14 @@ test('reduced motion: transitions and the halo bloom are turned off', async ({ p
   expect(animation).toBe('none');
   const smooth = await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches);
   expect(smooth).toBe(true);
+});
+
+test('the lock screen', async ({ page }) => {
+  await page.addInitScript(() => {
+    if (!localStorage.getItem('fw.settings'))
+      localStorage.setItem('fw.settings', JSON.stringify({ welcomeSeen: true, lock: { kind: 'passcode', hash: 'x', salt: 'AAAAAAAAAAAAAAAAAAAAAA', iterations: 1000, autoLockMinutes: 5 } }));
+  });
+  await page.goto(APP);
+  await expect(page.getByRole('heading', { name: 'Halo is locked' })).toBeVisible();
+  await scan(page, 'lock screen');
 });

@@ -218,19 +218,23 @@ test('app walkthrough', async ({ page, context }) => {
   await tap(page.getByRole('button', { name: 'Close Whisper mode' }));
   await context.setOffline(false);
 
-  // 9. Delete everything.
+  // 9. Your data, then Wipe now.
   await tap(page.getByRole('button', { name: 'Settings', exact: true }));
   await pause(700);
-  await page.getByRole('button', { name: 'Delete everything' }).scrollIntoViewIfNeeded();
-  await pause(900);
-  mark('Delete everything');
-  await tap(page.getByRole('button', { name: 'Delete everything' }));
-  await pause(1500);
-  await shot('13-delete');
-  await tap(page.getByRole('button', { name: 'Yes, delete everything' }));
-  await expect(page.getByRole('heading', { name: 'A quiet voice for faces you know.' })).toBeVisible();
-  mark('A fresh start');
+  await tap(page.getByRole('button', { name: /Everything on this phone/ }));
+  mark('Your data: everything stored on this phone, with counts');
   await pause(2500);
+  await shot('13-your-data');
+  await scroll(6, 260);
+  await pause(800);
+  mark('Wipe now: two taps');
+  await tap(page.getByRole('button', { name: 'Wipe now' }));
+  await pause(900);
+  await tap(page.getByRole('button', { name: 'Tap again to wipe everything now' }));
+  await expect(page.getByRole('heading', { name: /wiped from this browser/ })).toBeVisible();
+  mark('Wiped: no database, cache, service worker or settings left');
+  await pause(2500);
+  await shot('14-wiped');
   mark('End');
   writeFileSync(`${STILLS}/timeline.json`, JSON.stringify(timeline, null, 2));
 

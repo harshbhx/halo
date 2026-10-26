@@ -1,8 +1,13 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { TabBar, Toaster } from './components/ui';
 import { useRoute } from './lib/router';
+import { startAutoLock, useLocked } from './lib/lock';
 import { applyDocumentSettings, useSettings } from './lib/settings';
+import { BRAND } from './brand';
 import { Backup } from './screens/Backup';
+import { DataControls, Wiped } from './screens/DataControls';
+import { Help } from './screens/Help';
+import { LockScreen } from './screens/LockScreen';
 import { CardReceived } from './screens/CardReceived';
 import { ConsentReceived } from './screens/ConsentReceived';
 import { Enrol } from './screens/Enrol';
@@ -15,11 +20,23 @@ import { Today } from './screens/Today';
 import { Welcome } from './screens/Welcome';
 import { WhisperMode } from './screens/WhisperMode';
 
-const WITH_TABS = ['home', 'person', 'today', 'practice', 'settings', 'privacy', 'backup'];
+const WITH_TABS = ['home', 'person', 'today', 'practice', 'settings', 'privacy', 'backup', 'data', 'help'];
 
 export function App() {
   const route = useRoute();
   const settings = useSettings();
+  const locked = useLocked();
+  const [update, setUpdate] = useState(false);
+
+  // Auto-lock after the chosen minutes, except while Whisper mode is in use.
+  useEffect(() => startAutoLock(() => location.hash.startsWith('#/whisper') || location.hash.startsWith('#/try')), []);
+
+  // A new version waiting: offer it rather than switching under someone mid-conversation.
+  useEffect(() => {
+    const onUpdate = () => setUpdate(true);
+    window.addEventListener('halo-update', onUpdate);
+    return () => window.removeEventListener('halo-update', onUpdate);
+  }, []);
 
   useEffect(() => applyDocumentSettings(settings), [settings]);
 
@@ -35,7 +52,16 @@ export function App() {
 
   // First run: the tour and the promise come before anything else.
   // The 60-second try works before the tour, so anyone can see Halo without a camera.
-  const firstRun = !settings.welcomeSeen && route.name !== 'privacy' && route.name !== 'try';
+  const firstRun = !settings.welcomeSeen && !['privacy', 'try', 'wiped', 'help'].includes(route.name);
+
+  if (locked && route.name !== 'wiped') {
+    return (
+      <div className="shell">
+        <LockScreen />
+        <Toaster />
+      </div>
+    );
+  }
 
   let screen;
   if (firstRun || route.name === 'welcome') {
@@ -75,6 +101,15 @@ export function App() {
       case 'privacy':
         screen = <Privacy />;
         break;
+      case 'data':
+        screen = <DataControls />;
+        break;
+      case 'help':
+        screen = <Help />;
+        break;
+      case 'wiped':
+        screen = <Wiped />;
+        break;
       default:
         screen = <Home />;
     }
@@ -83,6 +118,14 @@ export function App() {
   const showTabs = !firstRun && settings.welcomeSeen && WITH_TABS.includes(route.name);
   return (
     <div className="shell">
+      {update && (
+        <div className="update-bar" role="status">
+          <span>A new version of {BRAND.name} is ready.</span>
+          <button type="button" className="btn btn--small" onClick={() => window.dispatchEvent(new Event('halo-apply-update'))}>
+            Reload
+          </button>
+        </div>
+      )}
       {screen}
       {showTabs && <TabBar route={route} />}
       <Toaster />
