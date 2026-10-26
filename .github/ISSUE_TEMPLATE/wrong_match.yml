@@ -1,0 +1,35 @@
+name: Wrong match report
+description: Halo named the wrong person, or missed someone
+labels: [wrong-match]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Do not attach photos, screenshots or videos of people.** Describe the situation in words. Halo is a hint, not proof, and wrong matches are expected, especially for relatives, look-alikes and children.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What went wrong
+      options:
+        - Named the wrong person (confident)
+        - Said "Could be" for the wrong person
+        - Did not recognise someone I added
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: conditions
+    attributes:
+      label: Conditions
+      description: Light, distance, angle, glasses, mask, haircut, number of photos, battery saver or event mode
+  - type: input
+    id: device
+    attributes:
+      label: Device and browser
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Confirm
+      options:
+        - label: I have not attached photos or other images of people
+          required: true

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/harshbhx/halo/security/advisories/new
+    about: Report privately. Do not open a public issue.
+  - name: Try Halo
+    url: https://halo.dualmindlab.tech
+    about: Live demo with AI-generated sample faces.
