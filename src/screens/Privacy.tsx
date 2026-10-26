@@ -1,9 +1,12 @@
 import { BackButton } from '../components/ui';
 import { useSettings } from '../lib/settings';
+import { clearLedger, originsContacted, useLedger } from '../lib/ledger';
 import { BRAND } from '../brand';
 
 export function Privacy() {
-  const { welcomeSeen } = useSettings();
+  const { welcomeSeen, enhanced } = useSettings();
+  const ledger = useLedger();
+  const origins = originsContacted();
   return (
     <main className="screen" aria-labelledby="privacy-title">
       <div className="topbar">
@@ -17,6 +20,38 @@ export function Privacy() {
       </div>
 
       <div className="prose">
+        <h2>What has left this phone</h2>
+        <div className="panel ledger">
+          <p className="ledger__big">
+            <b>0</b> faces, photos or face fingerprints sent. Ever.
+          </p>
+          <p>
+            {ledger.entries.length === 0
+              ? enhanced
+                ? 'No requests yet. Enhanced mode sends text only when you save someone or ask it to.'
+                : 'No requests with your data. Enhanced mode is off, so nothing is sent.'
+              : `${ledger.entries.length} ${ledger.entries.length === 1 ? 'request' : 'requests'} with text, all from Enhanced mode:`}
+          </p>
+          {ledger.entries.length > 0 && (
+            <ul className="ledger__list">
+              {ledger.entries.slice(0, 20).map((e) => (
+                <li key={e.id}>
+                  <span>{e.sent}</span>
+                  <span className="label">
+                    {e.route}, {new Date(e.at).toLocaleString()}, {e.ok ? 'answered' : 'failed'}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className="label">This visit loaded files only from: {origins.join(', ')}. The browser blocks every other address (Content-Security-Policy connect-src 'self').</p>
+          {ledger.entries.length > 0 && (
+            <button type="button" className="btn btn--quiet" onClick={() => void clearLedger()}>
+              Clear this list
+            </button>
+          )}
+        </div>
+
         <h2>What stays on this phone</h2>
         <ul>
           <li>
@@ -34,7 +69,8 @@ export function Privacy() {
 
         <h2>What never happens</h2>
         <ul>
-          <li>No photo, face, fingerprint or note is uploaded. There’s no server, account or cloud.</li>
+          <li>No photo, face or face fingerprint is ever uploaded. There’s no account and no cloud storage.</li>
+          <li>Enhanced mode is off unless you turn it on. Then only text goes to {BRAND.name}’s own server, as listed above.</li>
           <li>Faces that match no one you added are dropped straight after the comparison. Strangers are never stored or named.</li>
           <li>No ads, no analytics, no third-party scripts or fonts. After the first visit it works offline.</li>
         </ul>

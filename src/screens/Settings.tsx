@@ -9,6 +9,7 @@ import { navigate } from '../lib/router';
 import { resetSettings, updateSettings, useSettings, type ChimeSound, type OutputMode, type Theme } from '../lib/settings';
 import { activeVoice, deliver, isOnDeviceVoice, loadVoices, pickDefaultVoice, playChime, speechSupported, unlockAudio } from '../lib/voice';
 import { spokenLine, STYLE_LABELS, type WhisperStyle } from '../lib/whisperStyle';
+import { WHISPER_LANGUAGES } from '../lib/enhanced';
 import { BRAND } from '../brand';
 
 const SAMPLE = { name: 'Raj', whisper: 'Raj, your neighbour. Knee surgery last month.', cues: { clothes: 'Green parka', glasses: 'Round glasses' } };
@@ -45,6 +46,7 @@ export function Settings() {
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [modelReady, setModelReady] = useState<boolean | null>(null);
   const [confirmWipe, setConfirmWipe] = useState(false);
+  const [confirmEnhanced, setConfirmEnhanced] = useState(false);
   const [busySamples, setBusySamples] = useState(false);
   const [canInstall, setCanInstall] = useState(!!deferredInstall);
   const hasSamples = people.some((p) => p.sample);
@@ -310,6 +312,54 @@ export function Settings() {
         </div>
       </section>
 
+      <section className="section" aria-labelledby="enhanced-title">
+        <h2 id="enhanced-title">Enhanced mode</h2>
+        <div className="panel">
+          <div className="panel__row">
+            <span className="panel__text">
+              <span className="panel__title">Use Enhanced mode</span>
+              <span className="panel__hint">
+                Optional and off by default. Sends text only, never faces, photos or face fingerprints. Halo works fully without it.
+              </span>
+            </span>
+            <Switch
+              checked={settings.enhanced}
+              onChange={(on) => (on ? setConfirmEnhanced(true) : updateSettings({ enhanced: false }))}
+              label="Use Enhanced mode"
+            />
+          </div>
+          {settings.enhanced && (
+            <>
+              <div className="panel__row">
+                <span className="panel__text">
+                  <span className="panel__title">Natural voice</span>
+                  <span className="panel__hint">Made once per person, then kept on the phone and played offline.</span>
+                </span>
+                <Switch checked={settings.naturalVoice} onChange={(naturalVoice) => updateSettings({ naturalVoice })} label="Natural voice" />
+              </div>
+              <label className="panel__row panel__row--stack">
+                <span className="panel__title">Whisper language</span>
+                <select className="select" value={settings.whisperLang} onChange={(e) => updateSettings({ whisperLang: e.target.value })}>
+                  {WHISPER_LANGUAGES.map((l) => (
+                    <option key={l.code} value={l.code}>
+                      {l.name}
+                    </option>
+                  ))}
+                </select>
+                <span className="panel__hint">Each whisper is translated once when you save someone, and stays editable. If the phone has no voice for the language, you see it on screen.</span>
+              </label>
+              <div className="panel__row">
+                <span className="panel__text">
+                  <span className="panel__title">Write whispers in the cloud</span>
+                  <span className="panel__hint">For phones without an on-device model: sends the name and note you type.</span>
+                </span>
+                <Switch checked={settings.cloudWriter} onChange={(cloudWriter) => updateSettings({ cloudWriter })} label="Write whispers in the cloud" />
+              </div>
+            </>
+          )}
+        </div>
+      </section>
+
       {SAMPLE_AVAILABLE && (
         <section className="section" aria-labelledby="demo-title">
           <h2 id="demo-title">Sample people</h2>
@@ -385,6 +435,24 @@ export function Settings() {
       <p className="label" style={{ marginTop: 'var(--space-xl)' }}>
         No account, no cloud. Made for people with face blindness.
       </p>
+
+      <ConfirmSheet
+        open={confirmEnhanced}
+        title="Turn on Enhanced mode?"
+        confirmLabel="Turn on, text only"
+        onConfirm={() => {
+          updateSettings({ enhanced: true });
+          setConfirmEnhanced(false);
+        }}
+        onCancel={() => setConfirmEnhanced(false)}
+      >
+        <span className="stack">
+          <span>{BRAND.name}’s own server (on Cloudflare, same address as this app) will receive only:</span>
+          <span>• the exact line it will whisper, to make a natural voice or a translation, once per person;</span>
+          <span>• a name and note you type, only if you turn on the cloud writer.</span>
+          <span>Never sent: faces, photos or face fingerprints. Nothing is stored there. Every request is listed in Privacy, under “What has left this phone”.</span>
+        </span>
+      </ConfirmSheet>
 
       <ConfirmSheet
         open={confirmWipe}
