@@ -29,7 +29,7 @@ Build mode: fast (Harsh's brief asked the agent to build and verify autonomously
   Learner check: Go through Welcome, edit a person's whisper, change the voice, then Delete everything and confirm the app starts fresh.
   Commit: `Add welcome, people, settings and delete everything`
 
-- [ ] **3. Try it alone with synthetic sample people**
+- [x] **3. Try it alone with synthetic sample people**
   Becomes usable: "Try with sample people" adds three AI-generated people who do not exist; the demo camera shows them plus one face that was not added, which stays "Not someone you've added".
   Why now: Lets a judge see recognition without a second person, and proves the unknown-stays-unknown rule.
   PRD ref: `prd.md > Features and Behavior > Demo with sample people`
@@ -74,3 +74,6 @@ Activity mode: not started
 
 - Slice 1 also built the design tokens, bottom bar and people list — enrolment needed somewhere to land, and the look and feel was cheaper to set once than to retrofit.
 - Fake-camera clips are portrait 480x640 with the face at about arm's length — Chromium delivers the clip at its native size, and a landscape clip cropped to a phone screen made the face fill the whole view.
+- Added a WebAssembly fallback for the face engine — headless Chromium (and some phones) refuse a GPU context for TensorFlow.js, and plain-JavaScript detection took 2.3 s a frame, too slow for a steady match; WebAssembly brought it to about 0.1 s.
+- The caption now follows whoever was just recognised, even inside the repeat interval — the build showed the caption stuck on the previous person while the next one was in view.
+- Measured on the synthetic faces (answers the spec's open uncertainty): same person 0.08–0.28, the stranger 0.79–0.81 from everyone, so the 0.45 Careful threshold leaves a wide margin.
