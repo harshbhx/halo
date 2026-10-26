@@ -27,6 +27,7 @@ export function App() {
       heading?.focus({ preventScroll: true });
     });
     window.scrollTo({ top: 0 });
+    document.querySelector('.app')?.scrollTo({ top: 0 });
     return () => cancelAnimationFrame(id);
   }, [route.name, route.name === 'person' ? route.id : '']);
 
@@ -60,10 +61,13 @@ export function App() {
 
   const showBar = !firstRun && settings.welcomeSeen && ['home', 'person', 'settings', 'privacy'].includes(route.name);
   return (
-    <div className="app">
-      {screen}
-      {showBar && <BottomBar route={route} />}
-      <Toaster />
-    </div>
+    <>
+      <div className="app">
+        {screen}
+        {showBar && <BottomBar route={route} />}
+        <Toaster />
+      </div>
+      <p className="desktop-note">Made for phones. Everything runs in this browser; nothing is uploaded.</p>
+    </>
   );
 }

@@ -1708,3 +1708,71 @@ h1[tabindex='-1']:focus {
   font-size: 16px;
   color: var(--muted);
 }
+
+/* Step changes inside the enrol flow glide in too. */
+.step-anim {
+  display: grid;
+  gap: 18px;
+  animation: enter 240ms var(--ease) both;
+}
+
+/* ---------- Wide screens: show the app as a phone, centred ---------- */
+
+.desktop-note {
+  display: none;
+}
+
+@media (min-width: 900px) and (min-height: 700px) {
+  body {
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background:
+      radial-gradient(1200px 600px at 20% 10%, color-mix(in srgb, var(--accent-wash) 70%, transparent), transparent 60%),
+      radial-gradient(900px 500px at 85% 90%, color-mix(in srgb, var(--accent-wash) 45%, transparent), transparent 60%),
+      var(--bg-deep);
+  }
+
+  #root {
+    min-height: 0;
+    display: grid;
+    justify-items: center;
+    gap: 14px;
+  }
+
+  .app {
+    width: 420px;
+    height: min(880px, calc(100dvh - 90px));
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-radius: 40px;
+    box-shadow: 0 0 0 10px #15191f, 0 30px 80px rgb(21 25 31 / 0.35);
+    /* Fixed children (bottom bar, Whisper mode, toasts) stay inside the phone. */
+    transform: translateZ(0);
+    scrollbar-width: none;
+  }
+
+  .app::-webkit-scrollbar {
+    display: none;
+  }
+
+  .bottom-bar,
+  .toast-wrap {
+    max-width: 420px;
+  }
+
+  .screen--flow,
+  .welcome {
+    min-height: 100%;
+  }
+
+  .desktop-note {
+    display: block;
+    margin: 0;
+    font-size: 15px;
+    color: var(--faint);
+    text-align: center;
+  }
+}
