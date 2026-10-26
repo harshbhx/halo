@@ -1,6 +1,8 @@
 /* Hallmark · shape: Narrative Workflow (swapped from the drawn Marquee Hero: the product needs explaining in seconds and has a real sequence) · genre: atmospheric · theme: Ribbon (deal 1/3, seed face-whisper-private-phone-a349·d91de0dd·2026-10-26·r0, playful deal) · job: try · draw: aaf455
  * hero: Counter · nav: banner over a retracting bar · footer: mast · imagery: screenshots 7 (the app's own Playwright driver; capture.mjs for routes) · signature: the page whispers, a real whisper spoken by the browser and a note turned into a whisper by the app's own rules · ribbon: dawn page, the hero and the promise on the two-in-the-morning night, amber lit-window accent · modes: light+dark
  * axes: light/grotesk-sans/chromatic-amber · posture: committed · contrast: pass · fold: pass · v2.0.0 */
+/* Hallmark · copy: verbatim · the quotes are word for word from public posts and the six limits are the owner's required wording, so 19, 58 and 69 report as notes */
+/* Hallmark · dismissed F1 · the straight quotes sit inside a verbatim quote and are kept character for character */
 /* Hallmark · dismissed 25 · the 32 to 34ch measures are one-sentence ledes and quotes, which may sit from 28ch */
 /* Hallmark · pre-emit critique: P4 H5 E4 S5 R4 V4 · weakest: E, seven phone captures risk a photo wall; two stages carry built controls instead (the note box, the instrument) and the captures stay at one size */
 @import url("./tokens.css");
@@ -126,9 +128,17 @@ h1, h2, h3 { color: inherit; }
   .shot { height: min(70dvh, 560px); }
 }
 
+/* ---------- Sources under the quotes ---------- */
+
+.sources { margin-top: var(--space-xl); font-size: var(--text-sm); color: var(--color-muted); max-width: 70ch; }
+.sources a { color: var(--color-ink-2); }
+.sources a:hover { color: var(--color-ink); }
+.sources a:focus-visible, .faq__rows a:focus-visible, .promise__quote a:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; border-radius: var(--radius-part); }
+
 /* ---------- The instrument ---------- */
 
 .tune { padding-block: var(--section-gap); }
+.stage .instrument { width: min(100%, 560px); justify-self: center; }
 .tune__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--gap-columns); align-items: center; }
 .tune h2 { font-size: var(--text-section); }
 .tune__text { display: grid; gap: var(--space-md); }
@@ -156,15 +166,31 @@ h1, h2, h3 { color: inherit; }
 .promise { padding-block: var(--section-gap); background: var(--color-band); color: var(--color-band-ink); }
 .promise__grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: var(--gap-columns); align-items: start; }
 .promise h2 { font-size: var(--text-section); max-width: 12ch; }
+.promise__head { display: grid; gap: var(--space-xl); align-content: start; }
+.promise__quote { margin: 0; display: grid; gap: var(--space-xs); }
+.promise__quote p { font: 400 var(--text-lg)/1.4 var(--font-display); color: var(--night-muted); }
+.promise__quote a { color: var(--night-muted); font-size: var(--text-sm); }
+.promise__quote a:hover { color: var(--night-ink); }
 .promise__rows { margin: 0; border-top: var(--rule-hair) solid var(--night-rule); }
 .promise__rows > div { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 5fr); gap: var(--gap-columns); padding-block: var(--space-lg); border-bottom: var(--rule-hair) solid var(--night-rule); }
 .promise__rows dt { font: 500 var(--text-title)/1.2 var(--font-display); letter-spacing: -0.015em; }
 .promise__rows dd { margin: 0; color: var(--night-muted); }
 @media (max-width: 60rem) { .promise__grid, .promise__rows > div { grid-template-columns: minmax(0, 1fr); gap: var(--space-xs); } .promise h2 { margin-bottom: var(--space-lg); } }
 
+/* ---------- Honest limits: a numbered list set large ---------- */
+
+.limits { padding-block: var(--section-gap) var(--section-gap-s); }
+.limits h2 { font-size: var(--text-section); margin-bottom: var(--space-2xl); }
+.limits__list { margin: 0; padding: 0; list-style: none; counter-reset: limit; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-xl) var(--gap-columns); }
+.limits__list li { counter-increment: limit; display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: var(--space-md); padding-top: var(--space-md); border-top: var(--rule-hair) solid var(--color-rule); font: 400 var(--text-title)/1.35 var(--font-display); letter-spacing: -0.01em; }
+.limits__list li::before { content: counter(limit); color: var(--color-accent-strong); font-variant-numeric: tabular-nums; }
+@media (max-width: 60rem) { .limits__list { grid-template-columns: minmax(0, 1fr); } }
+
 /* ---------- Questions and limits: rows across the page ---------- */
 
-.faq { padding-block: var(--section-gap-l) var(--section-gap); }
+.faq { padding-block: var(--section-gap-s) var(--section-gap); background: var(--color-paper-2); }
+.faq__rows a { color: var(--color-ink-2); }
+.faq__rows a:hover { color: var(--color-ink); }
 .faq h2 { font-size: var(--text-section); margin-bottom: var(--space-2xl); }
 .faq__rows { margin: 0; border-top: var(--rule-hair) solid var(--color-rule); }
 .faq__rows > div { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--gap-columns); align-items: baseline; padding-block: var(--space-xl); border-bottom: var(--rule-hair) solid var(--color-rule); }
