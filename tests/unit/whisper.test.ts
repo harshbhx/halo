@@ -50,6 +50,20 @@ describe('makeWhisper', () => {
   });
 });
 
+describe('demo whispers (quoted in DEMO.md)', () => {
+  it('writes the sample people whispers', () => {
+    expect(makeWhisper('Maya', 'This is Maya, my manager at work, just back from parental leave')).toBe(
+      'Maya, your manager at work. Just back from parental leave.',
+    );
+    expect(makeWhisper('Arjun', 'Arjun, my neighbour from flat 4, had knee surgery last month')).toBe(
+      'Arjun, your neighbour from flat 4. Knee surgery last month.',
+    );
+    expect(makeWhisper('Walter', 'This is Walter, my piano teacher, his daughter just got married')).toBe(
+      'Walter, your piano teacher. His daughter just got married.',
+    );
+  });
+});
+
 describe('cueLine', () => {
   it('joins the filled cues', () => {
     expect(cueLine({ clothes: 'green parka', hair: '', glasses: 'round glasses' })).toBe('green parka · round glasses');
