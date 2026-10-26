@@ -21,6 +21,7 @@ demo/fake-camera/*.wav
 
 # Model weights are copied from node_modules at install time
 public/models/
+public/wasm/
 
 # Symlink folder created by the skills installer for another harness
 /agent/

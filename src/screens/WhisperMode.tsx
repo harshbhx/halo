@@ -67,6 +67,7 @@ export function WhisperMode({ demo }: { demo: boolean }) {
   const queueRef = useRef<string[]>([]);
   const trackerRef = useRef(new Tracker({ need: 3, window: 4, cooldownMs: settings.repeatSeconds * 1000 }));
   const captionSeenRef = useRef(0);
+  const confirmedRef = useRef<Set<string>>(new Set());
 
   const [phase, setPhase] = useState<Phase>('starting');
   const [problem, setProblem] = useState<CameraProblem | null>(null);
@@ -193,6 +194,11 @@ export function WhisperMode({ demo }: { demo: boolean }) {
               };
             });
             if (update.confirmed.size) captionSeenRef.current = now;
+            // The caption follows whoever was just recognised, even inside the repeat
+            // interval (speech waits for the interval, the caption doesn't).
+            const newlyConfirmed = [...update.confirmed].filter((id) => !confirmedRef.current.has(id));
+            confirmedRef.current = update.confirmed;
+            if (newlyConfirmed.length && !update.toSpeak.includes(newlyConfirmed[0])) setCaptionId(newlyConfirmed[0]);
             setFaceCount({
               known: update.confirmed.size,
               unknown: frame.filter((f) => !f.match.personId).length,
@@ -200,6 +206,10 @@ export function WhisperMode({ demo }: { demo: boolean }) {
             for (const id of update.toSpeak) if (!queueRef.current.includes(id)) queueRef.current.push(id);
             void pumpSpeech();
             if (import.meta.env.DEV || (window as unknown as { __fwDebug?: boolean }).__fwDebug) {
+              (window as unknown as { __fwPerf?: unknown }).__fwPerf = {
+                backend: engineBackend(),
+                detectMs: Math.round(performance.now() - started),
+              };
               (window as unknown as { __fwLastFrame?: unknown }).__fwLastFrame = frame.map((f) => ({
                 personId: f.match.personId,
                 distance: Number(f.match.distance.toFixed(3)),
@@ -225,6 +235,7 @@ export function WhisperMode({ demo }: { demo: boolean }) {
       stopSpeaking();
       facesRef.current = [];
       queueRef.current = [];
+      confirmedRef.current = new Set();
       trackerRef.current.reset();
     };
   }, [loaded, hasPeople, useDemo, settings.facing, attempt, pumpSpeech]);

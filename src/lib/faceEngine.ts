@@ -41,17 +41,19 @@ export function loadEngine(onProgress?: (fraction: number) => void): Promise<Fac
       setBackend(name: string): Promise<boolean>;
       ready(): Promise<void>;
       getBackend(): string;
+      setWasmPaths?(prefix: string): void;
     };
-    let ok = false;
-    try {
-      ok = await tf.setBackend('webgl');
-      await tf.ready();
-    } catch {
-      ok = false;
-    }
-    if (!ok || tf.getBackend() !== 'webgl') {
-      await tf.setBackend('cpu');
-      await tf.ready();
+    // Fastest first: the GPU (WebGL), then WebAssembly, then plain JavaScript.
+    tf.setWasmPaths?.(new URL('wasm/', document.baseURI).href);
+    for (const backend of ['webgl', 'wasm', 'cpu']) {
+      try {
+        if ((await tf.setBackend(backend)) && tf.getBackend() === backend) {
+          await tf.ready();
+          break;
+        }
+      } catch {
+        // try the next one
+      }
     }
     backendName = tf.getBackend();
     onProgress?.(0.4);
