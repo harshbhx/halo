@@ -10,6 +10,7 @@ import type { Cues, Person as PersonRecord } from '../lib/types';
 import { speak, unlockAudio } from '../lib/voice';
 import { makeWhisper } from '../lib/whisper';
 import { spokenLine } from '../lib/whisperStyle';
+import { enrich, sayPerson } from '../lib/say';
 import { PhotoStep, type Shot } from './Enrol';
 
 const MAX_FINGERPRINTS = 8;
@@ -62,7 +63,16 @@ export function Person({ id }: { id: string }) {
     if (!draft) return;
     setSaving(true);
     try {
-      await addOrUpdatePerson({ ...draft, name: draft.name.trim() || original!.name, updatedAt: new Date().toISOString() });
+      const changedLine = draft.whisper !== original!.whisper;
+      const saved = {
+        ...draft,
+        name: draft.name.trim() || original!.name,
+        updatedAt: new Date().toISOString(),
+        // A changed line needs a new translation and voice.
+        ...(changedLine ? { translated: undefined, voiceClip: undefined } : {}),
+      };
+      await addOrUpdatePerson(saved);
+      void enrich(saved).then((p) => (p !== saved ? addOrUpdatePerson(p) : undefined));
     } catch {
       toast('Nothing was saved: this browser is blocking storage.');
     } finally {
@@ -115,7 +125,7 @@ export function Person({ id }: { id: string }) {
     <main className="screen" aria-labelledby="person-title">
       <div className="topbar">
         <BackButton to="/" label="Back to your people" />
-        <button type="button" className="btn" onClick={() => hear(spokenLine(original, 'warm'))}>
+        <button type="button" className="btn" onClick={() => (unlockAudio(), void sayPerson(original, { mode: 'voice', style: 'warm', chime: false }))}>
           <Play size={18} aria-hidden="true" /> Remind me
         </button>
       </div>

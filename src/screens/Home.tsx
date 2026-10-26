@@ -4,17 +4,16 @@ import { Avatar, EmptyState, toast, Wordmark } from '../components/ui';
 import { loadSamplePeople, SAMPLE_AVAILABLE } from '../lib/demo';
 import { usePeople } from '../lib/people';
 import { navigate } from '../lib/router';
-import { getSettings, updateSettings, useSettings } from '../lib/settings';
-import { speak, unlockAudio } from '../lib/voice';
-import { spokenLine } from '../lib/whisperStyle';
+import { updateSettings, useSettings } from '../lib/settings';
+import { unlockAudio } from '../lib/voice';
+import { sayPerson } from '../lib/say';
 import type { Person } from '../lib/types';
 import { BRAND } from '../brand';
 
 /** "Remind me how I know them": the whisper, on demand, from the list. */
 function remind(person: Person) {
   unlockAudio();
-  const s = getSettings();
-  void speak(spokenLine(person, 'warm'), { voiceName: s.voiceName, volume: s.volume, rate: s.rate, chimeSound: 'off' });
+  void sayPerson(person, { mode: 'voice', style: 'warm', chime: false });
 }
 
 export function Home() {

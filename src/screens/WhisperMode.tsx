@@ -1,4 +1,5 @@
-import { Info, Pause, Play, RefreshCw, Sparkles, SwitchCamera, UserPlus, Volume2, VolumeX, X } from 'lucide-react';
+import { History, Info, Pause, Play, RefreshCw, Sparkles, SwitchCamera, UserPlus, Volume2, VolumeX, X } from 'lucide-react';
+import { BRAND } from '../brand';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { LocalBadge, toast } from '../components/ui';
 import { CAMERA_MESSAGES, CameraError, openCamera, stopStream, type CameraProblem } from '../lib/camera';
@@ -11,8 +12,10 @@ import { navigate } from '../lib/router';
 import { getSettings, updateSettings, useSettings } from '../lib/settings';
 import { useToday } from '../lib/stores';
 import type { Person } from '../lib/types';
-import { deliver, haptic, stopSpeaking, unlockAudio } from '../lib/voice';
-import { cueItems, spokenLine } from '../lib/whisperStyle';
+import { haptic, stopSpeaking, unlockAudio } from '../lib/voice';
+import { captionLine, sayPerson } from '../lib/say';
+import { recentWhispers, remember, type RecentWhisper } from '../lib/recent';
+import { cueItems } from '../lib/whisperStyle';
 
 interface Box {
   x: number;
@@ -114,6 +117,15 @@ export function WhisperMode({ demo }: { demo: boolean }) {
   const [faceCount, setFaceCount] = useState({ known: 0, maybe: 0, unknown: 0 });
   const [hint, setHint] = useState<Hint | null>(null);
   const [preparingSamples, setPreparingSamples] = useState(false);
+  const [recent, setRecent] = useState<RecentWhisper[] | null>(null);
+  const recentRef = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    const d = recentRef.current;
+    if (!d) return;
+    if (recent && !d.open) d.showModal();
+    if (!recent && d.open) d.close();
+  }, [recent]);
 
   const mirror = !demo && settings.facing === 'user';
   const hasPeople = people.length > 0;
@@ -159,17 +171,10 @@ export function WhisperMode({ demo }: { demo: boolean }) {
     captionSeenRef.current = performance.now();
     if (mutedRef.current) return void pumpSpeech();
     speakingRef.current = true;
-    const s = getSettings();
+    remember({ personId: person.id, name: person.name, line: captionLine(person), at: Date.now() });
     try {
       // Spoken only after the earbud check (or when the user chose the speaker); otherwise a buzz and the caption.
-      const mode = s.outputMode === 'voice' && !s.speakAllowed ? 'vibrate' : s.outputMode;
-      await deliver(spokenLine(person, s.whisperStyle), mode, {
-        voiceName: s.voiceName,
-        volume: s.volume,
-        rate: s.rate,
-        chimeSound: s.chimeSound,
-        haptics: s.haptics,
-      });
+      await sayPerson(person);
     } finally {
       speakingRef.current = false;
       void pumpSpeech();
@@ -552,6 +557,41 @@ export function WhisperMode({ demo }: { demo: boolean }) {
         <LocalBadge />
       </div>
 
+      <dialog ref={recentRef} className="sheet" aria-labelledby="recent-title" onCancel={(e) => (e.preventDefault(), setRecent(null))}>
+        <div className="sheet__body">
+          <h2 id="recent-title">Who was that?</h2>
+          {recent && recent.length === 0 && <p className="muted">No whispers yet in this session.</p>}
+          {recent && recent.length > 0 && (
+            <ul className="brief">
+              {recent.map((r) => (
+                <li key={r.personId} style={{ gridTemplateColumns: 'minmax(0, 1fr) auto' }}>
+                  <div>
+                    <p className="brief__name">{r.name}</p>
+                    <p>{r.line}</p>
+                    <p className="label">{Math.max(1, Math.round((Date.now() - r.at) / 60000))} min ago</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="icon-btn"
+                    aria-label={`Hear ${r.name} again`}
+                    onClick={() => {
+                      const p = peopleRef.current.find((x) => x.id === r.personId);
+                      if (p) void sayPerson(p, { mode: 'voice', chime: false });
+                    }}
+                  >
+                    <Volume2 size={18} aria-hidden="true" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className="label">Kept in memory only, and forgotten when you close {BRAND.name}.</p>
+          <button type="button" className="btn btn--block" onClick={() => setRecent(null)}>
+            Close
+          </button>
+        </div>
+      </dialog>
+
       {phase === 'running' && (
         <div className="night__status" aria-live="polite">
           {statusText}
@@ -644,7 +684,7 @@ export function WhisperMode({ demo }: { demo: boolean }) {
               <span className="caption__name">{caption.name}</span>
               {onToday && <span className="tag tag--sample">On today’s list</span>}
             </span>
-            <span className="caption__text">{caption.whisper}</span>
+            <span className="caption__text">{captionLine(caption)}</span>
             {cueItems(caption.cues).length > 0 && (
               <ul className="caption__cues">
                 {cueItems(caption.cues).map((c) => (
@@ -701,6 +741,9 @@ export function WhisperMode({ demo }: { demo: boolean }) {
                 disabled={demo}
               >
                 <SwitchCamera size={24} aria-hidden="true" />
+              </button>
+              <button type="button" className="night-btn" onClick={() => setRecent(recentWhispers())} aria-label="Who was that? The last five whispers">
+                <History size={24} aria-hidden="true" />
               </button>
             </div>
             <p className="limits">Silence doesn’t mean a stranger. A hint, not proof: never use it to decide who to trust.</p>

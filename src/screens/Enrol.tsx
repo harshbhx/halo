@@ -13,6 +13,7 @@ import { getSettings, updateSettings, useSettings } from '../lib/settings';
 import type { Cues, Person, WhisperSource } from '../lib/types';
 import { speak, unlockAudio } from '../lib/voice';
 import { makeWhisper } from '../lib/whisper';
+import { enrich, writeInCloud } from '../lib/say';
 import { spokenLine, STYLE_LABELS, type WhisperStyle } from '../lib/whisperStyle';
 
 export const MIN_SHOTS = 3;
@@ -251,11 +252,11 @@ function NoteStep({
     if (!settings.useOnDeviceModel || note.trim().split(' ').length < 3) return;
     let cancelled = false;
     const timer = setTimeout(async () => {
-      if (!(await onDeviceModelAvailable())) return;
-      const line = await whisperWithModel(name, note);
+      const onDevice = await onDeviceModelAvailable();
+      const line = onDevice ? await whisperWithModel(name, note) : await writeInCloud(name, note);
       if (!cancelled && line && sourceRef.current !== 'edited') {
         setWhisper(line);
-        setSource('on-device-model');
+        setSource(onDevice ? 'on-device-model' : 'enhanced');
       }
     }, 900);
     return () => {
@@ -288,7 +289,13 @@ function NoteStep({
   }
 
   const sourceLabel =
-    source === 'edited' ? 'You edited this line' : source === 'on-device-model' ? 'Written by your browser’s on-device model' : 'Written on this phone by built-in rules';
+    source === 'edited'
+      ? 'You edited this line'
+      : source === 'on-device-model'
+        ? 'Written by your browser’s on-device model'
+        : source === 'enhanced'
+          ? 'Written by Enhanced mode (your note was sent as text)'
+          : 'Written on this phone by built-in rules';
 
   return (
     <>
@@ -431,6 +438,8 @@ export function Enrol() {
     try {
       await addOrUpdatePerson(person);
       setSaved(person);
+      // Enhanced mode (if on): translate and make a natural voice, sending only the text.
+      void enrich(person).then((p) => (p !== person ? addOrUpdatePerson(p) : undefined));
     } catch {
       toast('Nothing was saved: this browser is blocking storage.');
     } finally {
