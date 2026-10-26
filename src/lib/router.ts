@@ -11,7 +11,8 @@ export type Route =
   | { name: 'settings' }
   | { name: 'backup' }
   | { name: 'privacy' }
-  | { name: 'welcome' };
+  | { name: 'welcome' }
+  | { name: 'consent'; data: string };
 
 export function parseHash(hash: string): Route {
   const clean = hash.replace(/^#/, '');
@@ -36,6 +37,8 @@ export function parseHash(hash: string): Route {
       return { name: 'privacy' };
     case 'welcome':
       return { name: 'welcome' };
+    case 'consent':
+      return { name: 'consent', data: new URLSearchParams(query).get('d') ?? '' };
     default:
       return { name: 'home' };
   }

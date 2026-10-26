@@ -23,7 +23,7 @@ export interface Person {
   /** When this person agreed to be added. */
   consentAt: string;
   /** How: they tapped "I agree" on this phone, or the owner confirmed they said yes. */
-  consentMethod?: 'in-person' | 'owner-confirmed';
+  consentMethod?: 'in-person' | 'link' | 'owner-confirmed';
   createdAt: string;
   updatedAt: string;
   /** A child: Halo never sounds confident about children's faces, it only suggests. */

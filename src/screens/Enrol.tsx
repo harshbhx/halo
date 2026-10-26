@@ -14,6 +14,8 @@ import type { Cues, Person, WhisperSource } from '../lib/types';
 import { speak, unlockAudio } from '../lib/voice';
 import { makeWhisper } from '../lib/whisper';
 import { enrich, writeInCloud } from '../lib/say';
+import { askLink, shareLink, takePendingConsent } from '../lib/consentLink';
+import { BRAND } from '../brand';
 import { spokenLine, STYLE_LABELS, type WhisperStyle } from '../lib/whisperStyle';
 
 export const MIN_SHOTS = 3;
@@ -403,6 +405,33 @@ export function Enrol() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState<Person | null>(null);
   const consentAt = useRef<string>('');
+  const [linkStatus, setLinkStatus] = useState('');
+
+  // An answer that came back by link starts the flow at the photos.
+  useEffect(() => {
+    const answer = takePendingConsent();
+    if (!answer) return;
+    setName(answer.name);
+    setNote(answer.intro);
+    setWhisper(answer.intro);
+    setSource('edited');
+    if (answer.cue) setCues({ other: answer.cue });
+    consentAt.current = answer.at;
+    setConsentMethod('link');
+    setStep(3);
+  }, []);
+
+  async function sendLink() {
+    const url = askLink(location.origin, cleanName, whisper);
+    const result = await shareLink(url, `${BRAND.name}: a question for ${cleanName}`, `${cleanName}, could my phone recognise you? Read what it keeps first.`);
+    setLinkStatus(
+      result === 'shared'
+        ? `Sent. When ${cleanName} answers, open the link they send back.`
+        : result === 'copied'
+          ? `Link copied. Send it to ${cleanName}; when they answer, open the link they send back.`
+          : `Couldn’t share the link from this browser.`,
+    );
+  }
 
   useEffect(() => {
     document.getElementById('step-title')?.focus({ preventScroll: true });
@@ -627,6 +656,14 @@ export function Enrol() {
                   They already said yes
                 </button>
               </div>
+              <button type="button" className="btn btn--block" onClick={sendLink}>
+                Not here? Send {cleanName} a link to answer
+              </button>
+              {linkStatus && (
+                <p className="label" role="status">
+                  {linkStatus}
+                </p>
+              )}
             </div>
           )}
 

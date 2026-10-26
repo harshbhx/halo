@@ -141,7 +141,7 @@ export function Person({ id }: { id: string }) {
             <span className="tag tag--sample">Sample person, AI-generated face</span>
           ) : (
             <span className="tag">
-              {original.consentMethod === 'in-person' ? 'Said yes on this phone' : 'You confirmed they agreed'}, {formatDate(original.consentAt)}
+              {original.consentMethod === 'in-person' ? 'Said yes on this phone' : original.consentMethod === 'link' ? 'Said yes by link' : 'You confirmed they agreed'}, {formatDate(original.consentAt)}
             </span>
           )}
           {!original.sample && (

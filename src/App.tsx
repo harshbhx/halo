@@ -3,6 +3,7 @@ import { TabBar, Toaster } from './components/ui';
 import { useRoute } from './lib/router';
 import { applyDocumentSettings, useSettings } from './lib/settings';
 import { Backup } from './screens/Backup';
+import { ConsentReceived } from './screens/ConsentReceived';
 import { Enrol } from './screens/Enrol';
 import { Home } from './screens/Home';
 import { Person } from './screens/Person';
@@ -60,6 +61,9 @@ export function App() {
       case 'backup':
         screen = <Backup />;
         break;
+      case 'consent':
+        screen = <ConsentReceived data={route.data} />;
+        break;
       case 'privacy':
         screen = <Privacy />;
         break;
@@ -70,13 +74,10 @@ export function App() {
 
   const showTabs = !firstRun && settings.welcomeSeen && WITH_TABS.includes(route.name);
   return (
-    <>
-      <div className="shell">
-        {screen}
-        {showTabs && <TabBar route={route} />}
-        <Toaster />
-      </div>
-      <p className="desk-note">Made for phones. Everything runs in this browser; nothing is uploaded.</p>
-    </>
+    <div className="shell">
+      {screen}
+      {showTabs && <TabBar route={route} />}
+      <Toaster />
+    </div>
   );
 }
