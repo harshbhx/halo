@@ -53,6 +53,13 @@ describe('Enhanced mode Worker', () => {
     expect(await checkSession(e, token.replace(/.$/, 'x'), 1000)).toBe(false);
   });
 
+  it('labels the audio by what the bytes are (the live model returns WAV)', async () => {
+    const wav = { audio: btoa('RIFF\u0000\u0000\u0000\u0000WAVEfmt ') };
+    const e = env({ AI: { run: async () => wav } } as never);
+    const res = await worker.fetch(post('/api/voice', { text: 'Raj.', lang: 'en' }, await session(e)), e);
+    expect(res.headers.get('content-type')).toBe('audio/wav');
+  });
+
   it('turns whisper text into audio', async () => {
     const e = env();
     const res = await worker.fetch(post('/api/voice', { text: 'Raj, your neighbour.', lang: 'en' }, await session(e)), e);
