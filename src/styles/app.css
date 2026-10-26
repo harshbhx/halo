@@ -304,12 +304,13 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 /* ---------- Welcome, the tour ---------- */
 
 .welcome { min-height: 100dvh; display: flex; flex-direction: column; }
-.welcome__night { position: relative; display: grid; place-items: center; min-height: 34dvh; padding: calc(env(safe-area-inset-top) + var(--space-xl)) var(--space-lg) var(--space-xl); background: var(--color-band); color: var(--color-band-ink); }
-.welcome__night .wordmark { position: absolute; top: calc(env(safe-area-inset-top) + var(--space-md)); left: var(--space-lg); color: var(--color-band-ink); }
+.welcome__night { position: relative; min-height: 22dvh; background: linear-gradient(var(--night-paper), var(--night-paper-2)); color: var(--night-ink); overflow: hidden; }
+.welcome__lamps { position: absolute; inset: 0; width: 100%; height: 100%; }
+.welcome__night .wordmark { position: absolute; top: calc(env(safe-area-inset-top) + var(--space-md)); left: var(--space-lg); color: var(--night-ink); }
 .welcome__night .halo-mark { color: var(--halo); }
-.welcome__body { flex: 1; display: grid; align-content: start; gap: var(--space-lg); padding: var(--space-xl) var(--space-lg) calc(env(safe-area-inset-bottom) + var(--space-lg)); animation: step-in var(--dur-long) var(--ease-out); }
+.welcome__body { flex: 1; display: flex; flex-direction: column; gap: var(--space-lg); padding: var(--space-xl) var(--space-lg) 0; animation: step-in var(--dur-long) var(--ease-out); }
 .welcome__body h1 { font-size: var(--text-display); }
-.welcome__foot { margin-top: auto; display: grid; gap: var(--space-sm); }
+.welcome__foot { position: sticky; bottom: 0; margin-top: auto; display: grid; gap: var(--space-xs); padding: var(--space-md) 0 calc(env(safe-area-inset-bottom) + var(--space-2xs)); background: var(--color-paper); border-top: var(--rule-hair) solid var(--color-rule-2); }
 .tour-count { font-size: var(--text-sm); color: var(--color-muted); font-variant-numeric: tabular-nums; }
 .quote { margin: 0; display: grid; gap: var(--space-xs); padding-left: var(--space-md); border-left: var(--rule-hair) solid var(--color-rule); }
 .quote p { font: 400 var(--text-xl)/1.3 var(--font-display); letter-spacing: -0.015em; }

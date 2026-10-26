@@ -1,5 +1,6 @@
 import { CloudOff, Ear, HeartHandshake, Lock, Trash2, UserX } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { drawLamps } from '../lib/lights';
 import { HaloMark } from '../components/ui';
 import { navigate } from '../lib/router';
 import { updateSettings } from '../lib/settings';
@@ -11,6 +12,14 @@ import { updateSettings } from '../lib/settings';
 export function Welcome() {
   const [part, setPart] = useState(0);
   const last = part === 2;
+  const lamps = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const draw = () => lamps.current && drawLamps(lamps.current, { low: 0.72 });
+    draw();
+    window.addEventListener('resize', draw);
+    return () => window.removeEventListener('resize', draw);
+  }, []);
 
   function start() {
     updateSettings({ welcomeSeen: true });
@@ -20,8 +29,10 @@ export function Welcome() {
   return (
     <main className="welcome" aria-labelledby="welcome-title">
       <div className="welcome__night">
-        <span className="wordmark">Face Whisper</span>
-        <HaloMark size={96} />
+        <canvas ref={lamps} className="welcome__lamps" aria-hidden="true" />
+        <span className="wordmark">
+          <HaloMark /> Face Whisper
+        </span>
       </div>
 
       <div className="welcome__body" key={part}>

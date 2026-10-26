@@ -3,12 +3,13 @@ import { CalendarHeart, ChevronLeft, Ear, Lock, Settings as SettingsIcon, Shuffl
 import { navigate, type Route } from '../lib/router';
 import { unlockAudio } from '../lib/voice';
 
-/** The brand mark: a face-sized ring with a smaller ring of light around it, the halo. */
+/** The brand mark: a face-shaped ring with a whisper beside it. */
 export function HaloMark({ size = 24 }: { size?: number }) {
   return (
-    <svg className="halo-mark" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" fill="none">
-      <ellipse cx="12" cy="12" rx="6" ry="7.4" stroke="currentColor" strokeWidth="2" />
-      <ellipse cx="12" cy="12" rx="10" ry="11" stroke="currentColor" strokeWidth="1.4" opacity="0.5" />
+    <svg className="halo-mark" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" fill="none" strokeLinecap="round">
+      <ellipse cx="9.5" cy="12" rx="5.6" ry="7" stroke="currentColor" strokeWidth="2" />
+      <path d="M17.2 8.6c1 .9 1.6 2.1 1.6 3.4s-.6 2.5-1.6 3.4" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M20 6.2c1.6 1.5 2.5 3.5 2.5 5.8s-.9 4.3-2.5 5.8" stroke="currentColor" strokeWidth="1.6" opacity="0.55" />
     </svg>
   );
 }
