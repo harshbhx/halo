@@ -5,6 +5,7 @@
  * translation and a natural voice after a person is saved.
  */
 import { cloudWrite, enhancedOn, naturalVoice, translateWhisper } from './enhanced';
+import { buzzFor, outputFor } from './rules';
 import { getSettings, type OutputMode, type Settings } from './settings';
 import type { Person } from './types';
 import { deliver, haptic, playChime, playClip, speak, voiceFor } from './voice';
@@ -22,13 +23,18 @@ export function captionLine(person: Person, s: Settings = getSettings()): string
 
 export async function sayPerson(
   person: Person,
-  options: { mode?: OutputMode; style?: WhisperStyle; chime?: boolean } = {},
+  options: { mode?: OutputMode; style?: WhisperStyle; chime?: boolean; onToday?: boolean } = {},
 ): Promise<void> {
   const s = getSettings();
   const line = lineFor(person, s, options.style ?? s.whisperStyle);
-  let mode = options.mode ?? s.outputMode;
-  if (mode === 'voice' && !s.speakAllowed && options.mode === undefined) mode = 'vibrate';
+  // A mode passed in is the user asking (a tap on "Remind me"); otherwise the rules decide:
+  // never-whisper people, quiet hours and the earbud check.
+  const mode = options.mode ?? outputFor(person, s, new Date()).mode;
   const chimeSound = options.chime === false ? 'off' : s.chimeSound;
+  if (mode === 'vibrate') {
+    haptic([...buzzFor(!!options.onToday)]);
+    return;
+  }
   if (mode !== 'voice') {
     await deliver(line.text, mode, { voiceName: s.voiceName, volume: s.volume, rate: s.rate, chimeSound, haptics: s.haptics });
     return;

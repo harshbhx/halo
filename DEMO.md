@@ -15,22 +15,26 @@ For recording the submission video on a real phone. Bullets and questions only: 
 
 ## Click path (about 2 minutes of app footage)
 
+0. (Optional, for a cold open) **See it in 60 seconds** on the first tour screen: the guide, two sample people recognised, the face never added, "That's Halo." Then **Start with the short tour**. Reference recording: `docs/shots/try-60-seconds.mp4`.
 1. **Tour** (`/app/`): screen 1 with the quote, Next, screen 2, Next, screen 3.
    - **Check your earbud**, hear the test line, **Yes, in my earbud**, then **I understand, let's start**.
-2. **Add Sam**: **Add someone**, name "Sam", Continue.
+2. **Add Sam**: **Add someone**, name "Sam", Continue. (Alternative take: **Or say it all at once** and say *"This is Sam, my teammate from the hackathon, loves climbing, wears a green raincoat, we met at the hackathon"*; check the filled fields.)
    - Note: type *This is Sam, my teammate from the hackathon, loves climbing*; watch the whisper line update; try Short, Warm, Full. Continue.
 3. **Sam's yes**: "Hand the phone to Sam". Sam reads the line, ticks **I'm Sam, and I agree**, taps **I agree**.
    - (Optional cut) **Not here? Send Sam a link to answer**.
 4. **Photos**: point at the laptop, three shots inside the oval; Continue.
-5. **Cues**: Usual clothes *Green raincoat*, Hair *Brown hair with a fringe*; **Save Sam**; "Sam is added."
+5. **Cues**: Usual clothes *Green raincoat*, Hair *Brown hair with a fringe*, Where you met *At the climbing gym*; **Save Sam**; "Sam is added."
 6. **Whisper mode**: **Try Whisper mode**, point at the laptop. Wait for the amber halo and the whisper in the earbud. Tap the caption to hear it again. **Who was that?**, Close.
 7. **Not sure / no match**: Settings, **Add sample people**; People, **Open the demo camera**. Let Maya be recognised, then the face that was never added: "No match", nothing spoken.
-8. **Offline**: Control Centre, airplane mode on; back in Halo, demo camera again; Maya is still recognised.
-9. **Before you walk in**: Today, occasion *Dinner at Priya's*, tick Maya, Arjun, Walter, **Make today's list**, **Hear everyone's line**.
-10. **Practice**: Start, read the cues, pick a name.
-11. **Settings**: output (voice, chime, buzz, silent), bigger text, dark theme. Optional: Enhanced mode sheet (read what would leave the phone, then **Keep everything**).
-12. **Privacy and honest limits**: the ledger ("0 faces, photos or face fingerprints sent"), scroll the six limits.
-13. **Delete everything**, confirm, back to the tour.
+8. **Pocket mode**: phone on a lanyard or in a shirt pocket, camera out; tap the pocket button; the screen goes dark; walk up to the laptop showing Sam's face and let the whisper (or the buzz) come; double-tap to wake.
+9. **Offline**: Control Centre, airplane mode on; back in Halo, demo camera again; Maya is still recognised.
+10. **Before you walk in**: Today, occasion *Dinner at Priya's*, tick Maya and Arjun, **Make today's list**, **Hear everyone's line**, turn on **Event mode**; demo camera: Walter and the never-added face stay "No match".
+11. **Practice**: Start, read the cues, pick a name.
+12. **Settings**: output (voice, chime, buzz, silent), quiet hours, pocket mode's buzz codes (**Feel it**), bigger text, dark theme. Optional: Enhanced mode sheet (read what would leave the phone, then **Keep everything**).
+13. **A person**: where you met, **Never whisper**.
+14. (Optional) **A helper**: on a second phone or laptop, open `/helper/`, prepare a card for Raj, send the link; open it on the phone, **Start adding Raj**.
+15. **Privacy and honest limits**: the ledger ("0 faces, photos or face fingerprints sent"), scroll the six limits.
+16. **Delete everything**, confirm, back to the tour.
 
 ## Shot checklist
 
@@ -40,6 +44,7 @@ For recording the submission video on a real phone. Bullets and questions only: 
 - [ ] The consent handoff at real speed.
 - [ ] The whisper audible, with the caption on screen matching the words.
 - [ ] "No match" for a face that was never added, with a beat of silence.
+- [ ] Pocket mode: the phone worn, not held, and the whisper or buzz arriving.
 - [ ] Airplane mode, still recognised.
 - [ ] Today and Practice, one quick cut each.
 - [ ] Delete everything.
@@ -55,6 +60,8 @@ For recording the submission video on a real phone. Bullets and questions only: 
 - Why does the person being added have to agree on the phone themselves?
 - What did you just hear in the earbud, and when does Halo stay quiet instead?
 - Why is "No match" said instead of "stranger"?
+- Why would someone wear the phone instead of holding it up, and what does a buzz code tell them?
+- Who helps you prepare before a family event, and what would they put on a card?
 - What does "on this phone" mean, in plain words?
 - How does someone prepare before a dinner or a meeting?
 - What did scoping make you cut, and what did the build force you to change?

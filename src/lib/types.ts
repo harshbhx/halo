@@ -34,4 +34,8 @@ export interface Person {
   translated?: { lang: string; text: string };
   /** Synthetic demo person (AI-generated face of someone who does not exist). */
   sample?: boolean;
+  /** Where you met, or when you last saw them. Shown under the whisper, never spoken unless you choose Full. */
+  met?: string;
+  /** Never whisper: Halo still shows who it is on screen, but says nothing and doesn't buzz. */
+  quiet?: boolean;
 }

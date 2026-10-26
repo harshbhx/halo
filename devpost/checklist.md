@@ -99,6 +99,26 @@ Build mode: fast. The slices were built and mechanically verified by the AI codi
   Learner check: Read the consent sheet and the ledger, then decide whether you'd turn it on.
   Commit: `Add the optional Enhanced mode Worker (source only) with guarded routes and tests`
 
+- [x] **10. Hands-free and less said: pocket mode, event mode, quiet hours, never whisper**
+  Becomes usable: Wear the phone at chest height with the screen dark; look only for today's people; quiet hours; a per-person never-whisper switch; where you met.
+  Why now: The strongest objection in the research ("I'm not going to go around pointing my phone at everyone") and Harsh's call for more prize-worthy features.
+  PRD ref: `prd.md > Features and Behavior > Hands-free: pocket mode`, `> Saying less: quiet hours and never whisper`, `> Preparing and practising`
+  Spec ref: `spec.md > Output rules`, `spec.md > Pocket mode and the 60-second try`
+  Build: `src/lib/rules.ts`, the pocket overlay and wake lock, the event switch on Today, quiet hours in Settings, `met` and `quiet` on each person.
+  Verify (mechanical): Unit tests for quiet hours, output rules, buzz codes and event filtering; Playwright: pocket mode asks for a wake lock and buzzes the known code with nothing aloud; event mode names only the listed person over a full demo cycle; a never-whisper person is captioned and silent.
+  Learner check: Hang the phone on a lanyard, turn on pocket mode, walk up to a friend you added.
+  Commit: `Pocket mode, event mode, Halo in 60 seconds, spoken enrolment and where you met`
+
+- [x] **11. Easier to start and to share: spoken enrolment, a helper, Halo in 60 seconds, an accessibility pass**
+  Becomes usable: Add someone by saying one sentence; a trusted helper prepares cards by link; a guided minute with no camera; checked screen-reader, keyboard and reduced-motion support.
+  Why now: Judges and new users need to see it working in a minute; families already help people with face blindness prepare.
+  PRD ref: `prd.md > Features and Behavior > Spoken enrolment`, `> A helper`, `> Halo in 60 seconds`, `> Accessibility`
+  Spec ref: `spec.md > Spoken enrolment and helper cards`, `spec.md > Pocket mode and the 60-second try`
+  Build: `src/lib/intro.ts`, `src/lib/cardLink.ts`, `helper/`, `CardReceived`, the `#/try` route and coach, `tests/e2e/a11y.spec.ts`.
+  Verify (mechanical): Unit tests for the intro parser and card links; Playwright: spoken enrolment fills every field; the helper card round trip posts nothing and still asks for the person's yes; the try finishes with two people and a no-match face; axe finds no serious or critical problems on any page or screen.
+  Learner check: Send the helper page to someone at home and ask them to prepare one card.
+  Commit: `Helper cards: a trusted person prepares a card as text and sends it as a link`
+
 ## Hands-on Checkpoints
 
 - [ ] Early usable behavior explored: **Harsh**, on his own phone, adding a real friend who agrees.
@@ -139,3 +159,6 @@ Activity mode: pending
 - Consent moved from a box the owner ticks to the person's own yes after reading the exact line, or a yes by link.
 - Over-claims removed ("Know who's in front of you", "nothing like this ships"); prior art named; quotes replaced with verbatim wording Harsh checked; the six honest limits added.
 - Optional Enhanced mode added at Harsh's decision: text only, off by default, with a ledger.
+- Second feature round at Harsh's request: pocket mode, event mode, where you met, spoken enrolment, a helper, quiet hours and never whisper, Halo in 60 seconds, an accessibility pass.
+- Helper cards are text only, not "photos and a note" as first asked: photos or face fingerprints in a link would leave the phone through the messaging app, which breaks the core promise. Photos are taken in person on the user's phone.
+- The accessibility pass found focus staying on "Next" between tour parts (fixed: focus moves to each part's heading) and the tour footer overflowing a 375px screen (fixed).

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>%BRAND_NAME%: help prepare a card</title>
+    <meta name="description" content="Help someone with face blindness prepare a card for a person they'll meet. Text only; nothing is uploaded." />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/svg+xml" href="../icon.svg" />
+    <link rel="stylesheet" href="../landing/fonts.css" />
+    <link rel="stylesheet" href="../consent/consent.css" />
+    <link rel="stylesheet" href="./helper.css" />
+    <script type="module" src="./helper.ts"></script>
+  </head>
+  <body>
+    <main class="ask" id="main">
+      <p class="ask__brand">%BRAND_NAME%</p>
+      <h1>Help prepare a card</h1>
+      <p class="lead">Someone you’re close to uses %BRAND_NAME% because they find faces hard to recognise. Tell it about a person they’ll meet: who it is and how they know them. They check your card, and add the person on their own phone.</p>
+      <ul class="ask__keeps">
+        <li><b>Text only.</b> No photos and no faces: photos are taken on their phone, in person, after the person being added has read their line and said yes.</li>
+        <li><b>Nothing is uploaded.</b> Your card travels inside the link you send them. This page has no server behind it.</li>
+      </ul>
+      <form class="ask__form" data-form>
+        <label class="field"><span>Who is it?</span><input name="name" maxlength="60" autocomplete="off" placeholder="Raj" required data-name /></label>
+        <label class="field"><span>How do they know them?</span><textarea name="note" rows="3" maxlength="300" placeholder="Raj, our neighbour, had knee surgery last month" data-note></textarea></label>
+        <div class="helper__line">
+          <p class="label">%BRAND_NAME% would whisper:</p>
+          <blockquote data-line>…</blockquote>
+        </div>
+        <fieldset class="helper__cues">
+          <legend>How to spot them (optional)</legend>
+          <label class="field"><span>Usual clothes</span><input name="clothes" maxlength="80" autocomplete="off" placeholder="Green parka" /></label>
+          <label class="field"><span>Hair</span><input name="hair" maxlength="80" autocomplete="off" placeholder="Short grey hair" /></label>
+          <label class="field"><span>Glasses or accessories</span><input name="glasses" maxlength="80" autocomplete="off" placeholder="Round glasses" /></label>
+          <label class="field"><span>Voice or anything else</span><input name="other" maxlength="80" autocomplete="off" placeholder="Deep voice, walks a beagle" /></label>
+        </fieldset>
+        <label class="field"><span>Where they met, or last saw each other (optional)</span><input name="met" maxlength="120" autocomplete="off" placeholder="At the building’s summer party" /></label>
+        <label class="field"><span>Your first name (optional)</span><input name="by" maxlength="40" autocomplete="off" placeholder="Anu" /></label>
+        <button type="submit" class="btn btn--primary" data-send>Make the card link</button>
+      </form>
+      <div class="ask__done" data-done hidden>
+        <h2>Card ready.</h2>
+        <p data-done-text>Send the link to them. They open it, check the card and add the person when they next meet.</p>
+        <p class="ask__url" data-url></p>
+        <button type="button" class="btn" data-share>Share the link again</button>
+        <button type="button" class="btn" data-again>Prepare another card</button>
+      </div>
+      <noscript><p class="notice">This page needs JavaScript to make the card link. Nothing is sent anywhere.</p></noscript>
+    </main>
+  </body>
+</html>

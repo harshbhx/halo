@@ -3,6 +3,7 @@ import { TabBar, Toaster } from './components/ui';
 import { useRoute } from './lib/router';
 import { applyDocumentSettings, useSettings } from './lib/settings';
 import { Backup } from './screens/Backup';
+import { CardReceived } from './screens/CardReceived';
 import { ConsentReceived } from './screens/ConsentReceived';
 import { Enrol } from './screens/Enrol';
 import { Home } from './screens/Home';
@@ -33,7 +34,8 @@ export function App() {
   }, [route.name, route.name === 'person' ? route.id : '']);
 
   // First run: the tour and the promise come before anything else.
-  const firstRun = !settings.welcomeSeen && route.name !== 'privacy';
+  // The 60-second try works before the tour, so anyone can see Halo without a camera.
+  const firstRun = !settings.welcomeSeen && route.name !== 'privacy' && route.name !== 'try';
 
   let screen;
   if (firstRun || route.name === 'welcome') {
@@ -45,6 +47,9 @@ export function App() {
         break;
       case 'whisper':
         screen = <WhisperMode demo={route.demo} key={route.demo ? 'demo' : 'camera'} />;
+        break;
+      case 'try':
+        screen = <WhisperMode demo guided key="try" />;
         break;
       case 'person':
         screen = <Person id={route.id} key={route.id} />;
@@ -63,6 +68,9 @@ export function App() {
         break;
       case 'consent':
         screen = <ConsentReceived data={route.data} />;
+        break;
+      case 'card':
+        screen = <CardReceived data={route.data} />;
         break;
       case 'privacy':
         screen = <Privacy />;

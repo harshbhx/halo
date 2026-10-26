@@ -7,7 +7,7 @@ status: approved
 
 A quiet voice for faces you know: a phone web app that helps people with face blindness place the people they meet, using only faces of people who agreed, and only on their own phone.
 
-> **How this was made.** Built with an AI coding agent running the Devpost Learn skills (this scope, the PRD and the spec, then the build checklist), working from Harsh's written brief and his decisions along the way: the idea, the privacy rules, the name Halo, keeping Enhanced mode optional and text-only, and the design direction. The agent wrote the documents and the code; Harsh reviewed and decided.
+> **How this was made.** Built with an AI coding agent running the Devpost Learn skills (this scope, the PRD and the spec, then the build checklist), working from Harsh's written brief and his decisions along the way: the idea, the privacy rules, the name Halo, keeping Enhanced mode optional and text-only, the design direction, and the second round of features (pocket mode, event mode, a helper, Halo in 60 seconds and more). The agent wrote the documents and the code; Harsh reviewed and decided.
 >
 > **Harsh's own notes (to fill in):** _[what you tried yourself on your phone, what you changed your mind about, what surprised you]_
 
@@ -44,15 +44,20 @@ Someone opens Halo on a phone, reads a short tour and the promise, adds a friend
 - Consent-first enrolment: the note and whisper line first, then the person reads the line and agrees on the phone (or by a link on their own phone), three to five photos, optional cue notes; children only ever reach "Could be …?".
 - Note to whisper on the phone with built-in rules (an on-device model if the browser has one); short, warm and full styles.
 - Whisper mode: on-device detection and matching, three states (confident, maybe, no match), soft halo and caption, browser voice only after an earbud check; "Who was that?" for the last five in memory.
+- Pocket mode: the phone worn at chest height, screen dark and kept awake, whispers in the earbud or buzz codes. It answers "I'm not going to go around pointing my phone at everyone" as far as a phone can.
+- Event mode: Whisper mode looks only for the people on today's list.
+- Where you met, per person; adding someone by saying one sentence; quiet hours and "never whisper".
+- A helper: a trusted person prepares a card as text and sends it as a link; photos are still taken in person.
+- Halo in 60 seconds: a guided minute with the sample people, before the tour, with no camera.
 - People, Today's list, Practice from cues or photos, Settings (voice, volume, speed, output mode, strictness, bigger text, higher contrast, theme), backups locked with a passphrase, Delete everything.
 - Privacy and limits screen with the six honest limits and a ledger of anything that left the phone.
 - Optional Enhanced mode, off by default and text only: a natural voice, whispers in other languages, a cloud whisper writer.
 - A landing page, and a demo with AI-generated sample faces.
 
 ## Later
-- Smart glasses or bone-conduction audio (the form factor people asked for).
+- Smart glasses or bone-conduction audio (the form factor people asked for; pocket mode is the phone's stand-in).
 - Per-person thresholds measured at enrolment, and a yearly photo refresh.
-- "Last seen" context and search by cue or place.
+- An automatic "last seen" and search by cue or place (today Halo keeps only the where-you-met line you type or say).
 - A real-world test with consenting adults, published honestly.
 
 ## Explicitly Cut

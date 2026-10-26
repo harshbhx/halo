@@ -21,6 +21,7 @@ interface Sample {
   name: string;
   note: string;
   cues: Cues;
+  met: string;
 }
 
 export const SAMPLES: Sample[] = [
@@ -30,6 +31,7 @@ export const SAMPLES: Sample[] = [
     name: 'Maya',
     note: 'This is Maya, my manager at work, just back from parental leave',
     cues: { hair: 'Long dark hair', clothes: 'Mustard cardigan', other: 'Big warm laugh' },
+    met: 'Your team lead since 2023; last saw her at the September offsite',
   },
   {
     id: 'sample-arjun',
@@ -37,6 +39,7 @@ export const SAMPLES: Sample[] = [
     name: 'Arjun',
     note: 'Arjun, my neighbour from flat 4, had knee surgery last month',
     cues: { hair: 'Short black hair, stubble', clothes: 'Navy hoodie', other: 'Walks a beagle called Biscuit' },
+    met: 'Next door since last spring; you helped carry his sofa in',
   },
   {
     id: 'sample-walter',
@@ -44,10 +47,11 @@ export const SAMPLES: Sample[] = [
     name: 'Walter',
     note: 'This is Walter, my piano teacher, his daughter just got married',
     cues: { glasses: 'Rimless glasses', hair: 'Grey hair', clothes: 'Always in a jacket' },
+    met: 'Thursday lessons at the music school',
   },
 ];
 
-/** A face that is never added: Whisper mode must label it "Not someone you've added". */
+/** A face that is never added: Whisper mode must label it "No match". */
 export const STRANGER_FILE = 'stranger.jpg';
 
 const faceUrl = (file: string) => new URL(`../demo/faces/${file}`, document.baseURI).href;
@@ -113,6 +117,7 @@ export async function loadSamplePeople(onProgress?: (fraction: number) => void):
       whisper: makeWhisper(sample.name, sample.note),
       whisperSource: 'rules',
       cues: sample.cues,
+      met: sample.met,
       descriptors,
       thumb,
       consentAt: now,

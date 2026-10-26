@@ -1,6 +1,6 @@
-import { CalendarHeart, Play, Square, UserPlus } from 'lucide-react';
+import { CalendarHeart, Ear, Play, Square, UserPlus } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { Avatar, EmptyState, Wordmark } from '../components/ui';
+import { Avatar, EmptyState, Switch, Wordmark } from '../components/ui';
 import { usePeople } from '../lib/people';
 import { isoDay } from '../lib/practice';
 import { navigate } from '../lib/router';
@@ -34,7 +34,7 @@ export function Today() {
   }
 
   async function save() {
-    await saveToday({ title: title.trim(), ids: picked, day: isoDay(Date.now()) });
+    await saveToday({ title: title.trim(), ids: picked, day: isoDay(Date.now()), only: list?.only ?? false });
     setEditing(false);
     window.scrollTo({ top: 0 });
     document.querySelector('.shell')?.scrollTo({ top: 0 });
@@ -135,6 +135,31 @@ export function Today() {
             {playing ? <Square size={18} aria-hidden="true" /> : <Play size={18} aria-hidden="true" />}
             {playing ? 'Stop' : 'Hear everyone’s line'}
           </button>
+          <div className="panel event-panel">
+            <div className="panel__row">
+              <span className="panel__text">
+                <span className="panel__title" id="event-only-title">
+                  Event mode: only look for these people
+                </span>
+                <span className="panel__hint">
+                  Whisper mode compares faces with this list alone: fewer people to mix up. Anyone else, even people you’ve added, is “No match” until you
+                  turn this off.
+                </span>
+              </span>
+              <Switch
+                checked={!!list?.only}
+                onChange={(only) => list && void saveToday({ ...list, only })}
+                label="Event mode: only look for these people"
+              />
+            </div>
+            {list?.only && (
+              <div className="panel__row">
+                <button type="button" className="btn btn--block" onClick={() => (unlockAudio(), navigate('/whisper'))}>
+                  <Ear size={20} aria-hidden="true" /> Start Whisper mode for this event
+                </button>
+              </div>
+            )}
+          </div>
           <section className="section" aria-label="Today’s people">
             <ul className="brief">
               {chosen.map((p) => (
@@ -152,6 +177,7 @@ export function Today() {
                         ))}
                       </ul>
                     )}
+                    {p.met && <p className="brief__met">Where you met: {p.met}</p>}
                   </div>
                   <button
                     type="button"
@@ -179,7 +205,7 @@ export function Today() {
             </button>
           </div>
           <p className="label" style={{ marginTop: 'var(--space-md)' }}>
-            In Whisper mode, people on this list are marked “On today’s list”.
+            In Whisper mode, people on this list are marked “On today’s list”, and in pocket mode they buzz three times.
           </p>
         </>
       )}

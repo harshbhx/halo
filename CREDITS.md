@@ -31,7 +31,7 @@ The app icon and the halo mark are drawn for this project.
 
 ## Build and test tools
 
-[Vite](https://vite.dev) (MIT), [TypeScript](https://www.typescriptlang.org) (Apache 2.0), [Vitest](https://vitest.dev) (MIT), [fake-indexeddb](https://github.com/dumbmatter/fakeIndexedDB) (Apache 2.0), [Playwright](https://playwright.dev) (Apache 2.0), [puppeteer-core](https://pptr.dev) for Hallmark's rendered checks (Apache 2.0), [ffmpeg](https://ffmpeg.org) for the fake-camera clips and mp4 conversion (LGPL/GPL, used as a tool, not shipped).
+[Vite](https://vite.dev) (MIT), [TypeScript](https://www.typescriptlang.org) (Apache 2.0), [Vitest](https://vitest.dev) (MIT), [fake-indexeddb](https://github.com/dumbmatter/fakeIndexedDB) (Apache 2.0), [Playwright](https://playwright.dev) (Apache 2.0), [puppeteer-core](https://pptr.dev) for Hallmark's rendered checks (Apache 2.0), [axe-core](https://github.com/dequelabs/axe-core) with @axe-core/playwright for the accessibility tests (MPL 2.0), [ffmpeg](https://ffmpeg.org) for the fake-camera clips and mp4 conversion (LGPL/GPL, used as a tool, not shipped).
 
 ## Optional Enhanced mode (not deployed from this repository)
 

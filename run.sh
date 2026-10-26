@@ -7,7 +7,7 @@
 #                                (clip: friend = "Sam" only, street = Sam, a stranger, Sam)
 #   ./run.sh test                unit tests + end-to-end tests (Chromium, fake camera)
 #   ./run.sh screens             every screen, light and dark, phone and desktop (docs/shots/)
-#   ./run.sh record              the app walkthrough and the landing scroll videos (docs/shots/)
+#   ./run.sh record              the app walkthrough, the landing scroll and the 60-second try videos (docs/shots/)
 #   ./run.sh accuracy            match distances on the synthetic faces (eval/accuracy-synthetic.json)
 #
 # The camera only works on a secure origin; http://localhost counts as secure.
@@ -137,11 +137,12 @@ case "${1:-start}" in
     ensure_clips
     ensure_browser
     build_app
-    say "Recording the app walkthrough (about 3 minutes) and the landing scroll (about 30 seconds), headless…"
+    say "Recording the app walkthrough, the landing scroll and the 60-second try, headless (about 4 minutes)…"
     npx playwright test --project=record
     to_mp4 docs/shots/walkthrough.webm
     to_mp4 docs/shots/landing-scroll.webm
-    say "Done: docs/shots/walkthrough.(webm|mp4), docs/shots/landing-scroll.(webm|mp4), stills in docs/shots/walkthrough/"
+    to_mp4 docs/shots/try-60-seconds.webm
+    say "Done: docs/shots/walkthrough, landing-scroll and try-60-seconds (.webm and .mp4), stills in docs/shots/walkthrough/"
     ;;
 
   accuracy)

@@ -80,6 +80,7 @@ async function flow(page: Page, dir: string, captureLanding: boolean) {
   await page.getByRole('button', { name: 'Continue' }).click();
   await page.getByLabel('Usual clothes').fill('Green raincoat');
   await page.getByLabel('Hair').fill('Brown hair with a fringe');
+  await page.getByLabel('Where you met, or when you last saw them').fill('At the climbing gym');
   await settle(page);
   await shot('09-enrol-cues');
   await page.getByRole('button', { name: 'Save Sam' }).click();
@@ -116,6 +117,10 @@ async function flow(page: Page, dir: string, captureLanding: boolean) {
   await settle(page);
   await shot('15-today-list');
   await forLanding('today');
+  await page.getByRole('switch', { name: /Event mode/ }).click();
+  await settle(page);
+  await shot('15b-today-event-mode');
+  await page.getByRole('switch', { name: /Event mode/ }).click();
 
   await page.getByRole('button', { name: 'Practice', exact: true }).click();
   await settle(page);
@@ -143,11 +148,22 @@ async function flow(page: Page, dir: string, captureLanding: boolean) {
   await settle(page, 400);
   await shot('21-whisper-no-match');
   await forLanding('whisper-stranger');
+  await page.getByRole('button', { name: /Pocket mode/ }).click();
+  await expect(page.locator('.pocket__status')).toHaveText(/^(Maya|Arjun|Walter)\??$/, { timeout: 40_000 });
+  await settle(page, 300);
+  await shot('21b-pocket-mode');
+  await page.getByRole('button', { name: 'Wake the screen' }).click();
   await page.getByRole('button', { name: 'Close Whisper mode' }).click();
 
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await settle(page);
   await shot('22-settings');
+  await page.getByRole('switch', { name: 'Quiet hours' }).click();
+  await page.getByRole('heading', { name: 'Pocket mode' }).scrollIntoViewIfNeeded();
+  await page.getByRole('switch', { name: 'Quiet hours' }).scrollIntoViewIfNeeded();
+  await settle(page);
+  await shot('22b-settings-quiet-hours-pocket');
+  await page.getByRole('switch', { name: 'Quiet hours' }).click();
   await page.getByRole('switch', { name: 'Use Enhanced mode' }).click();
   await settle(page, 600);
   await shot('23-enhanced-consent');
@@ -181,6 +197,21 @@ for (const viewport of ['phone', 'desktop'] as const) {
         await page.goto(askLink(baseURL!, 'Sam', 'Sam, your teammate from the hackathon. Loves climbing.'));
         await settle(page, 600);
         await page.screenshot({ path: `${dir}/26-consent-link-page.png` });
+        await page.goto('/helper/');
+        await page.getByLabel('Who is it?').fill('Raj');
+        await page.getByLabel('How do they know them?').fill('Raj, our neighbour, had knee surgery last month');
+        await page.getByLabel('Usual clothes').fill('Green parka');
+        await settle(page, 300);
+        await page.screenshot({ path: `${dir}/30-helper-page.png` });
+        await page.getByLabel(/Where they met/).fill('At the summer party');
+        await page.getByLabel(/Your first name/).fill('Anu');
+        await page.getByRole('button', { name: 'Make the card link' }).click();
+        const link = (await page.locator('[data-url]').textContent()) ?? '';
+        await page.evaluate(() => localStorage.setItem('fw.settings', JSON.stringify({ welcomeSeen: true })));
+        await page.goto(link);
+        await expect(page.getByRole('heading', { name: 'A card for Raj' })).toBeVisible();
+        await settle(page, 400);
+        await page.screenshot({ path: `${dir}/31-card-received.png` });
       });
     });
   }
@@ -212,4 +243,21 @@ test('sample people only, as a first visit sees them, for the landing page', asy
   await settle(page, 800);
   mkdirSync(LANDING, { recursive: true });
   await page.screenshot({ path: `${LANDING}/people.png` });
+});
+
+test('Halo in 60 seconds, phone', async ({ page }) => {
+  test.setTimeout(240_000);
+  for (const mode of ['light', 'dark'] as Mode[]) {
+    await page.emulateMedia({ colorScheme: mode });
+    await page.evaluate(() => localStorage.clear()).catch(() => undefined);
+    await page.goto('about:blank'); // a hash-only change wouldn't reload the app
+    await page.goto(`${APP}#/try`);
+    await expect(page.getByRole('region', { name: 'Halo in 60 seconds' })).toBeVisible({ timeout: 120_000 });
+    await expect(page.locator('.caption:not(.caption--maybe) .caption__name')).toHaveText(/Maya|Arjun|Walter/, { timeout: 90_000 });
+    await settle(page, 900);
+    await page.screenshot({ path: `docs/shots/phone-${mode}/28-try-60-seconds.png` });
+    await expect(page.getByRole('heading', { name: 'That’s Halo.' })).toBeVisible({ timeout: 120_000 });
+    await settle(page, 500);
+    await page.screenshot({ path: `docs/shots/phone-${mode}/29-try-done.png` });
+  }
 });

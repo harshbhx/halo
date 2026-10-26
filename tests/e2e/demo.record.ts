@@ -115,6 +115,7 @@ test('app walkthrough', async ({ page, context }) => {
   mark('Cue notes');
   await page.getByLabel('Usual clothes').pressSequentially('Green raincoat', { delay: 55 });
   await page.getByLabel('Hair').pressSequentially('Brown hair with a fringe', { delay: 45 });
+  await page.getByLabel('Where you met, or when you last saw them').pressSequentially('At the climbing gym', { delay: 45 });
   await pause(1000);
   await tap(page.getByRole('button', { name: 'Save Sam' }));
   await expect(page.getByRole('heading', { name: 'Sam is added.' })).toBeVisible();
@@ -152,6 +153,10 @@ test('app walkthrough', async ({ page, context }) => {
   mark('Today’s list: lines and cues before you walk in');
   await pause(2200);
   await shot('07-today');
+  mark('Event mode: Whisper mode looks only for these three');
+  await tap(page.getByRole('switch', { name: /Event mode/ }));
+  await pause(1600);
+  await tap(page.getByRole('switch', { name: /Event mode/ }));
   await scroll(3);
   await pause(800);
 
@@ -169,7 +174,13 @@ test('app walkthrough', async ({ page, context }) => {
   await shot('09-no-match');
   await expect(page.locator('.caption:not(.caption--maybe) .caption__name')).toHaveText(/Arjun|Walter/, { timeout: 40_000 });
   mark('The next sample person');
-  await pause(2500);
+  await pause(1500);
+  mark('Pocket mode: screen dark and kept awake, whispers go to the earbud');
+  await tap(page.getByRole('button', { name: /Pocket mode/ }));
+  await pause(3500);
+  await shot('09b-pocket-mode');
+  await tap(page.getByRole('button', { name: 'Wake the screen' }));
+  await pause(800);
   await tap(page.getByRole('button', { name: 'Close Whisper mode' }));
 
   // 6. Practice from cues.

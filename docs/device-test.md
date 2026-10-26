@@ -25,6 +25,13 @@ Everything so far was tested in headless Chromium with a fake camera playing AI-
 | 11 | Install | Add to Home Screen | Opens full screen with the Halo icon | |
 | 12 | Speed | Whisper mode with one face | Smooth preview; note roughly how long until the halo settles | |
 | 13 | Delete everything | Settings | Back to the tour, people gone | |
+| 14 | Pocket mode | Whisper mode, pocket button, phone in a shirt pocket or on a lanyard, camera out | Screen near-black and stays on; whisper in the earbud, or buzz codes without one (two short, three short, one long) | |
+| 15 | Wake lock | Leave pocket mode on for 5 minutes | The screen doesn't lock and the camera keeps running; if it does lock, note the browser | |
+| 16 | Event mode | Today's list with one person, Event mode on | Only that person is named; others are "No match" | |
+| 17 | Say it all at once | Add someone, Or say it all at once, one sentence | Name, note, cues and where you met filled in for checking | |
+| 18 | Quiet hours | Settings, quiet hours covering now | A buzz and the caption, nothing aloud | |
+| 19 | Helper card | Open `/helper/` on another phone, send the link to this one | The card opens, starts adding the person at the note | |
+| 20 | Screen reader | VoiceOver or TalkBack through the tour and Add someone | Each step's heading is read; every button has a name | |
 
 ## What we know so far
 

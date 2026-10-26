@@ -5,7 +5,7 @@ status: approved
 
 # Halo: Technical Spec
 
-> **How this was made.** Written by an AI coding agent running the Devpost Learn `4-spec` skill, from Harsh's brief (on-device face matching with face-api, browser storage, browser speech, works with no key) and his later decisions (the name, optional text-only Enhanced mode on Cloudflare, the Hallmark design skill). Choices the brief left open are marked **Agent recommendation**.
+> **How this was made.** Written by an AI coding agent running the Devpost Learn `4-spec` skill, from Harsh's brief (on-device face matching with face-api, browser storage, browser speech, works with no key) and his later decisions (the name, optional text-only Enhanced mode on Cloudflare, the Hallmark design skill, the second feature round). Choices the brief left open are marked **Agent recommendation**.
 >
 > **Harsh's own notes (to fill in):** _[the technical part you'd explain to a friend in your own words]_
 
@@ -26,18 +26,19 @@ PRD ref: `prd.md > The Core Journey`.
 
 1. Open `/app/` → `App` reads settings from `localStorage` (no personal data) → `Welcome` tour → earbud check sets `speakAllowed`.
 2. **Add someone** → `Enrol`: name → note (`whisper.ts` rules, or an on-device model, or Enhanced mode's writer) → their yes (`consentMethod: 'in-person'`, or `consentLink.ts` for a link) → `PhotoStep` (`faceEngine.describe` per shot) → cues → `vault.savePerson` encrypts and stores → `say.enrich` adds a translation and a natural voice if Enhanced mode is on.
-3. **Whisper** → `WhisperMode` opens the camera (or `demo.createDemoStream`) → each frame `faceEngine.detectAll` → `matcher.nearest` per face → `FaceTracker.update` gives each track a state → confident: `say.sayPerson` (clip, phone voice, buzz or caption) and `recent.remember`; maybe: a dotted ring and a question; no match: a faint outline. Fingerprints of faces in view are dropped right after the comparison.
+3. **Whisper** → `WhisperMode` opens the camera (or `demo.createDemoStream`) → each frame `faceEngine.detectAll` → `matcher.nearest` per face against `rules.searchList` (everyone, or only today's list in event mode) → `FaceTracker.update` gives each track a state → confident: `say.sayPerson`, where `rules.outputFor` picks the clip or phone voice, a buzz code (quiet hours, before the earbud check) or nothing (never whisper), and `recent.remember`; maybe: a dotted ring and a question; no match: a faint outline. Fingerprints of faces in view are dropped right after the comparison. Pocket mode puts a near-black overlay over the same loop and holds a screen wake lock.
 4. **Delete everything** → `vault.wipeVault` deletes the database and key, settings reset, back to the tour.
 
 ## Stack
 - **TypeScript 5.9, React 19, Vite 7**: a static multi-page site (`/`, `/app/`, `/consent/`). Docs: https://react.dev, https://vite.dev. **Agent recommendation.**
 - **@vladmandic/face-api 1.7** (TinyFaceDetector, 68-point tiny landmarks, FaceRecognitionNet) with TensorFlow.js on WebGL, then WebAssembly, then CPU. Model weights and WebAssembly are served from the site itself. Note: the library was archived in February 2025; it still works, and a move is planned. Docs: https://github.com/vladmandic/face-api.
 - **idb 8** and **Web Crypto (AES-GCM, PBKDF2)**. Docs: https://github.com/jakearchibald/idb, https://developer.mozilla.org/docs/Web/API/SubtleCrypto.
-- **Web Speech API** for the voice and optional dictation. Docs: https://developer.mozilla.org/docs/Web/API/Web_Speech_API.
+- **Web Speech API** for the voice and optional dictation (the note, "say it all at once", where you met). Docs: https://developer.mozilla.org/docs/Web/API/Web_Speech_API.
+- **Vibration API** for buzz codes and **Screen Wake Lock API** for pocket mode. Docs: https://developer.mozilla.org/docs/Web/API/Vibration_API, https://developer.mozilla.org/docs/Web/API/Screen_Wake_Lock_API.
 - **Fonts:** Instrument Sans and Atkinson Hyperlegible Next, self-hosted through @fontsource. **Icons:** lucide-react.
 - **Design:** the Hallmark skill (project-level, `.claude/skills/hallmark`), Ribbon theme, swept with its `sloplint` (static and rendered) and two fresh-context reviews.
 - **Enhanced mode:** one Cloudflare Worker (`worker/index.ts`) with Workers AI: `@cf/myshell-ai/melotts`, `@cf/ai4bharat/indictrans2-en-indic-1B`, `@cf/meta/m2m100-1.2b`, `@cf/meta/llama-3.2-3b-instruct`, `@cf/openai/whisper-large-v3-turbo`. Docs: https://developers.cloudflare.com/workers-ai/.
-- **Tests:** Vitest (unit, including the Worker with Workers AI mocked) and Playwright with Chromium's fake camera playing an AI-generated face.
+- **Tests:** Vitest (unit, including the Worker with Workers AI mocked), Playwright with Chromium's fake camera playing an AI-generated face, and axe-core for accessibility.
 
 ## Where It Runs and How Someone Tries It
 - Any modern phone or desktop browser; the camera needs `https` or `localhost`. No API keys.
@@ -70,8 +71,17 @@ Hash routes and a five-tab bar. `src/App.tsx`, `src/lib/router.ts`, `src/compone
 ### Consent
 Handoff in `src/screens/Enrol.tsx`; links in `src/lib/consentLink.ts`, `consent/` and `src/screens/ConsentReceived.tsx`. PRD ref: `prd.md > Features and Behavior > Consent`.
 
+### Output rules
+`src/lib/rules.ts`: `inQuietHours` (ranges may cross midnight), `outputFor` (never whisper → silent; quiet hours or no earbud check → buzz, or nothing if buzzing is off; otherwise the chosen output), `BUZZ` codes and `buzzFor`, and `searchList` for event mode. Pure and unit tested in `tests/unit/prize.test.ts`. PRD ref: `prd.md > Features and Behavior > Saying less`, `> Hands-free: pocket mode`, `> Preparing and practising`.
+
+### Pocket mode and the 60-second try
+Both live in `src/screens/WhisperMode.tsx`. Pocket mode: the `pocketMode` setting, a `.pocket` overlay with a live status line, `navigator.wakeLock.request('screen')` re-requested when the page becomes visible, focus moved to **Wake the screen**. The try: route `#/try` (allowed before the tour in `src/App.tsx`), sample people prepared on first use, a coach that counts confident people and a no-match face, a summary after both or 75 seconds, voice only after the user turns it on.
+
+### Spoken enrolment and helper cards
+`src/lib/intro.ts` (`parseIntro`: name, note, cues, where you met, by rules) with the "Or say it all at once" button in `Enrol.tsx`; `src/components/Dictate.tsx` for single fields. Helper cards: `src/lib/cardLink.ts` (text-only card in the URL fragment, trimmed and validated), the helper page in `helper/`, and `src/screens/CardReceived.tsx`, which hands a pending card to `Enrol`.
+
 ### Screens
-`src/screens/`: Welcome, Home, Enrol, WhisperMode, Person, Today, Practice, Settings, Backup, Privacy, ConsentReceived.
+`src/screens/`: Welcome, Home, Enrol, WhisperMode, Person, Today, Practice, Settings, Backup, Privacy, ConsentReceived, CardReceived.
 
 ### Enhanced mode
 `src/lib/enhanced.ts` (the only client code that calls a server, only when on and online, every call to the ledger) and `worker/index.ts` (origin check, signed sessions, strict schemas, size caps, per-IP rate limit, daily ceiling, no logging). PRD ref: `prd.md > Features and Behavior > Enhanced mode (optional)`.
@@ -88,17 +98,20 @@ type Person = {
   thumb: string;               // small JPEG, on the phone only
   consentAt: string; consentMethod?: 'in-person' | 'link' | 'owner-confirmed';
   child?: boolean; sample?: boolean;
+  met?: string;                // where you met or last saw them, typed or dictated
+  quiet?: boolean;             // never whisper: captions only
   voiceClip?: { text; audio };          // Enhanced mode, base64 MP3
   translated?: { lang; text };          // Enhanced mode, editable
   createdAt; updatedAt;
 };
 ```
-IndexedDB `face-whisper` (internal name kept from the first build): `people` and `meta` hold AES-GCM ciphertext; `keys` holds one non-extractable key. `meta` keeps today's list, practice cards, practice days and the ledger. `localStorage` keeps settings only.
+IndexedDB `face-whisper` (internal name kept from the first build): `people` and `meta` hold AES-GCM ciphertext; `keys` holds one non-extractable key. `meta` keeps today's list (with `only` for event mode), practice cards, practice days and the ledger. `localStorage` keeps settings only, including `quietHours: { on, from, to }` and `pocketMode`.
 
 ## External Services and Dependencies
 - **Default mode: none.** No network request carries user data; the CSP sets `connect-src 'self'` and `npm run build` fails if the build loads anything from another origin.
 - **Enhanced mode:** Halo's own Worker on the same origin; Workers AI under Cloudflare's no-training, no-retention terms. Payloads and limits in `worker/README.md`.
 - **Browser dictation** may send audio to the browser maker; typing is the default.
+- **Links** (consent questions and answers, helper cards) carry text in the URL fragment, never sent to a server by the browser; the app used to send them can read them.
 
 ## Important Failure Modes
 - **Wrong person** → three states, strict limits, track reset on a face swap, children and look-alikes held at maybe, the honest limits on screen.
@@ -106,6 +119,8 @@ IndexedDB `face-whisper` (internal name kept from the first build): `people` and
 - **No WebGL** → WebAssembly, then CPU.
 - **No or online-only voice** → captions and a buzz; Settings points to an offline voice.
 - **Enhanced mode down** → the phone's voice, the rules and English, as if it were off.
+- **No vibration (iPhone browsers) or no wake lock** → pocket mode says so; captions and the earbud still work.
+- **A spoken intro the rules can't split** → the whole sentence becomes the note, nothing is guessed, and the user checks every field.
 
 ## What Was Simplified and Why
 - **Browser voice by default** instead of generated voices: no key, nothing leaves the phone. Enhanced mode adds a natural voice for those who opt in.
@@ -116,5 +131,6 @@ IndexedDB `face-whisper` (internal name kept from the first build): `people` and
 ## Decisions and Open Issues
 - On-device matching with face-api (Harsh's brief); accuracy below server-grade models, so Halo is conservative and says so.
 - **Agent recommendation:** the three-state thresholds and timings, the 50 and 5 limits, 45 seconds between repeats.
+- **Agent recommendation:** helper cards are text only, because photos or fingerprints in a link would leave the phone; the buzz codes (two short, three short, one long); quiet hours 22:00 to 07:00 by default, off.
 - **The uncertainty checked in the build:** do the distances separate people? On the synthetic set, same person 0.05 to 0.21 and different people 0.70 or more (`eval/accuracy-synthetic.json`). Real-world separation is still open.
 - Open: real-world accuracy and bias, offline voices per language, the archived face library.

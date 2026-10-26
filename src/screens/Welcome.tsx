@@ -18,6 +18,16 @@ export function Welcome() {
   const [heard, setHeard] = useState('');
   const ask = useRef<HTMLDivElement>(null);
 
+  // Each part of the tour is a new page for a screen reader: move focus to its heading.
+  const firstPart = useRef(true);
+  useEffect(() => {
+    if (firstPart.current) {
+      firstPart.current = false;
+      return;
+    }
+    document.getElementById('welcome-title')?.focus({ preventScroll: true });
+  }, [part]);
+
   // The question appears under the sticky footer on a phone, so bring it into view.
   useEffect(() => {
     if (heard !== 'asked' || !ask.current) return;
@@ -205,6 +215,11 @@ export function Welcome() {
             {part > 0 && (
               <button type="button" className="btn btn--quiet" onClick={() => setPart(part - 1)}>
                 Back
+              </button>
+            )}
+            {part === 0 && (
+              <button type="button" className="btn btn--quiet" onClick={() => (unlockAudio(), navigate('/try'))}>
+                See it in 60 seconds
               </button>
             )}
             <span className="spacer" />
