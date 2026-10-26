@@ -112,6 +112,12 @@ export function WhisperMode({ demo }: { demo: boolean }) {
     if (mutedRef.current) return void pumpSpeech();
     speakingRef.current = true;
     const s = getSettings();
+    // A tiny tap on phones that support it, so a whisper never comes out of nowhere.
+    try {
+      navigator.vibrate?.(25);
+    } catch {
+      // not supported
+    }
     try {
       await speak(person.whisper, { voiceName: s.voiceName, volume: s.volume, rate: s.rate, chime: s.chime });
     } finally {

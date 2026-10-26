@@ -106,7 +106,7 @@ export function PhotoStep({
       } else if (result.ok) {
         const next = [...shots, { descriptor: result.descriptor, thumb: result.thumb }];
         setShots(next);
-        if (next.length === MIN_SHOTS) toast('Three good photos. Add more or continue.');
+        if (next.length === MIN_SHOTS) toast('Three good photos. Add more or continue.', 2000);
       } else {
         toast(DESCRIBE_MESSAGES[result.reason], 4000);
       }
