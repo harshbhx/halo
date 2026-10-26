@@ -1,0 +1,57 @@
+/** Tiny hash router: #/, #/enrol, #/whisper, #/person/<id>, #/settings, #/privacy, #/welcome */
+import { useSyncExternalStore } from 'react';
+
+export type Route =
+  | { name: 'home' }
+  | { name: 'enrol' }
+  | { name: 'whisper'; demo: boolean }
+  | { name: 'person'; id: string }
+  | { name: 'settings' }
+  | { name: 'privacy' }
+  | { name: 'welcome' };
+
+export function parseHash(hash: string): Route {
+  const clean = hash.replace(/^#/, '');
+  const [path, query = ''] = clean.split('?');
+  const parts = path.split('/').filter(Boolean);
+  switch (parts[0]) {
+    case 'enrol':
+      return { name: 'enrol' };
+    case 'whisper':
+      return { name: 'whisper', demo: new URLSearchParams(query).get('demo') === '1' };
+    case 'person':
+      return parts[1] ? { name: 'person', id: decodeURIComponent(parts[1]) } : { name: 'home' };
+    case 'settings':
+      return { name: 'settings' };
+    case 'privacy':
+      return { name: 'privacy' };
+    case 'welcome':
+      return { name: 'welcome' };
+    default:
+      return { name: 'home' };
+  }
+}
+
+export function navigate(path: string, replace = false): void {
+  const target = path.startsWith('#') ? path : `#${path}`;
+  if (replace) {
+    history.replaceState(null, '', target);
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+  } else {
+    window.location.hash = target;
+  }
+}
+
+function subscribe(listener: () => void): () => void {
+  window.addEventListener('hashchange', listener);
+  return () => window.removeEventListener('hashchange', listener);
+}
+
+function snapshot(): string {
+  return window.location.hash;
+}
+
+export function useRoute(): Route {
+  const hash = useSyncExternalStore(subscribe, snapshot, snapshot);
+  return parseHash(hash);
+}
