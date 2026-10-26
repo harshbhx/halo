@@ -184,6 +184,9 @@ export function PhotoStep({
             <button type="button" className="btn" onClick={() => setAttempt((a) => a + 1)}>
               <RefreshCw size={18} aria-hidden="true" /> Try the camera again
             </button>
+            <button type="button" className="btn btn--quiet" onClick={() => navigate('/help')}>
+              How to allow the camera
+            </button>
           </div>
         )}
         <button
@@ -349,7 +352,10 @@ function NoteStep({
       )}
       {micError && (
         <p className="notice" role="alert">
-          {micError}
+          {micError}{' '}
+          <button type="button" className="link-btn" onClick={() => navigate('/help')}>
+            Help with the microphone
+          </button>
         </p>
       )}
 

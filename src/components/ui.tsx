@@ -1,4 +1,4 @@
-import { useEffect, useRef, useSyncExternalStore, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useSyncExternalStore, type ReactNode } from 'react';
 import { CalendarHeart, ChevronLeft, Ear, Lock, Settings as SettingsIcon, Shuffle, UsersRound } from 'lucide-react';
 import { navigate, type Route } from '../lib/router';
 import { unlockAudio } from '../lib/voice';
@@ -144,16 +144,19 @@ export function ConfirmSheet({
   danger = false,
   onConfirm,
   onCancel,
+  cancelLabel = 'Keep everything',
 }: {
   open: boolean;
   title: string;
   children: ReactNode;
   confirmLabel: string;
+  cancelLabel?: string;
   danger?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
@@ -164,7 +167,7 @@ export function ConfirmSheet({
     <dialog
       ref={ref}
       className="sheet"
-      aria-labelledby="sheet-title"
+      aria-labelledby={titleId}
       onCancel={(e) => {
         e.preventDefault();
         onCancel();
@@ -174,10 +177,10 @@ export function ConfirmSheet({
       }}
     >
       <div className="sheet__body">
-        <h2 id="sheet-title">{title}</h2>
+        <h2 id={titleId}>{title}</h2>
         <div className="muted">{children}</div>
         <button type="button" className="btn btn--block btn--quiet" onClick={onCancel} autoFocus>
-          Keep everything
+          {cancelLabel}
         </button>
         <button type="button" className={`btn btn--block ${danger ? 'btn--danger' : 'btn--primary'}`} onClick={onConfirm}>
           {confirmLabel}

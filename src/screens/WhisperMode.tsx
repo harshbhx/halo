@@ -15,6 +15,7 @@ import type { Person } from '../lib/types';
 import { haptic, stopSpeaking, unlockAudio } from '../lib/voice';
 import { captionLine, sayPerson } from '../lib/say';
 import { recentWhispers, remember, type RecentWhisper } from '../lib/recent';
+import { addReport } from '../lib/reports';
 import { cueItems } from '../lib/whisperStyle';
 import { BUZZ, inQuietHours, searchList } from '../lib/rules';
 
@@ -111,6 +112,7 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const facesRef = useRef<DrawnFace[]>([]);
   const peopleRef = useRef<Person[]>(people);
+  const lastMatchRef = useRef(new Map<string, { distance: number; runnerUp: number }>());
   const todayRef = useRef(today);
   todayRef.current = today;
   const pocketRef = useRef(settings.pocketMode);
@@ -168,7 +170,7 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
   mutedRef.current = muted || whispersOff;
 
   useEffect(() => {
-    trackerRef.current.configure(STATE_LIMITS[settings.strictness], settings.repeatSeconds * 1000, (id) => !!peopleRef.current.find((p) => p.id === id)?.child);
+    trackerRef.current.configure(STATE_LIMITS[settings.strictness], settings.repeatSeconds * 1000, (id) => { const p = peopleRef.current.find((x) => x.id === id); return !!(p?.child || p?.hold); });
   }, [settings.repeatSeconds, settings.strictness]);
 
   // Phones stop the camera when the screen locks; restart it on return.
@@ -324,8 +326,14 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
       let frames = 0;
       let light = 128;
 
+      let busyMs = 0;
       const tick = async () => {
         if (cancelled) return;
+        // Hidden tab or locked screen: read nothing, check again in a moment.
+        if (document.hidden) {
+          timer = setTimeout(tick, 500);
+          return;
+        }
         const v = videoRef.current;
         let delay = 120;
         if (v && !pausedRef.current && v.readyState >= 2 && v.videoWidth > 0) {
@@ -426,11 +434,18 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
               ),
             );
             for (const f of confident) {
+              if (f.personId) lastMatchRef.current.set(f.personId, { distance: f.distance, runnerUp: observations[faces.indexOf(f)]?.runnerUp ?? 1 });
               if (f.personId && trackerRef.current.shouldSpeak(f.personId, now) && !queueRef.current.includes(f.personId)) queueRef.current.push(f.personId);
             }
             void pumpSpeech();
             if (import.meta.env.DEV || (window as unknown as { __fwDebug?: boolean }).__fwDebug) {
-              (window as unknown as { __fwPerf?: unknown }).__fwPerf = { backend: engineBackend(), detectMs: Math.round(performance.now() - started), light: Math.round(light) };
+              (window as unknown as { __fwPerf?: unknown }).__fwPerf = {
+                backend: engineBackend(),
+                detectMs: Math.round(performance.now() - started),
+                light: Math.round(light),
+                frames,
+                busyMs: Math.round(busyMs + performance.now() - started),
+              };
               (window as unknown as { __fwLastFrame?: unknown }).__fwLastFrame = faces.map((f, i) => ({
                 state: f.state,
                 personId: f.personId,
@@ -441,7 +456,10 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
           } catch {
             // A bad frame is skipped; the next one is read.
           }
-          delay = Math.max(60, (performance.now() - started) * 0.4);
+          const spent = performance.now() - started;
+          busyMs += spent;
+          // About six reads a second at most; about two with Battery saver on.
+          delay = Math.max(30, (getSettings().batterySaver ? 500 : 150) - spent);
         }
         timer = setTimeout(tick, delay);
       };
@@ -635,6 +653,15 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
 
   const caption = useMemo(() => people.find((p) => p.id === captionId) ?? null, [people, captionId]);
   const onToday = caption && today?.ids.includes(caption.id);
+
+  async function reportWrong(person: Person) {
+    const m = lastMatchRef.current.get(person.id) ?? { distance: 0, runnerUp: 1 };
+    setCaptionId(null);
+    captionSeenRef.current = 0;
+    stopSpeaking();
+    await addReport({ at: Date.now(), personId: person.id, name: person.name, distance: m.distance, runnerUp: m.runnerUp, strictness: getSettings().strictness });
+    toast(`Noted on this phone: it wasn’t ${person.name}. Settings has a suggestion.`);
+  }
 
   function repeatCaption() {
     if (!caption) return;
@@ -855,6 +882,9 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
             <button type="button" className="btn btn--block" onClick={() => setAttempt((a) => a + 1)}>
               <RefreshCw size={20} aria-hidden="true" /> Try the camera again
             </button>
+            <button type="button" className="btn btn--quiet" onClick={() => navigate('/help')}>
+              How to allow the camera
+            </button>
             {SAMPLE_AVAILABLE && people.some((p) => p.sample) && (
               <button type="button" className="btn btn--block" onClick={() => navigate('/whisper?demo=1')}>
                 Use the demo camera
@@ -913,6 +943,11 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
               </ul>
             )}
             <span className="caption__hint">Tap to hear it again</span>
+          </button>
+        )}
+        {caption && phase === 'running' && captionKind === 'confident' && (
+          <button type="button" className="caption__wrong" onClick={() => void reportWrong(caption)}>
+            Wrong person? It wasn’t {caption.name}
           </button>
         )}
         {caption && phase === 'running' && captionKind === 'maybe' && (

@@ -14,6 +14,7 @@ import { shareLink } from '../lib/consentLink';
 import { spokenLine, STYLE_LABELS, type WhisperStyle } from '../lib/whisperStyle';
 import { WHISPER_LANGUAGES } from '../lib/enhanced';
 import { BRAND } from '../brand';
+import { BatteryRow, DataLinkRow, DocumentRows, LockSection, WrongMatchSection } from './SettingsMore';
 
 const SAMPLE = { name: 'Raj', whisper: 'Raj, your neighbour. Knee surgery last month.', cues: { clothes: 'Green parka', glasses: 'Round glasses' } };
 
@@ -270,6 +271,7 @@ export function Settings() {
             </span>
             <Switch checked={settings.whispersPaused} onChange={(whispersPaused) => updateSettings({ whispersPaused })} label="Pause whispers" />
           </div>
+          <BatteryRow />
           <div className="panel__row">
             <span className="panel__text">
               <span className="panel__title" id="quiet-title">
@@ -468,6 +470,7 @@ export function Settings() {
       <section className="section" aria-labelledby="data-title">
         <h2 id="data-title">Your data</h2>
         <div className="panel">
+          <DataLinkRow />
           <button type="button" className="panel__row panel__link" onClick={() => navigate('/backup')}>
             <Download size={22} aria-hidden="true" />
             <span className="panel__text">
@@ -492,6 +495,10 @@ export function Settings() {
         </div>
       </section>
 
+      <WrongMatchSection />
+
+      <LockSection />
+
       <section className="section" aria-labelledby="help-title">
         <h2 id="help-title">Help</h2>
         <div className="panel">
@@ -500,6 +507,7 @@ export function Settings() {
               Take the tour again
             </button>
           </div>
+          <DocumentRows />
           {!standalone && (
             <div className="panel__row panel__row--stack">
               <span className="panel__title">Put it on your home screen</span>

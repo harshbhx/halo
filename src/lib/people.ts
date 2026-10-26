@@ -1,4 +1,5 @@
 /** Shared, reactive view of the people in the vault. */
+import { resetReportsState } from './reports';
 import { useSyncExternalStore } from 'react';
 import type { Person } from './types';
 import * as vault from './vault';
@@ -44,6 +45,7 @@ export async function removeEveryone(): Promise<void> {
   await vault.wipeVault();
   resetStores();
   resetLedgerState();
+  resetReportsState();
   set({ loaded: true, people: [], error: null });
 }
 
