@@ -26,3 +26,4 @@ public/wasm/
 # Symlink folder created by the skills installer for another harness
 /agent/
 .demo-profile/
+docs/shots/*.webm

@@ -9,7 +9,7 @@
  * Output: docs/shots/walkthrough.webm and docs/shots/NN-*.png
  */
 import { expect, test, type Page } from '@playwright/test';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { SAM_NOTE, takePhotos } from './helpers';
 
 const OUT = 'docs/shots';
@@ -45,12 +45,17 @@ async function tap(_page: Page, locator: ReturnType<Page['locator']>) {
 
 test('demo walkthrough', async ({ page }) => {
   mkdirSync(OUT, { recursive: true });
+  // Timeline of the recording, for adding narration and the spoken whispers in an editor.
+  const t0 = Date.now();
+  const timeline: Array<{ t: number; event: string }> = [];
+  const mark = (event: string) => timeline.push({ t: Math.round((Date.now() - t0) / 100) / 10, event });
   await showTaps(page);
   const shot = (name: string) => page.screenshot({ path: `${OUT}/${name}.png` });
   const pause = (ms: number) => page.waitForTimeout(ms);
 
   // 1. Welcome: the promise comes first.
   await page.goto('/');
+  mark('Welcome screen');
   await expect(page.getByRole('heading', { name: "Know who's in front of you." })).toBeVisible();
   await pause(2500);
   await shot('01-welcome');
@@ -60,6 +65,7 @@ test('demo walkthrough', async ({ page }) => {
   }
   await pause(1200);
   await shot('02-welcome-promises');
+  mark('Tap: I understand, let\'s start');
   await tap(page, page.getByRole('button', { name: "I understand, let's start" }));
 
   // 2. Empty home.
@@ -68,6 +74,7 @@ test('demo walkthrough', async ({ page }) => {
   await shot('03-home-empty');
 
   // 3. Enrol Sam (with consent).
+  mark('Enrol: name and consent');
   await tap(page, page.getByRole('button', { name: 'Add someone' }).first());
   await pause(600);
   await page.getByLabel('Their name').pressSequentially('Sam', { delay: 120 });
@@ -80,6 +87,7 @@ test('demo walkthrough', async ({ page }) => {
   await expect(page.getByRole('button', { name: /^Take photo/ })).toBeEnabled({ timeout: 120_000 });
   await pause(1500);
   await shot('05-enrol-camera');
+  mark('Enrol: three photos');
   await takePhotos(page, 1);
   await pause(900);
   await takePhotos(page, 2);
@@ -90,12 +98,14 @@ test('demo walkthrough', async ({ page }) => {
   await tap(page, page.getByRole('button', { name: 'Continue' }));
 
   await pause(800);
+  mark('Enrol: typing the note, whisper preview updates');
   await page.getByLabel('Your note').pressSequentially(SAM_NOTE, { delay: 38 });
   await pause(1800);
   await shot('07-enrol-note-whisper');
   await tap(page, page.getByRole('button', { name: 'Continue' }));
 
   await pause(600);
+  mark('Enrol: cue notes');
   await page.getByLabel('Usual clothes').pressSequentially('Green raincoat', { delay: 60 });
   await page.getByLabel('Hair').pressSequentially('Brown hair with a fringe', { delay: 45 });
   await pause(1200);
@@ -106,11 +116,14 @@ test('demo walkthrough', async ({ page }) => {
   await shot('09-home-sam');
 
   // 4. Whisper mode: the kernel.
+  mark('Tap: Whisper');
   await tap(page, page.getByRole('button', { name: 'Start Whisper mode' }));
   await expect(page.locator('.caption')).toContainText('Sam, your teammate from the hackathon', { timeout: 90_000 });
+  mark('WHISPER (spoken): "Sam, your teammate from the hackathon. Loves climbing."');
   await pause(1500);
   await shot('10-whisper-sam');
   await pause(4500);
+  mark('Tap caption: WHISPER repeats (spoken again)');
   await tap(page, page.locator('.caption'));
   await pause(3000);
   await tap(page, page.getByRole('button', { name: 'Close Whisper mode' }));
@@ -120,20 +133,25 @@ test('demo walkthrough', async ({ page }) => {
   await pause(800);
   await tap(page, page.getByRole('button', { name: 'Settings', exact: true }));
   await pause(900);
+  mark('Settings: add sample people (AI-generated faces)');
   await tap(page, page.getByRole('button', { name: 'Add sample people' }));
   await expect(page.getByRole('button', { name: 'Remove sample people' })).toBeVisible({ timeout: 120_000 });
   await pause(800);
   await tap(page, page.getByRole('button', { name: 'People', exact: true }));
   await pause(1800);
   await shot('11-home-with-samples');
+  mark('Tap: Open the demo camera');
   await tap(page, page.getByRole('button', { name: 'Open the demo camera' }));
   await expect(page.locator('.caption__name')).toHaveText('Maya', { timeout: 90_000 });
+  mark('WHISPER (spoken): "Maya, your manager at work. Just back from parental leave."');
   await pause(1200);
   await shot('12-demo-maya');
   await expect(page.getByText("No one you've added")).toBeVisible({ timeout: 30_000 });
+  mark('Stranger in view: "Not someone you\'ve added", nothing spoken');
   await pause(1800);
   await shot('13-demo-stranger-unknown');
   await expect(page.locator('.caption__name')).toHaveText('Arjun', { timeout: 30_000 });
+  mark('WHISPER (spoken): "Arjun, your neighbour from flat 4. Knee surgery last month."');
   await pause(2000);
   await shot('14-demo-arjun');
   await pause(2500);
@@ -141,6 +159,7 @@ test('demo walkthrough', async ({ page }) => {
 
   // 6. A person's page: consent date, fingerprints, edit, delete.
   await pause(800);
+  mark('Person page: consent date, fingerprints, edit');
   await tap(page, page.getByRole('button', { name: /^Sam/ }));
   await pause(2000);
   await shot('15-person-sam');
@@ -153,11 +172,13 @@ test('demo walkthrough', async ({ page }) => {
   await tap(page, page.getByRole('button', { name: 'Settings', exact: true }));
   await pause(1500);
   await shot('16-settings');
+  mark('Settings: voice, strictness, theme');
   await tap(page, page.getByRole('radio', { name: 'Dark' }));
   await pause(1200);
   await tap(page, page.getByRole('button', { name: 'People', exact: true }));
   await pause(1500);
   await shot('17-home-dark');
+  mark('Privacy and honest limits');
   await tap(page, page.getByRole('button', { name: /On this phone only/ }));
   await pause(1500);
   await shot('18-privacy');
@@ -172,13 +193,17 @@ test('demo walkthrough', async ({ page }) => {
   await pause(900);
   await page.getByRole('button', { name: 'Delete everything' }).scrollIntoViewIfNeeded();
   await pause(800);
+  mark('Delete everything');
   await tap(page, page.getByRole('button', { name: 'Delete everything' }));
   await pause(1500);
   await shot('19-delete-everything');
   await tap(page, page.getByRole('button', { name: 'Yes, delete everything' }));
   await expect(page.getByRole('heading', { name: "Know who's in front of you." })).toBeVisible();
+  mark('Back to a fresh start');
   await pause(2500);
   await shot('20-after-delete-welcome');
+  mark('End');
+  writeFileSync(`${OUT}/timeline.json`, JSON.stringify(timeline, null, 2));
 
   const video = page.video();
   await page.close();
