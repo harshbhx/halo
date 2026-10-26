@@ -2,16 +2,28 @@
  * The landing page's few live parts. Everything here is extra: with scripting
  * off the page reads complete (the whisper buttons stay hidden).
  */
-import '@fontsource/instrument-sans/400.css';
-import '@fontsource/instrument-sans/500.css';
-import '@fontsource/atkinson-hyperlegible-next/400.css';
-import '@fontsource/atkinson-hyperlegible-next/700.css';
-import './landing.css';
 import { makeWhisper } from '../src/lib/whisper';
 import { spokenLine, type WhisperStyle } from '../src/lib/whisperStyle';
 import { drawLamps } from '../src/lib/lights';
 
 document.documentElement.classList.add('js');
+
+/** Hallmark's slot helper: swap a product capture for another file without touching the layout. */
+(window as unknown as { hallmarkSlots: (m: Record<string, string | { src: string; alt?: string }>) => void }).hallmarkSlots = (m) => {
+  for (const [k, v] of Object.entries(m)) {
+    const slot = document.querySelector<HTMLElement>(`[data-slot="${k}"]`);
+    if (!slot) continue;
+    const im = new Image();
+    im.src = typeof v === 'string' ? v : v.src;
+    im.alt = (typeof v === 'object' && v.alt) || slot.dataset.alt || '';
+    slot.querySelectorAll(':scope > img').forEach((o) => o.remove());
+    slot.prepend(im);
+  }
+};
+document.querySelectorAll<HTMLImageElement>('[data-slot] img').forEach((i) => {
+  if (i.complete && !i.naturalWidth) i.remove();
+  else i.addEventListener('error', () => i.remove(), { once: true });
+});
 
 const canSpeak = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
 let volume = 0.7;
@@ -105,31 +117,6 @@ ready(() => {
   if (listen && canSpeak) {
     listen.hidden = false;
     listen.addEventListener('click', () => say(line?.textContent ?? ''));
-  }
-
-  /* The switcher: one panel at a time once scripting runs; all three in order without it. */
-  const tabs = [...document.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
-  const list = document.querySelector<HTMLElement>('[role="tablist"]');
-  if (list && tabs.length) {
-    list.hidden = false;
-    const select = (tab: HTMLButtonElement, focus = false) => {
-      for (const t of tabs) {
-        const on = t === tab;
-        t.setAttribute('aria-selected', String(on));
-        t.tabIndex = on ? 0 : -1;
-        const panel = document.getElementById(t.getAttribute('aria-controls') ?? '');
-        if (panel) panel.hidden = !on;
-      }
-      if (focus) tab.focus();
-    };
-    tabs.forEach((t, i) => {
-      t.addEventListener('click', () => select(t));
-      t.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight') select(tabs[(i + 1) % tabs.length], true);
-        if (e.key === 'ArrowLeft') select(tabs[(i - 1 + tabs.length) % tabs.length], true);
-      });
-    });
-    select(tabs[0]);
   }
 
   /* The hour drawn as light: a string of lamps across a terrace at night. Drawn once, still. */
