@@ -47,10 +47,15 @@ self.addEventListener('fetch', (event) => {
         try {
           const fresh = await fetch(req);
           const cache = await caches.open(PREFIX + 'pages');
-          cache.put('./', fresh.clone());
+          cache.put(req, fresh.clone());
           return fresh;
         } catch {
-          return (await caches.match(req, { ignoreSearch: true, ignoreVary: true })) || (await caches.match('./')) || Response.error();
+          const page = url.pathname.endsWith('/') ? new URL('index.html', url).href : req.url;
+          return (
+            (await caches.match(req, { ignoreSearch: true, ignoreVary: true })) ||
+            (await caches.match(page, { ignoreSearch: true, ignoreVary: true })) ||
+            Response.error()
+          );
         }
       })(),
     );

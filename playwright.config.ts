@@ -37,7 +37,7 @@ export default defineConfig({
     permissions: ['camera', 'microphone'],
   },
   webServer: {
-    command: 'npx vite preview --port 4173 --strictPort',
+    command: 'node scripts/serve-dist.mjs',
     url: 'http://localhost:4173',
     reuseExistingServer: true,
     timeout: 60_000,
@@ -54,8 +54,23 @@ export default defineConfig({
       },
     },
     {
+      name: 'screens',
+      testMatch: /screens\.record\.ts/,
+      use: {
+        ...phone,
+        browserName: 'chromium',
+        launchOptions: { args: chromiumArgs('friend') },
+      },
+    },
+    {
+      name: 'accuracy',
+      testMatch: /accuracy\.record\.ts/,
+      timeout: 900_000,
+      use: { browserName: 'chromium', viewport: { width: 800, height: 600 }, launchOptions: { args: ['--enable-unsafe-swiftshader'] } },
+    },
+    {
       name: 'record',
-      testMatch: /.*\.record\.ts/,
+      testMatch: /(demo|landing)\.record\.ts/,
       use: {
         ...phone,
         browserName: 'chromium',

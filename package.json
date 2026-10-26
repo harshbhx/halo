@@ -1,8 +1,8 @@
 {
-  "name": "face-whisper",
+  "name": "halo",
   "private": true,
   "version": "0.1.0",
-  "description": "Quiet, on-device reminders of who someone is, for people with face blindness.",
+  "description": "A quiet voice for faces you know: on-device reminders of who someone is, for people with face blindness.",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -12,15 +12,21 @@
     "postinstall": "node scripts/copy-models.mjs",
     "dev": "vite",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "build": "tsc --noEmit -p tsconfig.json && vite build && node scripts/check-no-external.mjs",
     "preview": "vite preview --port 4173 --strictPort",
     "test": "vitest run",
-    "e2e": "vite build && playwright test --project=e2e",
-    "demo:record": "vite build && playwright test --project=record",
-    "fake-camera": "bash scripts/make-fake-camera.sh"
+    "e2e": "npm run build && playwright test --project=e2e",
+    "demo:record": "npm run build && playwright test --project=record",
+    "fake-camera": "bash scripts/make-fake-camera.sh",
+    "serve": "node scripts/serve-dist.mjs",
+    "check:external": "node scripts/check-no-external.mjs",
+    "screens": "npm run build && playwright test --project=screens",
+    "icons": "node scripts/make-icons.mjs",
+    "accuracy": "npm run build && playwright test --project=accuracy"
   },
   "dependencies": {
     "@fontsource/atkinson-hyperlegible-next": "^5.3.0",
+    "@fontsource/instrument-sans": "^5.3.0",
     "@vladmandic/face-api": "^1.7.15",
     "idb": "^8.0.4",
     "lucide-react": "^1.61.0",
@@ -35,6 +41,7 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^5.2.0",
     "fake-indexeddb": "^6.2.6",
+    "puppeteer-core": "^25.16.0",
     "typescript": "~5.9.3",
     "vite": "^7.3.7",
     "vitest": "^3.2.7"

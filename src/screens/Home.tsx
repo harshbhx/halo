@@ -1,34 +1,33 @@
-import { ChevronRight, ScanFace, ShieldCheck, Sparkles, UserPlus } from 'lucide-react';
-import { unlockAudio } from '../lib/voice';
+import { Pause, Play, ScanFace, Sparkles, UserPlus, Volume2 } from 'lucide-react';
 import { useState } from 'react';
-import { Avatar, Brand, toast } from '../components/ui';
+import { Avatar, EmptyState, toast, Wordmark } from '../components/ui';
+import { loadSamplePeople, SAMPLE_AVAILABLE } from '../lib/demo';
 import { usePeople } from '../lib/people';
 import { navigate } from '../lib/router';
-import { loadSamplePeople, SAMPLE_AVAILABLE } from '../lib/demo';
+import { updateSettings, useSettings } from '../lib/settings';
+import { unlockAudio } from '../lib/voice';
+import { sayPerson } from '../lib/say';
+import type { Person } from '../lib/types';
+import { BRAND } from '../brand';
 
-function EmptyArt() {
-  return (
-    <svg className="empty__art" viewBox="0 0 132 132" aria-hidden="true">
-      <circle cx="66" cy="66" r="62" fill="var(--accent-wash)" />
-      <circle cx="58" cy="58" r="20" fill="var(--surface)" />
-      <path d="M26 104c4-18 18-28 32-28s28 10 32 28" fill="var(--surface)" />
-      <path d="M92 44c6 5 9 11 9 18s-3 13-9 18" fill="none" stroke="var(--accent)" strokeWidth="5" strokeLinecap="round" />
-      <path d="M103 34c9 8 14 17 14 28s-5 20-14 28" fill="none" stroke="var(--accent)" strokeWidth="5" strokeLinecap="round" opacity="0.5" />
-    </svg>
-  );
+/** "Remind me how I know them": the whisper, on demand, from the list. */
+function remind(person: Person) {
+  unlockAudio();
+  void sayPerson(person, { mode: 'voice', style: 'warm', chime: false });
 }
 
 export function Home() {
   const { loaded, people, error } = usePeople();
+  const settings = useSettings();
   const [loadingSamples, setLoadingSamples] = useState(false);
+  const hasSamples = people.some((p) => p.sample);
 
   async function trySamples() {
     setLoadingSamples(true);
     try {
-      const added = await loadSamplePeople();
-      toast(`${added} sample people added. Open Whisper to try them.`);
+      await loadSamplePeople();
     } catch {
-      toast("Sample people couldn't load. Try again.");
+      toast('The sample people didn’t load. Try again.');
     } finally {
       setLoadingSamples(false);
     }
@@ -36,104 +35,117 @@ export function Home() {
 
   return (
     <main className="screen" aria-labelledby="home-title">
-      <div className="topline">
-        <Brand />
-        <button type="button" className="privacy-pill" onClick={() => navigate('/privacy')} aria-label="On this phone only. Read the privacy promise">
-          <ShieldCheck size={18} aria-hidden="true" />
-          On this phone
-        </button>
+      <div className="topbar">
+        <Wordmark />
+        {people.length > 0 && (
+          <button
+            type="button"
+            className="btn btn--quiet"
+            aria-pressed={settings.whispersPaused}
+            aria-label={settings.whispersPaused ? 'Whispers are paused. Turn them back on' : 'Pause whispers'}
+            onClick={() => updateSettings({ whispersPaused: !settings.whispersPaused })}
+          >
+            {settings.whispersPaused ? <Play size={18} aria-hidden="true" /> : <Pause size={18} aria-hidden="true" />}
+            {settings.whispersPaused ? 'Paused' : 'Pause'}
+          </button>
+        )}
       </div>
 
-      <h1 id="home-title" className="title" tabIndex={-1}>
-        People you know
-      </h1>
-      <p className="lede">
-        {people.length === 0
-          ? 'Add the people you meet often. When your camera sees one of them, you hear who it is.'
-          : `${people.length} ${people.length === 1 ? 'person' : 'people'}. Point your camera at one of them and you'll hear who it is.`}
-      </p>
+      <div className="page-head">
+        <h1 id="home-title" tabIndex={-1}>
+          Your people
+        </h1>
+        {people.length > 0 && (
+          <p className="lead">
+            {people.length === 1 ? 'One person' : `${people.length} people`} your phone can recognise, each added with their agreement.
+          </p>
+        )}
+      </div>
+
+      {settings.whispersPaused && (
+        <p className="notice notice--calm" role="status" style={{ marginBottom: 'var(--space-lg)' }}>
+          <Pause size={18} aria-hidden="true" />
+          Whispers are paused. Whisper mode still shows names on screen, quietly.
+        </p>
+      )}
 
       {error && (
-        <p className="notice" role="alert" style={{ marginTop: 18 }}>
-          Storage isn't available in this browser window (private browsing can block it), so people can't be saved.
+        <p className="notice" role="alert" style={{ marginBottom: 'var(--space-lg)' }}>
+          This browser window can’t save people (private browsing often blocks storage). Open {BRAND.name} in a normal window.
         </p>
       )}
 
       {loaded && people.length === 0 && (
-        <section className="empty" aria-label="No one added yet">
-          <EmptyArt />
-          <h2 className="empty__title">No one added yet</h2>
-          <p className="empty__body">Add someone who has agreed to it. It takes about 20 seconds: a few photos and a short note.</p>
-          <div className="stack">
-            <button type="button" className="btn btn--primary btn--block btn--lg" onClick={() => navigate('/enrol')}>
-              <UserPlus size={22} aria-hidden="true" />
-              Add someone
-            </button>
-            {SAMPLE_AVAILABLE && (
-              <button type="button" className="btn btn--secondary btn--block" onClick={trySamples} disabled={loadingSamples}>
-                <Sparkles size={20} aria-hidden="true" />
-                {loadingSamples ? 'Preparing sample people…' : 'Try with sample people'}
+        <EmptyState
+          title="No one here yet"
+          actions={
+            <>
+              <button type="button" className="btn btn--primary btn--block" onClick={() => navigate('/enrol')}>
+                <UserPlus size={20} aria-hidden="true" />
+                Add someone
               </button>
-            )}
-          </div>
-          {SAMPLE_AVAILABLE && (
-            <p className="field__hint" style={{ marginTop: 14 }}>
-              Sample people are AI-generated faces of people who do not exist.
-            </p>
-          )}
-        </section>
+              {SAMPLE_AVAILABLE && (
+                <button type="button" className="btn btn--block" onClick={trySamples} disabled={loadingSamples} aria-busy={loadingSamples}>
+                  <Sparkles size={20} aria-hidden="true" />
+                  {loadingSamples ? 'Preparing sample people…' : 'Try with sample people'}
+                </button>
+              )}
+            </>
+          }
+        >
+          Add someone you meet often who agreed to it: three photos and a short note, about twenty seconds. Sample people use
+          AI-generated faces of people who don’t exist.
+        </EmptyState>
       )}
 
       {people.length > 0 && (
         <>
-          <div style={{ marginTop: 22 }}>
-            <button type="button" className="btn btn--secondary btn--block" onClick={() => navigate('/enrol')}>
-              <UserPlus size={22} aria-hidden="true" />
-              Add someone
-            </button>
-          </div>
-          {people.some((p) => p.sample) && (
-            <section className="demo-callout" aria-label="Demo camera">
-              <span className="promise__icon" aria-hidden="true">
-                <ScanFace size={22} />
-              </span>
-              <div>
-                <h2 className="demo-callout__title">Try it without anyone else</h2>
-                <p className="demo-callout__body">
-                  The demo camera plays the sample faces and one stranger. Watch who gets a whisper, and who stays unknown.
-                </p>
-                <button
-                  type="button"
-                  className="btn btn--primary btn--block"
-                  style={{ marginTop: 12 }}
-                  onClick={() => {
-                    unlockAudio();
-                    navigate('/whisper?demo=1');
-                  }}
-                >
-                  Open the demo camera
-                </button>
-              </div>
+          <button type="button" className="btn btn--primary btn--block" onClick={() => navigate('/enrol')}>
+            <UserPlus size={20} aria-hidden="true" />
+            Add someone
+          </button>
+
+          <section className="section" aria-label="Everyone you’ve added">
+            <ul className="people">
+              {people.map((p) => (
+                <li key={p.id}>
+                  <button type="button" className="person" onClick={() => navigate(`/person/${encodeURIComponent(p.id)}`)}>
+                    <Avatar src={p.thumb} name={p.name} />
+                    <span className="person__body">
+                      <span className="person__name">
+                        {p.name}
+                        {p.sample && <span className="tag tag--sample">Sample</span>}
+                        {!p.sample && Date.now() - new Date(p.consentAt).getTime() > 365 * 24 * 3600 * 1000 && <span className="tag">Ask again</span>}
+                      </span>
+                      <span className="person__line">{p.whisper}</span>
+                    </span>
+                  </button>
+                  <button type="button" className="icon-btn" onClick={() => remind(p)} aria-label={`Remind me how I know ${p.name}`}>
+                    <Volume2 size={20} aria-hidden="true" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+          {hasSamples && (
+            <section className="section" aria-labelledby="demo-title">
+              <h2 id="demo-title">See it with the demo camera</h2>
+              <p className="muted" style={{ marginBottom: 'var(--space-md)' }}>
+                The demo camera plays the sample faces and one face you never added. Watch who gets a whisper, and who doesn’t.
+              </p>
+              <button
+                type="button"
+                className="btn btn--block"
+                onClick={() => {
+                  unlockAudio();
+                  navigate('/whisper?demo=1');
+                }}
+              >
+                <ScanFace size={20} aria-hidden="true" />
+                Open the demo camera
+              </button>
             </section>
           )}
-          <h2 className="section-label">Your people</h2>
-          <ul className="person-list">
-            {people.map((p, i) => (
-              <li key={p.id} style={{ animationDelay: `${i * 40}ms` }}>
-                <button type="button" className="person-row" onClick={() => navigate(`/person/${encodeURIComponent(p.id)}`)}>
-                  <Avatar src={p.thumb} name={p.name} />
-                  <span className="person-row__body">
-                    <span className="person-row__name">
-                      {p.name}
-                      {p.sample && <span className="chip chip--warn">Sample</span>}
-                    </span>
-                    <span className="person-row__whisper">{p.whisper}</span>
-                  </span>
-                  <ChevronRight size={22} className="muted" aria-hidden="true" />
-                </button>
-              </li>
-            ))}
-          </ul>
         </>
       )}
     </main>

@@ -1,0 +1,21 @@
+**Hallmark · v2.0.0**
+
+Inferred at Step 1 (headless relay, so no questions): material = the running app (captured with capture.mjs), the three r/prosopagnosia quotes Harsh supplied, the measured match distances; audience = adults with face blindness and the people around them; use = open the app and try it; tone = soft, calm, kind ("a quiet friend leaning in at a party"); no anchor colour given.
+
+App (/hallmark redesign src --scope app)
+- **Redesign** · full · app screens (Welcome, People, Today, Practice, Enrol, Whisper mode, Person, Settings, Privacy)
+- **Before** · Floor 44 FAIL · Reflex 56 · Warn 20 (.hallmark/before.txt): tracked-caps labels, colour literals, transition width, glass panels, raw spacing
+- **Keeps** · every route, handler and test hook · Atkinson Hyperlegible Next as the body face · the recognition ring as the product's signature
+- **Files** · edit: src/styles/app.css, src/screens/*, src/components/ui.tsx · create: src/styles/tokens.css, src/styles/base.css, new screens · delete: none
+- **Theme** · Ribbon, dealt 3/3 (editorial deal) and 1/3 (playful deal): warm off-white dawn paper, blue-black two-in-the-morning night, Instrument Sans at 400 over Atkinson Hyperlegible Next, machined parts lit from above. One amber "lit window" accent in both modes so the hue never moves (the dawn teal swapped for the night's amber)
+- **Screen** · the people list as name tags, Whisper mode on the night ground with the amber halo as the signature, settings as a machined instrument (faders for volume and speed)
+
+Landing page (/hallmark <prompt>, a new page at /)
+- **Shape** · Narrative Workflow (swapped from the drawn Marquee Hero: the product needs explaining in seconds and has a real four-stage sequence) · draw aaf455 · genre atmospheric (the theme's) · job: try
+- **Chrome** · nav: banner over a retracting bar (the banner carries a fact: it runs in the browser, nothing leaves the phone) · footer: mast
+- **Hero** · Counter: the action is the visual, "Open the app" and "Hear a whisper" set large beside the real Whisper-mode capture on the night band
+- **Signature** · the page whispers: "Hear a whisper" speaks a real whisper through the browser voice, and the note box turns any note into a whisper with the app's own rules
+- **Sections** · Hero · Their words (rows of real quotes, sources linked) · Four stages (they say yes, note to whisper live, hear who it is with the instrument, not sure says so) · Before you walk in (Today, Practice, bigger text) · The promise (rows on the night band, under drawn stars) · Honest limits (the six statements word for word) · Fair questions (prior art named) · Close (samples beside the people list) · Mast footer with credits
+- **Material** · real: the app and its captures, three quotes with links, "about 2% of people" from Harsh's brief, measured distances · pictures: screenshots of the real app from its own Playwright run (tests/e2e/screens.record.ts), route checks with capture.mjs · absent: logos, testimonials, user counts, ratings
+- **Sweep (landing)** · Floor 0 FAIL · Reflex 0 · Warn 0 · dismissed: F1, F2 (verbatim quotes), 25 x2 (one-sentence ledes) · notes: 58 (word count; quotes and limits are fixed wording) · hero-review: subagent, fix, 5 findings, 4 resolved 1 partial (the night drawn as light: a far horizon, later stars) · finish-review: subagent, fix, 8 findings, 8 resolved (old capture, horizon edges and fold, consent capture gutter, close line vs capture, faded label, faders, amber numbers, empty gap) plus both copy notes
+- **Sweep (app, scope app)** · Floor 0 FAIL · Reflex 0 · Warn 0 · waived: 28b x2 (live camera video has no poster) · dismissed: 18 (pills on controls and round faces, two-line rows, verbatim quotes)

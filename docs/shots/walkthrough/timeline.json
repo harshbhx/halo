@@ -1,0 +1,106 @@
+[
+  {
+    "t": 0.5,
+    "event": "Tour 1 of 3: who it is for"
+  },
+  {
+    "t": 3.4,
+    "event": "Tour 2 of 3: how it works"
+  },
+  {
+    "t": 5.5,
+    "event": "Tour 3 of 3: the promise and the earbud check"
+  },
+  {
+    "t": 10,
+    "event": "Empty people list"
+  },
+  {
+    "t": 11.9,
+    "event": "Add someone: name"
+  },
+  {
+    "t": 13.2,
+    "event": "Add someone: typing the note; the whisper line updates"
+  },
+  {
+    "t": 17.7,
+    "event": "Handoff: Sam reads the exact line and agrees"
+  },
+  {
+    "t": 22.5,
+    "event": "Photos: three shots with the oval guide and light check"
+  },
+  {
+    "t": 28.9,
+    "event": "Cue notes"
+  },
+  {
+    "t": 32,
+    "event": "Saved"
+  },
+  {
+    "t": 34,
+    "event": "Whisper mode opens: \"Recognised on this phone only\""
+  },
+  {
+    "t": 35.7,
+    "event": "Confident: halo, caption, whisper spoken: \"Sam, your teammate from the hackathon. Loves climbing.\""
+  },
+  {
+    "t": 39.3,
+    "event": "Who was that? The last few, in memory only"
+  },
+  {
+    "t": 44,
+    "event": "Settings: add the AI-generated sample people"
+  },
+  {
+    "t": 46.4,
+    "event": "Today: pick who you will see"
+  },
+  {
+    "t": 48.9,
+    "event": "Today’s list: lines and cues before you walk in"
+  },
+  {
+    "t": 56.5,
+    "event": "Demo camera: Maya, confident, \"On today’s list\""
+  },
+  {
+    "t": 60.8,
+    "event": "A face never added: \"No match\", nothing spoken, nothing stored"
+  },
+  {
+    "t": 69,
+    "event": "The next sample person"
+  },
+  {
+    "t": 72.1,
+    "event": "Practice from cues"
+  },
+  {
+    "t": 78.7,
+    "event": "Privacy: what has left this phone (nothing) and the six honest limits"
+  },
+  {
+    "t": 84.7,
+    "event": "Network off (like airplane mode), page reloaded"
+  },
+  {
+    "t": 87.8,
+    "event": "Offline: still recognised on the phone"
+  },
+  {
+    "t": 93,
+    "event": "Delete everything"
+  },
+  {
+    "t": 95,
+    "event": "A fresh start"
+  },
+  {
+    "t": 97.5,
+    "event": "End"
+  }
+]

@@ -23,10 +23,10 @@ FPS=15
 scene() { # <image> <out.png>
   # The face sits at about arm's length, in the upper part of the frame.
   ffmpeg -loglevel error -y -i "$1" -filter_complex "
-    [0]scale=260:260,split[a][b];
-    [a]pad=540:900:140:190,fillborders=left=140:right=140:top=190:bottom=450:mode=smear,gblur=sigma=55:steps=3,eq=brightness=-0.02:saturation=0.85[bg];
+    [0]scale=210:210,split[a][b];
+    [a]pad=540:900:165:240,fillborders=left=165:right=165:top=240:bottom=450:mode=smear,gblur=sigma=55:steps=3,eq=brightness=-0.02:saturation=0.85[bg];
     [b]format=rgba,geq=r='r(X,Y)':g='g(X,Y)':b='b(X,Y)':a='255*clip(3.2-3.2*hypot((X-W/2)/(W/2),(Y-H/2)/(H/2)),0,1)'[fg];
-    [bg][fg]overlay=140:190" -frames:v 1 "$2"
+    [bg][fg]overlay=165:240" -frames:v 1 "$2"
 }
 
 # 2. A "handheld" shot: drift and breathe over the scene (9:16 portrait, like a phone camera).

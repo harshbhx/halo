@@ -36,6 +36,12 @@
       "sourceType": "github",
       "skillPath": "skills/6-ship/SKILL.md",
       "computedHash": "0f896f6738de4880742d04ddbb7c1f3a0436118f7a8e68eacde6e5d62495cb89"
+    },
+    "hallmark": {
+      "source": "nutlope/hallmark",
+      "sourceType": "github",
+      "skillPath": "skills/hallmark/SKILL.md",
+      "computedHash": "32269cfda7e467ba1e2534428a1186c1b7b28d196d0f3b3227d293512fa5f7ec"
     }
   }
 }

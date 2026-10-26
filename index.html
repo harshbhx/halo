@@ -3,18 +3,234 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="description" content="Face Whisper quietly tells people with face blindness who they are looking at. Faces never leave the phone." />
-    <meta name="theme-color" content="#f6f3ee" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0d1115" media="(prefers-color-scheme: dark)" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="Face Whisper" />
+    <title>%BRAND_NAME%, for people with face blindness</title>
+    <meta name="description" content="%BRAND_DESCRIPTION%" />
+    <meta name="theme-color" content="#0b0f17" />
     <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
     <link rel="manifest" href="./manifest.webmanifest" />
-    <title>Face Whisper</title>
+    <link rel="stylesheet" href="./landing/fonts.css" />
+    <link rel="stylesheet" href="./landing/landing.css" />
+    <script type="module" src="./landing/landing.ts"></script>
   </head>
   <body>
-    <div id="root"></div>
-    <noscript>Face Whisper needs JavaScript to run on your device.</noscript>
-    <script type="module" src="/src/main.tsx"></script>
+    <a class="skip" href="#main">Skip to the page</a>
+    <header class="masthead" data-masthead>
+      <p class="banner">Free, in your browser, with no account or key.</p>
+      <nav class="bar container" aria-label="Main">
+        <a class="wordmark" href="./" aria-label="%BRAND_NAME%, home">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-linecap="round" aria-hidden="true"><ellipse cx="9.5" cy="12" rx="5.6" ry="7" stroke="currentColor" stroke-width="2" /><path d="M17.2 8.6c1 .9 1.6 2.1 1.6 3.4s-.6 2.5-1.6 3.4" stroke="currentColor" stroke-width="1.8" /><path d="M20 6.2c1.6 1.5 2.5 3.5 2.5 5.8s-.9 4.3-2.5 5.8" stroke="currentColor" stroke-width="1.6" opacity="0.55" /></svg>
+          %BRAND_NAME%
+        </a>
+        <ul class="bar__links">
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#promise">Privacy</a></li>
+          <li><a href="#limits">Limits</a></li>
+          <li><a href="#questions">Questions</a></li>
+        </ul>
+        <a class="btn btn--small" href="./app/">Open the app</a>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <canvas class="hero__light" data-hour aria-hidden="true"></canvas>
+        <div class="container hero__grid">
+          <div class="hero__text">
+            <h1 id="hero-title">A quiet voice for faces you know.</h1>
+            <p class="hero__line">For face blindness: a whisper of who, and how you know them.</p>
+            <div class="hero__actions">
+              <a class="btn btn--primary" href="./app/">Open the app</a>
+              <button type="button" class="btn btn--night" data-hear="Maya, your manager at work. Just back from parental leave." hidden>Hear a whisper</button>
+            </div>
+            <p class="hero__said" data-said aria-live="polite"></p>
+          </div>
+          <figure class="hero__shot" data-slot="hero" data-kind="product" data-alt="Whisper mode recognising a person, with the amber halo and the caption">
+            <img src="./landing/shots/whisper-maya.png" width="780" height="1688" alt="Whisper mode: an amber ring around Maya’s face (an AI-generated sample face) and the caption “Maya, your manager at work. Just back from parental leave.”" fetchpriority="high" />
+          </figure>
+        </div>
+      </section>
+
+      <section class="words" aria-labelledby="words-title">
+        <div class="container">
+          <div class="words__head">
+            <h2 id="words-title">What people with face blindness ask for</h2>
+            <p class="lead">Roughly 2% of people have lifelong face blindness, while most of us know about 5,000 faces.</p>
+          </div>
+          <ul class="words__rows">
+            <li>
+              <blockquote><p>“What we need is some dude saying in our ears "yes , you know that person it's insert name"”</p></blockquote>
+              <a href="https://www.reddit.com/r/prosopagnosia/comments/1th3clh/">u/Adventurous_Kiwi</a>
+            </li>
+            <li>
+              <blockquote><p>“My boyfriend does it for me. I need that but like, in my earphones, for when he's not around.”</p></blockquote>
+              <a href="https://www.reddit.com/r/prosopagnosia/comments/1th3clh/">u/Adventurous_Kiwi</a>
+            </li>
+            <li>
+              <blockquote><p>“The contact cards would not help me, unfortunately. I'd only be practicing to recognize that specific picture of my friend.”</p></blockquote>
+              <a href="https://www.reddit.com/r/prosopagnosia/comments/1v0faz5/">u/HereForMcCormackAMA</a>
+            </li>
+          </ul>
+          <p class="sources">Quotes from public posts on r/prosopagnosia, shown word for word. Numbers: <a href="https://doi.org/10.1002/ajmg.a.31343">Kennerknecht et al. 2006</a> (2.47% of 689 students; later estimates range from 0.64% to 5.42% depending on the cut-off, <a href="https://bu.edu/ballab/pubs/DeGutis2022_Ax2.pdf">DeGutis et al. 2022</a>) and <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6191703">Jenkins, Dowsett and Burton 2018</a>.</p>
+        </div>
+      </section>
+
+      <section class="stages" id="how" aria-label="How it works">
+        <ol class="container stages__list">
+          <li class="stage stage--shot">
+            <div class="stage__text">
+              <h2>They say yes.</h2>
+              <p>Hand them the phone. They read the exact line it will whisper, and agree themselves.</p>
+            </div>
+            <figure class="shot shot--crop" data-slot="consent" data-kind="product" data-alt="The consent screen the person being added reads">
+              <img src="./landing/shots/enrol-consent.png" width="780" height="1688" alt="“Hi Sam.” The person being added reads the line and ticks “I’m Sam, and I agree”" loading="lazy" />
+            </figure>
+          </li>
+          <li class="stage stage--try">
+            <div class="stage__text">
+              <h2>A note becomes a line.</h2>
+              <p>Type how you know them. The phone turns it into one line, offline.</p>
+            </div>
+            <form class="note panel" data-note>
+              <label class="note__label" for="note-input">Your note</label>
+              <textarea id="note-input" class="note__input" rows="3">This is Raj, my neighbour, had knee surgery last month</textarea>
+              <p class="note__label" id="note-out-label">The whisper</p>
+              <p class="note__out" data-whisper aria-labelledby="note-out-label" aria-live="polite">Raj, your neighbour. Knee surgery last month.</p>
+              <button type="button" class="btn" data-hear-note hidden>Hear it</button>
+            </form>
+          </li>
+          <li class="stage stage--wide">
+            <div class="stage__text">
+              <h2>Hear who it is.</h2>
+              <p>Once it’s sure, an amber halo settles and your earbud says the line. Short, warm or full.</p>
+            </div>
+            <div class="instrument panel" data-instrument>
+              <p class="instrument__line" data-line aria-live="polite">Raj, your neighbour.</p>
+              <fieldset class="seg">
+                <legend class="visually-hidden">Style</legend>
+                <input type="radio" name="style" id="st-short" value="short" checked /><label for="st-short">Short</label>
+                <input type="radio" name="style" id="st-warm" value="warm" /><label for="st-warm">Warm</label>
+                <input type="radio" name="style" id="st-full" value="full" /><label for="st-full">Full</label>
+              </fieldset>
+              <label class="instrument__row" for="volume">Volume <output data-volume-out>70</output></label>
+              <input class="fader" id="volume" type="range" min="10" max="100" step="5" value="70" />
+              <label class="instrument__row" for="rate">Speed <output data-rate-out>0.95</output></label>
+              <input class="fader" id="rate" type="range" min="70" max="130" step="5" value="95" />
+              <button type="button" class="btn btn--primary" data-listen hidden>Listen</button>
+            </div>
+          </li>
+          <li class="stage stage--shot">
+            <div class="stage__text">
+              <h2>Not sure? It says so.</h2>
+              <p>“Could be Raj? Check: green parka.” Anyone else is “No match”, never stored, never named.</p>
+            </div>
+            <figure class="shot" data-slot="stranger" data-kind="product" data-alt="Whisper mode showing No match for a face that was never added">
+              <img src="./landing/shots/whisper-stranger.png" width="780" height="1688" alt="Whisper mode: a dashed outline around an AI-generated face and the label “No match”" loading="lazy" />
+            </figure>
+          </li>
+        </ol>
+      </section>
+
+      <section class="evening" aria-labelledby="evening-title">
+        <div class="container">
+          <div class="evening__head">
+            <h2 id="evening-title">Before you walk in</h2>
+            <p class="lead">Preparation and cues, the things people with face blindness already rely on.</p>
+          </div>
+          <ul class="trio">
+            <li>
+              <figure class="shot" data-slot="today" data-kind="product" data-alt="Today’s list">
+                <img src="./landing/shots/today.png" width="780" height="1688" alt="Today’s list for a dinner: three people with their lines and what to look for" loading="lazy" />
+              </figure>
+              <h3>Today’s list</h3>
+              <p>Pick who’ll be at dinner and hear their lines on the way.</p>
+            </li>
+            <li>
+              <figure class="shot" data-slot="practice" data-kind="product" data-alt="A practice card">
+                <img src="./landing/shots/practice.png" width="780" height="1688" alt="Practice: cue notes for someone and three names to choose from" loading="lazy" />
+              </figure>
+              <h3>Practice from cues</h3>
+              <p>Clothes, hair, voice: name people from what you notice. No streaks.</p>
+            </li>
+            <li>
+              <figure class="shot" data-slot="bigtext" data-kind="product" data-alt="The app with bigger text in the night theme">
+                <img src="./landing/shots/bigtext-night.png" width="780" height="1688" alt="The people list with bigger text and the night theme" loading="lazy" />
+              </figure>
+              <h3>Bigger text, night colours</h3>
+              <p>Every screen a size larger, in day or night.</p>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="promise" id="promise" aria-labelledby="promise-title">
+        <canvas class="promise__light" data-hour="stars" aria-hidden="true"></canvas>
+        <div class="container promise__grid">
+          <div class="promise__head">
+            <h2 id="promise-title">Faces never leave your phone.</h2>
+            <blockquote class="promise__quote"><p>“...But would I want Meta knowing that much about me...”</p><footer><a href="https://www.reddit.com/r/prosopagnosia/comments/1r58f5g/">r/prosopagnosia</a></footer></blockquote>
+          </div>
+          <dl class="promise__rows">
+            <div><dt>Recognised on the phone</dt><dd>In the browser. No server, account or key.</dd></div>
+            <div><dt>Only people who said yes</dt><dd>They read their line and agree on your phone.</dd></div>
+            <div><dt>Every face measured, then dropped</dt><dd>Checked against your list for a moment, never kept.</dd></div>
+            <div><dt>Encrypted at rest</dt><dd>With a key the browser won’t export.</dd></div>
+            <div><dt>Works offline</dt><dd>After the first visit.</dd></div>
+            <div><dt>Delete everything</dt><dd>One button, every person and the key.</dd></div>
+          </dl>
+        </div>
+      </section>
+
+      <section class="limits" id="limits" aria-labelledby="limits-title">
+        <div class="container">
+          <h2 id="limits-title">Honest limits</h2>
+          <ol class="limits__list">
+            <li>A hint, not proof. It can name the wrong person, especially relatives, look-alikes and children. Never use it to decide who to trust or let in.</li>
+            <li>Silence doesn’t mean a stranger. Dim light, side angles, masks, new glasses or a haircut can stop a match.</li>
+            <li>It works better for some faces than others. Open face models make more mistakes for darker-skinned and East Asian faces, women, children and older people.</li>
+            <li>It only knows people who said yes. It can’t look anyone up. Each face in view is measured for a moment, checked against your list, then forgotten.</li>
+            <li>The app records that you asked them, but it can’t check. Remove anyone the moment they ask.</li>
+            <li>A prototype, tested so far mainly on AI-generated faces, not yet with people who have face blindness. Without earbuds, your phone speaks out loud.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="faq" id="questions" aria-labelledby="faq-title">
+        <div class="container">
+          <h2 id="faq-title">Fair questions</h2>
+          <dl class="faq__rows">
+            <div><dt>Doesn’t this exist already?</dt><dd>Taught faces do: <a href="https://knowledgebase.orcam.com/knowledge/how-do-i-use-face-recognition-on-my-orcam-myeye">OrCam MyEye</a> and <a href="https://support.letsenvision.com/hc/en-us/articles/8118364337297">Envision’s Teach a Face</a> name faces for blind users, and <a href="https://apps.apple.com/app/id1525602410">NameVault</a> drills names from photos. %BRAND_NAME% is for people who see but can’t place faces: how you know them, your cues, a briefing before an event, their own yes, free in a browser.</dd></div>
+            <div><dt>Won’t I look odd holding up a phone?</dt><dd>A little, for now. Hold it at chest height. One person put it plainly: “I feel like that's more in the realm of smart glasses than phones because I'm not going to go around pointing my phone at everyone.” (<a href="https://www.reddit.com/r/prosopagnosia/comments/1th3clh/">u/Ilaxilil</a>) Today’s list and cues help without the camera.</dd></div>
+            <div><dt>What if faces aren’t how I recognise people?</dt><dd>Many don’t: “I recognise people by cues - largely their voices” (u/SybariticDelight). Cue notes and practice are built for that.</dd></div>
+            <div><dt>What does it need?</dt><dd>A phone with a camera and a recent Chrome, Safari or Firefox. Earbuds for the voice; otherwise a buzz and the name on screen.</dd></div>
+          </dl>
+        </div>
+      </section>
+
+      <section class="close" aria-labelledby="close-title">
+        <div class="container close__grid">
+          <div class="close__text">
+            <h2 id="close-title">Try it with sample people first.</h2>
+            <p class="lead">Three AI-generated faces, recognised live, in your browser.</p>
+            <a class="btn btn--primary" href="./app/">Open the app</a>
+          </div>
+          <figure class="shot" data-slot="close" data-kind="product" data-alt="The people list with sample people">
+            <img src="./landing/shots/people.png" width="780" height="1688" alt="The people list with three AI-generated sample people" loading="lazy" />
+          </figure>
+        </div>
+      </section>
+    </main>
+
+    <footer class="mast">
+      <div class="container">
+        <p class="mast__word">%BRAND_NAME%</p>
+        <p class="mast__tag">%BRAND_TAGLINE%</p>
+        <ul class="mast__links">
+          <li><a href="./app/">Open the app</a></li>
+          <li><a href="./app/#/privacy">Privacy and limits</a></li>
+        </ul>
+        <p class="mast__credits" data-credits>Every face on this page is AI-generated and belongs to no one (public domain, Wikimedia Commons). Face models from face-api (MIT); fonts Instrument Sans and Atkinson Hyperlegible Next (SIL Open Font Licence); designed with the Hallmark skill. Built for Devpost’s Build With AI: Basics. MIT licence.</p>
+      </div>
+    </footer>
   </body>
 </html>

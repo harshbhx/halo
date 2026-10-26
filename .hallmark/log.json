@@ -1,0 +1,41 @@
+[
+ {
+  "mode": "build",
+  "theme": "ribbon",
+  "shape": "narrative-workflow",
+  "axes": "light/grotesk-sans/chromatic-amber",
+  "hero": "counter",
+  "nav": "banner-over-retracting-bar",
+  "footer": "mast",
+  "imagery": "screenshots",
+  "entry": "try",
+  "fingerprint": "aaf455",
+  "sections": [
+   "hero",
+   "words",
+   "stages",
+   "evening",
+   "promise",
+   "limits",
+   "faq",
+   "close"
+  ],
+  "signature": "the page whispers a real line in the browser voice and turns a typed note into a whisper with the app rules",
+  "photos": [],
+  "waived": [],
+  "prompt": "A landing page for Halo, a phone web app that quietly tells people with face blindness who they are looking at; job: try it",
+  "date": "2026-10-26"
+ },
+ {
+  "mode": "redesign",
+  "depth": "full",
+  "scope": "app",
+  "theme": "ribbon",
+  "axes": "light/grotesk-sans/chromatic-amber",
+  "prompt": "Redesign the Halo app screens (people, enrolment, Whisper mode, today, practice, settings, privacy) for people with face blindness: calm, large type, one-handed",
+  "waived": [
+   "28b"
+  ],
+  "date": "2026-10-26"
+ }
+]

@@ -146,3 +146,176 @@ export class Tracker {
     this.lastSpoken.clear();
   }
 }
+
+/* ---------- Three states on one tracked face ---------- */
+
+/**
+ * A wrong name is worse than silence, so each face in view is followed across
+ * frames and given one of three states:
+ *
+ *   confident  the same person, clearly closer than anyone else, for at least a
+ *              second and five frames including a frontal one. Only this speaks.
+ *   maybe      probably someone you know, not yet sure. Shown quietly as
+ *              "Could be Raj?" with a cue to check. Never spoken.
+ *   unsure     no match. Silence doesn't mean a stranger.
+ */
+export type FaceState = 'confident' | 'maybe' | 'unsure';
+
+export interface StateLimits {
+  confident: number; // distance under which a frame counts toward confident
+  maybe: number; // distance under which a frame counts toward maybe
+  margin: number; // how much closer than the runner-up a confident frame must be
+  minFrames: number;
+  minMs: number;
+}
+
+export const STATE_LIMITS: Record<Strictness, StateLimits> = {
+  careful: { confident: 0.42, maybe: 0.5, margin: 0.08, minFrames: 5, minMs: 1000 },
+  balanced: { confident: 0.47, maybe: 0.55, margin: 0.08, minFrames: 5, minMs: 900 },
+};
+
+/** The nearest enrolled person, whatever the distance (the tracker applies the limits). */
+export function nearest(descriptor: ArrayLike<number>, people: Enrolled[]): Match {
+  return bestMatch(descriptor, people, Infinity, 0);
+}
+
+export interface Observation {
+  box: { x: number; y: number; width: number; height: number };
+  personId: string | null; // the nearest person
+  distance: number;
+  runnerUp: number;
+  frontal: boolean;
+}
+
+interface Sample extends Observation {
+  t: number;
+}
+
+interface Track {
+  id: number;
+  box: Observation['box'];
+  samples: Sample[];
+  lastSeen: number;
+  /** Frames in a row that disagree with who this track has been. */
+  mismatch: number;
+}
+
+export interface TrackedFace {
+  trackId: number;
+  box: Observation['box'];
+  state: FaceState;
+  personId: string | null;
+  distance: number;
+}
+
+function iou(a: Observation['box'], b: Observation['box']): number {
+  const x1 = Math.max(a.x, b.x);
+  const y1 = Math.max(a.y, b.y);
+  const x2 = Math.min(a.x + a.width, b.x + b.width);
+  const y2 = Math.min(a.y + a.height, b.y + b.height);
+  const inter = Math.max(0, x2 - x1) * Math.max(0, y2 - y1);
+  const union = a.width * a.height + b.width * b.height - inter;
+  return union > 0 ? inter / union : 0;
+}
+
+export function stateOf(samples: Sample[], now: number, limits: StateLimits, maybeOnly: (id: string) => boolean): { state: FaceState; personId: string | null; distance: number } {
+  const recent = samples.filter((s) => now - s.t <= limits.minMs + 400);
+  if (recent.length === 0) return { state: 'unsure', personId: null, distance: Infinity };
+  // The person most of the recent frames point at.
+  const votes = new Map<string, number>();
+  for (const s of recent) if (s.personId && s.distance < limits.maybe) votes.set(s.personId, (votes.get(s.personId) ?? 0) + 1);
+  let candidate: string | null = null;
+  let best = 0;
+  for (const [id, n] of votes) if (n > best) [candidate, best] = [id, n];
+  if (!candidate) return { state: 'unsure', personId: null, distance: Math.min(...recent.map((s) => s.distance)) };
+  const mine = recent.filter((s) => s.personId === candidate);
+  const distance = mine.map((s) => s.distance).sort((a, b) => a - b)[Math.floor(mine.length / 2)];
+
+  const window = recent.filter((s) => now - s.t <= limits.minMs + 400);
+  const span = window.length ? now - window[0].t : 0;
+  const strong = window.filter((s) => s.personId === candidate && s.distance < limits.confident && s.runnerUp - s.distance >= limits.margin);
+  const steady = window.length >= limits.minFrames && span >= limits.minMs && strong.length >= Math.ceil(window.length * 0.8);
+  const frontal = strong.some((s) => s.frontal);
+  const disputed = window.some((s) => s.personId !== candidate && s.distance < limits.confident);
+  if (steady && frontal && !disputed && !maybeOnly(candidate)) return { state: 'confident', personId: candidate, distance };
+  if (best >= 2 || mine.some((s) => s.distance < limits.confident)) return { state: 'maybe', personId: candidate, distance };
+  return { state: 'unsure', personId: null, distance };
+}
+
+export class FaceTracker {
+  private tracks: Track[] = [];
+  private nextId = 1;
+  private lastSpoken = new Map<string, number>();
+
+  constructor(
+    private limits: StateLimits,
+    private cooldownMs: number,
+    private maybeOnly: (personId: string) => boolean = () => false,
+  ) {}
+
+  configure(limits: StateLimits, cooldownMs: number, maybeOnly?: (personId: string) => boolean): void {
+    this.limits = limits;
+    this.cooldownMs = cooldownMs;
+    if (maybeOnly) this.maybeOnly = maybeOnly;
+  }
+
+  /** Feed one frame's faces; get each tracked face's state back. */
+  update(observations: Observation[], now: number): TrackedFace[] {
+    const unused = new Set(this.tracks.map((t) => t.id));
+    const out: TrackedFace[] = [];
+    for (const obs of observations) {
+      let best: Track | null = null;
+      let bestOverlap = 0.25;
+      for (const t of this.tracks) {
+        if (!unused.has(t.id)) continue;
+        const o = iou(t.box, obs.box);
+        if (o > bestOverlap) [best, bestOverlap] = [t, o];
+      }
+      const track = best ?? { id: this.nextId++, box: obs.box, samples: [], lastSeen: now, mismatch: 0 };
+      if (!best) this.tracks.push(track);
+      unused.delete(track.id);
+      track.box = obs.box;
+      track.lastSeen = now;
+      // A different face can step into the same spot. If two frames in a row disagree with
+      // who this track has been, its history is dropped and it starts again from nothing.
+      const before = stateOf(track.samples, now, this.limits, this.maybeOnly);
+      const agrees = !before.personId || (obs.personId === before.personId && obs.distance < this.limits.maybe);
+      track.mismatch = agrees ? 0 : track.mismatch + 1;
+      if (track.mismatch >= 2) {
+        track.samples = track.samples.slice(-1);
+        track.mismatch = 0;
+      }
+      track.samples.push({ ...obs, t: now });
+      track.samples = track.samples.filter((s) => now - s.t <= 2500);
+      let s = stateOf(track.samples, now, this.limits, this.maybeOnly);
+      // While this frame disagrees with the track's history, never claim the old person.
+      if (track.mismatch > 0) {
+        s =
+          obs.personId && obs.distance < this.limits.maybe
+            ? { state: 'maybe', personId: obs.personId, distance: obs.distance }
+            : { state: 'unsure', personId: null, distance: obs.distance };
+      }
+      out.push({ trackId: track.id, box: obs.box, ...s });
+    }
+    // A face that has left the view is forgotten at once.
+    this.tracks = this.tracks.filter((t) => !unused.has(t.id) || now - t.lastSeen < 600);
+    return out;
+  }
+
+  /** Whether to whisper this person now (confident and outside the repeat interval). */
+  shouldSpeak(personId: string, now: number): boolean {
+    const last = this.lastSpoken.get(personId);
+    if (last !== undefined && now - last < this.cooldownMs) return false;
+    this.lastSpoken.set(personId, now);
+    return true;
+  }
+
+  forget(personId: string): void {
+    this.lastSpoken.delete(personId);
+  }
+
+  reset(): void {
+    this.tracks = [];
+    this.lastSpoken.clear();
+  }
+}

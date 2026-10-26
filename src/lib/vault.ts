@@ -10,7 +10,7 @@ import { deleteDB, openDB, type DBSchema, type IDBPDatabase } from 'idb';
 import type { Person } from './types';
 
 const DB_NAME = 'face-whisper';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 interface EncryptedRecord {
   id: string;
@@ -22,6 +22,8 @@ interface EncryptedRecord {
 interface VaultSchema extends DBSchema {
   people: { key: string; value: EncryptedRecord };
   keys: { key: string; value: CryptoKey };
+  /** Small encrypted values: practice progress, today's list. */
+  meta: { key: string; value: EncryptedRecord };
 }
 
 let dbPromise: Promise<IDBPDatabase<VaultSchema>> | null = null;
@@ -29,9 +31,12 @@ let keyPromise: Promise<CryptoKey> | null = null;
 
 function db(): Promise<IDBPDatabase<VaultSchema>> {
   dbPromise ??= openDB<VaultSchema>(DB_NAME, DB_VERSION, {
-    upgrade(database) {
-      database.createObjectStore('people', { keyPath: 'id' });
-      database.createObjectStore('keys');
+    upgrade(database, oldVersion) {
+      if (oldVersion < 1) {
+        database.createObjectStore('people', { keyPath: 'id' });
+        database.createObjectStore('keys');
+      }
+      if (oldVersion < 2) database.createObjectStore('meta', { keyPath: 'id' });
     },
   });
   return dbPromise;
@@ -52,17 +57,20 @@ function vaultKey(): Promise<CryptoKey> {
   return keyPromise;
 }
 
-async function encrypt(person: Person): Promise<EncryptedRecord> {
+async function seal(id: string, value: unknown): Promise<EncryptedRecord> {
   const iv = crypto.getRandomValues(new Uint8Array(new ArrayBuffer(12)));
-  const plain = new TextEncoder().encode(JSON.stringify(person));
+  const plain = new TextEncoder().encode(JSON.stringify(value));
   const data = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await vaultKey(), plain);
-  return { id: person.id, iv, data, v: 1 };
+  return { id, iv, data, v: 1 };
 }
 
-async function decrypt(record: EncryptedRecord): Promise<Person> {
+async function open<T>(record: EncryptedRecord): Promise<T> {
   const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: record.iv }, await vaultKey(), record.data);
-  return JSON.parse(new TextDecoder().decode(plain)) as Person;
+  return JSON.parse(new TextDecoder().decode(plain)) as T;
 }
+
+const encrypt = (person: Person) => seal(person.id, person);
+const decrypt = (record: EncryptedRecord) => open<Person>(record);
 
 export async function listPeople(): Promise<Person[]> {
   const records = await (await db()).getAll('people');
@@ -89,6 +97,21 @@ export async function savePerson(person: Person): Promise<void> {
 
 export async function deletePerson(id: string): Promise<void> {
   await (await db()).delete('people', id);
+}
+
+/** A small encrypted value (practice progress, today's list). */
+export async function getMeta<T>(key: string): Promise<T | undefined> {
+  const record = await (await db()).get('meta', key);
+  if (!record) return undefined;
+  try {
+    return await open<T>(record);
+  } catch {
+    return undefined;
+  }
+}
+
+export async function setMeta(key: string, value: unknown): Promise<void> {
+  await (await db()).put('meta', await seal(key, value));
 }
 
 /** Removes every person and the encryption key, then the database itself. */

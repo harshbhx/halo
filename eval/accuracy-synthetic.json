@@ -1,0 +1,51 @@
+{
+  "source": "bundled AI-generated faces (5 people, altered copies)",
+  "samePersonPairs": 32,
+  "differentPersonPairs": 128,
+  "noFaceFound": [
+    "stranger: closer (enrolment)",
+    "stranger: tilted -8°",
+    "walter: tilted -8°",
+    "walter: smaller, off-centre"
+  ],
+  "samePerson": {
+    "min": 0.05380768240688314,
+    "median": 0.13449429328785661,
+    "max": 0.20570597830155538
+  },
+  "differentPeople": {
+    "min": 0.69891418950183,
+    "median": 0.8511613637107829
+  },
+  "atCareful": {
+    "confidentFrames": 1,
+    "wrongPersonUnder042": 0,
+    "wrongPersonUnder050": 0
+  },
+  "hardest": [
+    {
+      "person": "stranger",
+      "kind": "mirrored",
+      "d": 0.20570597830155538,
+      "runnerUp": 0.7656850300874375
+    },
+    {
+      "person": "sam",
+      "kind": "tilted -8°",
+      "d": 0.1958904922858687,
+      "runnerUp": 0.7355953470801729
+    },
+    {
+      "person": "arjun",
+      "kind": "tilted -8°",
+      "d": 0.1935318864218504,
+      "runnerUp": 0.7380382363881971
+    },
+    {
+      "person": "maya",
+      "kind": "tilted -8°",
+      "d": 0.18335947148156811,
+      "runnerUp": 0.7410396920489483
+    }
+  ]
+}

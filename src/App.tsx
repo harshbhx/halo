@@ -1,37 +1,38 @@
 import { useEffect } from 'react';
-import { BottomBar, Toaster } from './components/ui';
+import { TabBar, Toaster } from './components/ui';
 import { useRoute } from './lib/router';
-import { useSettings } from './lib/settings';
+import { applyDocumentSettings, useSettings } from './lib/settings';
+import { Backup } from './screens/Backup';
+import { ConsentReceived } from './screens/ConsentReceived';
 import { Enrol } from './screens/Enrol';
 import { Home } from './screens/Home';
 import { Person } from './screens/Person';
+import { Practice } from './screens/Practice';
 import { Privacy } from './screens/Privacy';
 import { Settings } from './screens/Settings';
+import { Today } from './screens/Today';
 import { Welcome } from './screens/Welcome';
 import { WhisperMode } from './screens/WhisperMode';
+
+const WITH_TABS = ['home', 'person', 'today', 'practice', 'settings', 'privacy', 'backup'];
 
 export function App() {
   const route = useRoute();
   const settings = useSettings();
 
-  useEffect(() => {
-    const root = document.documentElement;
-    if (settings.theme === 'system') root.removeAttribute('data-theme');
-    else root.setAttribute('data-theme', settings.theme);
-  }, [settings.theme]);
+  useEffect(() => applyDocumentSettings(settings), [settings]);
 
   // Screen readers: announce each screen by moving focus to its heading.
   useEffect(() => {
     const id = requestAnimationFrame(() => {
-      const heading = document.querySelector<HTMLElement>('main h1[tabindex="-1"]');
-      heading?.focus({ preventScroll: true });
+      document.querySelector<HTMLElement>('main h1[tabindex="-1"]')?.focus({ preventScroll: true });
     });
     window.scrollTo({ top: 0 });
-    document.querySelector('.app')?.scrollTo({ top: 0 });
+    document.querySelector('.shell')?.scrollTo({ top: 0 });
     return () => cancelAnimationFrame(id);
   }, [route.name, route.name === 'person' ? route.id : '']);
 
-  // First run: the privacy promise comes before anything else.
+  // First run: the tour and the promise come before anything else.
   const firstRun = !settings.welcomeSeen && route.name !== 'privacy';
 
   let screen;
@@ -48,8 +49,20 @@ export function App() {
       case 'person':
         screen = <Person id={route.id} key={route.id} />;
         break;
+      case 'today':
+        screen = <Today />;
+        break;
+      case 'practice':
+        screen = <Practice />;
+        break;
       case 'settings':
         screen = <Settings />;
+        break;
+      case 'backup':
+        screen = <Backup />;
+        break;
+      case 'consent':
+        screen = <ConsentReceived data={route.data} />;
         break;
       case 'privacy':
         screen = <Privacy />;
@@ -59,15 +72,12 @@ export function App() {
     }
   }
 
-  const showBar = !firstRun && settings.welcomeSeen && ['home', 'person', 'settings', 'privacy'].includes(route.name);
+  const showTabs = !firstRun && settings.welcomeSeen && WITH_TABS.includes(route.name);
   return (
-    <>
-      <div className="app">
-        {screen}
-        {showBar && <BottomBar route={route} />}
-        <Toaster />
-      </div>
-      <p className="desktop-note">Made for phones. Everything runs in this browser; nothing is uploaded.</p>
-    </>
+    <div className="shell">
+      {screen}
+      {showTabs && <TabBar route={route} />}
+      <Toaster />
+    </div>
   );
 }

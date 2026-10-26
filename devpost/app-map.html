@@ -3,25 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Face Whisper app map</title>
+<title>Halo app map</title>
 <style>
-  :root { --bg:#f6f3ee; --card:#fff; --ink:#15191f; --muted:#4b5563; --line:#e2ddd4; --accent:#1e6b5c; --wash:#ddefe9; --ring:#7be3c6; color-scheme: light; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#0d1115; --card:#161c22; --ink:#f1eee8; --muted:#b4bcc7; --line:#26303a; --accent:#7fd6bf; --wash:#173a33; color-scheme: dark; } }
+  :root { --bg:#faf7f1; --card:#ffffff; --ink:#1d1b18; --muted:#4f4a42; --line:#e5ded2; --accent:#8a5a14; --wash:#fbeccd; --halo:#e9b265; color-scheme: light; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0b0f17; --card:#131a26; --ink:#eee9df; --muted:#b7bfcc; --line:#273041; --accent:#f0c27f; --wash:#2c2416; --halo:#e9b265; color-scheme: dark; } }
   * { box-sizing: border-box; }
   body { margin:0; background:var(--bg); color:var(--ink); font: 17px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  main { max-width: 820px; margin: 0 auto; padding: 32px 18px 64px; }
-  h1 { font-size: 30px; margin: 0 0 6px; }
-  h2 { font-size: 21px; margin: 32px 0 10px; }
+  main { max-width: 840px; margin: 0 auto; padding: 32px 18px 64px; }
+  h1 { font-size: 30px; font-weight: 500; margin: 0 0 6px; }
+  h2 { font-size: 21px; font-weight: 500; margin: 32px 0 10px; }
   p, li { color: var(--muted); }
   strong { color: var(--ink); }
-  code { font: 14px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--wash); padding: 1px 6px; border-radius: 6px; color: var(--ink); }
+  code { font: 14px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--wash); padding: 1px 6px; border-radius: 6px; color: var(--ink); overflow-wrap: anywhere; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; margin: 12px 0; }
-  .route li { margin: 10px 0; }
+  .route li { margin: 12px 0; }
   svg { width: 100%; height: auto; }
   svg text { fill: var(--ink); font: 13px system-ui, sans-serif; }
   svg .box { fill: var(--card); stroke: var(--line); stroke-width: 1.5; }
   svg .hot { fill: var(--wash); stroke: var(--accent); stroke-width: 1.5; }
   svg .arrow { stroke: var(--accent); stroke-width: 2; fill: none; marker-end: url(#a); }
+  svg .tip { fill: var(--accent); }
   details { margin: 8px 0; }
   summary { cursor: pointer; font-weight: 600; color: var(--ink); }
   summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
@@ -30,54 +31,57 @@
 </head>
 <body>
 <main>
-  <h1>Face Whisper app map</h1>
-  <p>A phone web app for people with face blindness. You add people who agreed, from a few photos and a short note. When the camera sees one of them, it whispers who they are. Everything runs and stays in the browser on the device.</p>
+  <h1>Halo app map</h1>
+  <p>A phone web app for people with face blindness. You add people who agreed, from a few photos and a short note. When the camera is sure it's one of them, an earbud says who they are and how you know them. Everything that touches a face runs and stays in the browser on the phone.</p>
 
   <div class="card">
-    <p><strong>The main pieces.</strong> A <em>face reader</em> (face-api models in the browser) turns faces into 128-number fingerprints. A <em>matcher</em> compares fingerprints and waits for a steady match. A <em>vault</em> keeps people encrypted in the browser's database. A <em>whisper writer</em> turns notes into one line, and the browser's own <em>voice</em> speaks it.</p>
+    <p><strong>The main pieces.</strong> A <em>face reader</em> (face-api models in the browser) turns each face into a 128-number fingerprint. A <em>tracker</em> follows each face over a second or so and gives it one of three states: confident, maybe or no match. A <em>vault</em> keeps people encrypted in the browser's database. A <em>whisper writer</em> turns a note into one line, and <em>say</em> delivers it: a stored natural voice, the phone's voice, a buzz or a caption. An optional <em>Enhanced mode</em> sends only text to Halo's own Worker, and every request is written to a ledger on the phone.</p>
   </div>
 
   <h2>One action, end to end: the camera sees Sam</h2>
-  <svg viewBox="0 0 800 250" role="img" aria-labelledby="dtitle">
-    <title id="dtitle">Camera frame to face reader to matcher to ring, caption and spoken whisper; people come from the encrypted vault</title>
-    <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1e6b5c"/></marker></defs>
-    <rect class="box" x="10" y="30" width="140" height="64" rx="12"/><text x="24" y="58">Camera frame</text><text x="24" y="78">WhisperMode tick</text>
-    <rect class="hot" x="190" y="30" width="160" height="64" rx="12"/><text x="204" y="58">Face reader</text><text x="204" y="78">detectAll()</text>
-    <rect class="hot" x="390" y="30" width="170" height="64" rx="12"/><text x="404" y="58">Matcher</text><text x="404" y="78">bestMatch + Tracker</text>
-    <rect class="box" x="600" y="30" width="190" height="64" rx="12"/><text x="614" y="58">Ring + caption</text><text x="614" y="78">speak() in the earbud</text>
-    <rect class="box" x="390" y="160" width="170" height="64" rx="12"/><text x="404" y="188">Vault (IndexedDB)</text><text x="404" y="208">AES-GCM, on device</text>
-    <path class="arrow" d="M150 62H186"/><path class="arrow" d="M350 62H386"/><path class="arrow" d="M560 62H596"/>
-    <path class="arrow" d="M475 160V98"/>
-    <text x="490" y="132">enrolled fingerprints</text>
+  <svg viewBox="0 0 800 270" role="img" aria-labelledby="dtitle">
+    <title id="dtitle">Camera frame to face reader to tracker to halo, caption and whisper; people come from the encrypted vault</title>
+    <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="tip" d="M0 0L10 5L0 10z"/></marker></defs>
+    <rect class="box" x="10" y="30" width="140" height="70" rx="12"/><text x="24" y="58">Camera frame</text><text x="24" y="80">WhisperMode tick</text>
+    <rect class="hot" x="185" y="30" width="165" height="70" rx="12"/><text x="199" y="58">Face reader</text><text x="199" y="80">detectAll, nearest</text>
+    <rect class="hot" x="385" y="30" width="175" height="70" rx="12"/><text x="399" y="58">FaceTracker</text><text x="399" y="80">confident, maybe, none</text>
+    <rect class="box" x="595" y="30" width="195" height="70" rx="12"/><text x="609" y="58">Halo, caption</text><text x="609" y="80">sayPerson in the earbud</text>
+    <rect class="box" x="185" y="175" width="165" height="70" rx="12"/><text x="199" y="203">Vault (IndexedDB)</text><text x="199" y="225">AES-GCM, on the phone</text>
+    <path class="arrow" d="M150 65H181"/><path class="arrow" d="M350 65H381"/><path class="arrow" d="M560 65H591"/>
+    <path class="arrow" d="M267 175V104"/>
+    <text x="258" y="145" text-anchor="end">fingerprints of people you added</text>
+    <text x="399" y="125">fingerprints of faces in view are dropped here</text>
   </svg>
 
   <h2>Reference route (3 stops)</h2>
-  <p>Not toured yet; follow it with the code open. Search for the anchor text.</p>
+  <p>Not toured yet: follow it with the code open, searching for each anchor.</p>
   <ol class="route">
-    <li><code>src/screens/WhisperMode.tsx</code>, anchor <code>const tick = async</code>: each frame is read with <code>detectAll</code>, every face goes through <code>bestMatch</code>, and the fingerprints are dropped right after; only boxes and match results are kept.</li>
-    <li><code>src/lib/matcher.ts</code>, anchors <code>export function bestMatch</code> and <code>export class Tracker</code>: a face counts as someone only under the threshold, clearly closer to them than to anyone else, and steady in 3 of the last 4 frames. The tracker also enforces the repeat interval.</li>
-    <li><code>src/lib/voice.ts</code>, anchor <code>export async function speak</code>: the browser voice says the whisper at the chosen volume and speed, after an optional soft chime.</li>
+    <li><code>src/screens/WhisperMode.tsx</code>, anchor <code>const tick = async</code>: each frame goes through <code>detectAll</code>, every face is compared with <code>nearest</code>, and only boxes and distances go on to <code>trackerRef.current.update</code>. The comment "The fingerprints of these faces are dropped here" marks the privacy line.</li>
+    <li><code>src/lib/matcher.ts</code>, anchors <code>export const STATE_LIMITS</code> and <code>export class FaceTracker</code>: a face is confident only after at least a second and five frames, one of them facing the camera, under the limit and clearly ahead of the runner-up. If a different face steps into the same spot, the track starts again. Tests: <code>tests/unit/tracker.test.ts</code>.</li>
+    <li><code>src/lib/say.ts</code>, anchor <code>export async function sayPerson</code>: picks the line (style, translation), stays silent and buzzes until the earbud check allowed speech, plays a stored natural voice if there is one, otherwise the phone's voice from <code>src/lib/voice.ts</code>.</li>
   </ol>
 
   <h2>To change this, start here</h2>
   <ul>
-    <li><strong>How sure before whispering:</strong> <code>THRESHOLDS</code> in <code>src/lib/matcher.ts</code>; the Tracker options in <code>src/screens/WhisperMode.tsx</code> (<code>need: 3, window: 4</code>).</li>
-    <li><strong>How notes become whispers:</strong> <code>PRONOUNS</code> and <code>makeWhisper</code> in <code>src/lib/whisper.ts</code>; tests in <code>tests/unit/whisper.test.ts</code>.</li>
-    <li><strong>Colours, type and spacing:</strong> the <code>:root</code> tokens at the top of <code>src/styles/app.css</code>.</li>
-    <li><strong>Defaults (volume, repeat interval, strictness):</strong> <code>DEFAULT_SETTINGS</code> in <code>src/lib/settings.ts</code>.</li>
-    <li><strong>Sample people:</strong> <code>SAMPLES</code> in <code>src/lib/demo.ts</code>; faces and credits in <code>public/demo/faces/</code>.</li>
+    <li><strong>How sure before speaking:</strong> <code>STATE_LIMITS</code> in <code>src/lib/matcher.ts</code> (Careful and Balanced in Settings).</li>
+    <li><strong>How notes become whispers:</strong> <code>makeWhisper</code> in <code>src/lib/whisper.ts</code> and the styles in <code>src/lib/whisperStyle.ts</code>; tests in <code>tests/unit/whisper.test.ts</code> and <code>tests/unit/features.test.ts</code>.</li>
+    <li><strong>Consent:</strong> the handoff step in <code>src/screens/Enrol.tsx</code> (search <code>Hand the phone to</code>); links in <code>src/lib/consentLink.ts</code> and <code>consent/</code>.</li>
+    <li><strong>Colours, type and spacing:</strong> <code>src/styles/tokens.css</code> (app) and <code>landing/tokens.css</code> (landing page); the reasons are in <code>docs/design.md</code>.</li>
+    <li><strong>Defaults:</strong> <code>DEFAULT_SETTINGS</code> in <code>src/lib/settings.ts</code>. <strong>List limits:</strong> <code>MAX_PEOPLE</code> in <code>src/screens/Enrol.tsx</code>.</li>
+    <li><strong>The product name:</strong> <code>brand.config.json</code>, the only place it is written.</li>
+    <li><strong>What may leave the phone:</strong> <code>src/lib/enhanced.ts</code> (the only client code that calls a server) and <code>worker/index.ts</code>.</li>
   </ul>
 
   <h2>A practice to reuse</h2>
   <div class="card">
-    <p><strong>Measure before you trust a threshold.</strong> The spec named one uncertainty: would the 0.45 match threshold separate faces under a moving camera? Instead of guessing, the end-to-end test <code>tests/e2e/demo-mode.spec.ts</code> logs the real distances: the same person 0.08 to 0.33, a stranger 0.78 to 0.82. The checklist's Revisions record the result. Any project with a cut-off (a similarity score, a confidence level, a timeout) can do the same: write the open question in the plan, make a test print the real numbers, then choose the value with a visible margin.</p>
+    <p><strong>Measure before you trust a threshold, then write down what the numbers don't prove.</strong> The spec named one open question: would the match distances separate people? <code>tests/e2e/accuracy.record.ts</code> runs the real face engine on the AI-generated faces and writes <code>eval/accuracy-synthetic.json</code>: same person 0.05 to 0.21, different people 0.70 or more. The limits in <code>STATE_LIMITS</code> (0.42 and 0.50) sit with a margin on both sides, and <code>docs/accuracy.md</code> lists what five synthetic faces can't show (real lighting, bias, relatives). Any project with a cut-off, such as a similarity score, a confidence level or a timeout, can do the same: name the question in the plan, make a script print the real numbers, choose the value with a visible margin, and publish the limits beside it.</p>
   </div>
 
   <h2>Run it again</h2>
-  <p><code>./run.sh</code> then open <code>http://localhost:4173</code>. <code>./run.sh test</code> runs all tests; <code>./run.sh record</code> records the walkthrough.</p>
+  <p><code>./run.sh</code>, then open <code>http://localhost:4173/app/</code> (the landing page is at <code>/</code>). <code>./run.sh test</code> runs the unit and end-to-end tests; <code>./run.sh record</code> records the walkthrough. No camera handy: <strong>Try with sample people</strong>, then <strong>Open the demo camera</strong>.</p>
   <details>
     <summary>About this map</summary>
-    <p class="meta">A snapshot of the code at commit <code>f9e2636</code> on 26 Oct 2026. Paths and anchors were checked against that commit; later changes can drift from it.</p>
+    <p class="meta">A snapshot of the code at commit <code>02e3a70</code> on 26 Oct 2026. Paths and anchors were checked against that commit; later changes can drift from it. It needs no network and works offline.</p>
   </details>
 </main>
 </body>
