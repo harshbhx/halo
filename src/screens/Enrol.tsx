@@ -12,11 +12,11 @@ import type { Cues, WhisperSource } from '../lib/types';
 import { speak, unlockAudio } from '../lib/voice';
 import { makeWhisper } from '../lib/whisper';
 
-const MIN_SHOTS = 3;
+export const MIN_SHOTS = 3;
 const MAX_SHOTS = 5;
 const TIPS = ['Look straight at the camera', 'Now turn a little to one side', 'And a little to the other side', 'Maybe one with a smile', 'One more, any angle'];
 
-interface Shot {
+export interface Shot {
   descriptor: number[];
   thumb: string;
 }
@@ -35,7 +35,17 @@ function Progress({ step }: { step: number }) {
 
 /* ---------- Step 2: photos ---------- */
 
-function PhotoStep({ name, shots, setShots }: { name: string; shots: Shot[]; setShots: (s: Shot[]) => void }) {
+export function PhotoStep({
+  name,
+  shots,
+  setShots,
+  heading = true,
+}: {
+  name: string;
+  shots: Shot[];
+  setShots: (s: Shot[]) => void;
+  heading?: boolean;
+}) {
   const settings = useSettings();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [problem, setProblem] = useState<CameraProblem | null>(null);
@@ -106,14 +116,16 @@ function PhotoStep({ name, shots, setShots }: { name: string; shots: Shot[]; set
 
   return (
     <>
-      <div>
-        <h1 className="title title--md" tabIndex={-1} id="step-title">
-          Take {MIN_SHOTS} photos of {name}
-        </h1>
-        <p className="lede">Straight on, then turned a little each way. Good light helps. Only the face fingerprint and one small picture are kept.</p>
-      </div>
+      {heading && (
+        <div>
+          <h1 className="title title--md" tabIndex={-1} id="step-title">
+            Take {MIN_SHOTS} photos of {name}
+          </h1>
+          <p className="lede">Straight on, then turned a little each way. Good light helps.</p>
+        </div>
+      )}
 
-      <div className={`camera${facing === 'user' ? ' camera--mirror' : ''}`}>
+      <div className={`camera camera--capture${facing === 'user' ? ' camera--mirror' : ''}`}>
         <video ref={videoRef} muted playsInline autoPlay aria-label="Camera preview" />
         <svg className="camera__guide" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
           <defs>
@@ -303,7 +315,7 @@ function NoteStep({
           id="whisper-text"
           className="whisper-card__text"
           value={whisper}
-          rows={2}
+          rows={Math.max(2, Math.ceil(whisper.length / 24))}
           onChange={(e) => {
             setWhisper(e.target.value);
             setSource('edited');
@@ -494,9 +506,11 @@ export function Enrol() {
           <button type="submit" className="btn btn--primary btn--block btn--lg" disabled={!canContinue || saving}>
             {step === 3 ? (saving ? 'Saving…' : `Save ${cleanName}`) : 'Continue'}
           </button>
-          {step === 1 && shots.length < MIN_SHOTS && (
+          {step === 1 && (
             <p className="field__hint" style={{ textAlign: 'center' }}>
-              {MIN_SHOTS - shots.length} more {MIN_SHOTS - shots.length === 1 ? 'photo' : 'photos'} to go
+              {shots.length < MIN_SHOTS
+                ? `${MIN_SHOTS - shots.length} more ${MIN_SHOTS - shots.length === 1 ? 'photo' : 'photos'} to go. Only face fingerprints and one small picture are kept.`
+                : 'Only face fingerprints and one small picture are kept.'}
             </p>
           )}
         </div>
