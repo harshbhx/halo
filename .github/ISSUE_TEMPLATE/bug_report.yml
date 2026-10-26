@@ -1,0 +1,30 @@
+name: Bug report
+description: Something does not work as described
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Please do not attach photos of real people or exports from a real phone."
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: And what you expected instead
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device and browser
+      placeholder: "Pixel 8, Chrome 130"
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where
+      options: [Live site, Run locally, Enhanced mode Worker, Docs]
