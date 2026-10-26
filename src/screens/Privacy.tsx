@@ -59,13 +59,30 @@ export function Privacy() {
         </p>
 
         <h2>Honest limits</h2>
-        <ul>
-          <li>Poor light, backlight, steep angles, masks, new glasses or a new beard can stop a match, or rarely cause a wrong one.</li>
-          <li>Close relatives and look-alikes can be confused, so it waits for a steady match and stays quiet when unsure.</li>
+        <ol>
+          <li>A hint, not proof. It can name the wrong person, especially relatives, look-alikes and children. Never use it to decide who to trust or let in.</li>
+          <li>Silence doesn’t mean a stranger. Dim light, side angles, masks, new glasses or a haircut can stop a match.</li>
           <li>
-            <b>Never use it for safety, security or identity decisions.</b> It’s a gentle reminder, not proof of who someone is.
+            It works better for some faces than others. Open face models make more mistakes for darker-skinned and East Asian faces, women, children
+            and older people.
           </li>
+          <li>It only knows people who said yes. It can’t look anyone up. Each face in view is measured for a moment, checked against your list, then forgotten.</li>
+          <li>The app records that you asked them, but it can’t check. Remove anyone the moment they ask.</li>
+          <li>A prototype, tested so far mainly on AI-generated faces, not yet with people who have face blindness. Without earbuds, your phone speaks out loud.</li>
+        </ol>
+
+        <h2>Why it works this way</h2>
+        <p>People with face blindness have said what they want, and what they fear:</p>
+        <ul>
+          <li>
+            “I'd like it to have only a database of people I actually care about... I want to know who they are and where I met them before. ... But just
+            seeing the names of people standing in line next to me at the store or walking down the street would be both useless and overwhelming.”
+            (u/EinsTwo)
+          </li>
+          <li>“It will happen but not for the good of people with disabilities like us, but for the surveillance state.” (u/Dez_Acumen)</li>
+          <li>“...But would I want Meta knowing that much about me...” (on r/prosopagnosia)</li>
         </ul>
+        <p>So {BRAND.name} knows only the people you add with their agreement, keeps everything on your phone, and has no server to send faces to.</p>
 
         <h2>Your control</h2>
         <ul>
@@ -80,7 +97,8 @@ export function Privacy() {
         <p>
           A small face detector finds faces in each camera frame, a landmark model lines them up, and a recognition model turns each into a
           fingerprint. A face counts as someone you know only when it’s close enough to theirs, clearly closer than to anyone else, and stays
-          that way for three of the last four frames. Then your browser’s own voice says the whisper.
+          that way for at least a second and five frames, including one where they face you. Only then does your browser’s own voice say the
+          whisper. Closer than “maybe” but not sure, it shows “Could be …?” and stays quiet.
         </p>
       </div>
     </main>

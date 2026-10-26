@@ -348,7 +348,7 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 .prose { display: grid; gap: var(--space-md); }
 .prose h2 { margin-top: var(--space-xl); font-size: var(--text-2xl); }
 .prose p, .prose li { color: var(--color-ink-2); max-width: 60ch; }
-.prose ul { margin: 0; padding-left: var(--space-lg); display: grid; gap: var(--space-xs); }
+.prose ul, .prose ol { margin: 0; padding-left: var(--space-lg); display: grid; gap: var(--space-xs); }
 
 /* ---------- Wide screens: the app as a phone, centred ---------- */
 

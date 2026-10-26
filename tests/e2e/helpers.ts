@@ -13,7 +13,7 @@ export async function enableDebug(page: Page) {
 
 /** First run is a three-part tour ending in the privacy promise. */
 export async function passWelcome(page: Page) {
-  await expect(page.getByRole('heading', { name: 'Know who’s in front of you.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'A quiet voice for faces you know.' })).toBeVisible();
   await page.getByRole('button', { name: 'Next' }).click();
   await page.getByRole('button', { name: 'Next' }).click();
   await page.getByRole('button', { name: /I understand/ }).click();

@@ -56,7 +56,7 @@ test('demo walkthrough', async ({ page }) => {
   // 1. Welcome: the promise comes first.
   await page.goto('/');
   mark('Welcome screen');
-  await expect(page.getByRole('heading', { name: "Know who's in front of you." })).toBeVisible();
+  await expect(page.getByRole('heading', { name: "A quiet voice for faces you know." })).toBeVisible();
   await pause(2500);
   await shot('01-welcome');
   for (let i = 0; i < 6; i += 1) {
@@ -200,7 +200,7 @@ test('demo walkthrough', async ({ page }) => {
   await pause(1500);
   await shot('19-delete-everything');
   await tap(page, page.getByRole('button', { name: 'Yes, delete everything' }));
-  await expect(page.getByRole('heading', { name: "Know who's in front of you." })).toBeVisible();
+  await expect(page.getByRole('heading', { name: "A quiet voice for faces you know." })).toBeVisible();
   mark('Back to a fresh start');
   await pause(2500);
   await shot('20-after-delete-welcome');

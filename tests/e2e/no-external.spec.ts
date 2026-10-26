@@ -9,7 +9,7 @@ test('makes no requests to any other origin, landing page and app included', asy
     if (!url.startsWith(origin) && !url.startsWith('data:') && !url.startsWith('blob:')) outside.push(url);
   });
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Know who’s in front of you.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'A quiet voice for faces you know.' })).toBeVisible();
   await page.goto(APP);
   await passWelcome(page);
   await page.getByRole('button', { name: 'Try with sample people' }).click();

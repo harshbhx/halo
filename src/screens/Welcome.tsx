@@ -57,15 +57,15 @@ export function Welcome() {
         {part === 0 && (
           <>
             <h1 id="welcome-title" tabIndex={-1}>
-              Know who’s in front of you.
+              A quiet voice for faces you know.
             </h1>
             <p className="lead">
-              For people with face blindness. Point your phone at someone you’ve added and an earbud quietly tells you who they are and
+              For people with face blindness. Point your phone at someone you’ve added and your earbud quietly reminds you who it may be, and
               how you know them.
             </p>
             <figure className="quote">
-              <p>“What we need is some dude saying in our ears ‘yes, you know that person it’s &lt;name&gt;’”</p>
-              <cite>Someone with prosopagnosia, on r/prosopagnosia</cite>
+              <p>“What we need is some dude saying in our ears "yes , you know that person it's insert name"”</p>
+              <cite>u/Adventurous_Kiwi, on r/prosopagnosia</cite>
             </figure>
           </>
         )}
@@ -78,8 +78,8 @@ export function Welcome() {
             <ol className="how">
               <li>
                 <div>
-                  <b>Ask first</b>
-                  <span>Only add people who agreed. You confirm it each time.</span>
+                  <b>They say yes</b>
+                  <span>You hand them the phone. They read their line and agree.</span>
                 </div>
               </li>
               <li>
@@ -90,8 +90,8 @@ export function Welcome() {
               </li>
               <li>
                 <div>
-                  <b>Hear who it is</b>
-                  <span>In Whisper mode, a soft ring settles on Raj and your earbud says his line.</span>
+                  <b>Hear who it is, when it’s sure</b>
+                  <span>A soft ring settles on Raj and your earbud says his line. Not sure? It asks “Could be Raj?” and stays quiet.</span>
                 </div>
               </li>
             </ol>
@@ -128,8 +128,8 @@ export function Welcome() {
               <li>
                 <Ear size={20} aria-hidden="true" />
                 <div>
-                  <b>A helper, not proof</b>
-                  <span>Light and angles can fool it. Never use it for safety decisions.</span>
+                  <b>A hint, not proof</b>
+                  <span>It can name the wrong person. Silence doesn’t mean a stranger. Never use it to decide who to trust.</span>
                 </div>
               </li>
               <li>
