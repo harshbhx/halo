@@ -20,10 +20,14 @@ export interface Person {
   descriptors: number[][];
   /** Small JPEG data URL for the people list. On this device only. */
   thumb: string;
-  /** When the user confirmed this person agreed to be added. */
+  /** When this person agreed to be added. */
   consentAt: string;
+  /** How: they tapped "I agree" on this phone, or the owner confirmed they said yes. */
+  consentMethod?: 'in-person' | 'owner-confirmed';
   createdAt: string;
   updatedAt: string;
+  /** A child: Halo never sounds confident about children's faces, it only suggests. */
+  child?: boolean;
   /** Synthetic demo person (AI-generated face of someone who does not exist). */
   sample?: boolean;
 }

@@ -1,4 +1,4 @@
-import { ChevronLeft, Ear, Mic, Play, RefreshCw, SwitchCamera, UserPlus, X } from 'lucide-react';
+import { ChevronLeft, Ear, Lock, Mic, Play, RefreshCw, SwitchCamera, Trash2, UserPlus, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Avatar, Segmented, toast } from '../components/ui';
 import { CAMERA_MESSAGES, CameraError, openCamera, stopStream, type CameraProblem } from '../lib/camera';
@@ -7,7 +7,7 @@ import { DESCRIBE_MESSAGES, describe, frameBrightness, grabFrame, loadEngine } f
 import { DARK_BELOW, HINT_TEXT } from '../lib/hints';
 import { euclidean } from '../lib/matcher';
 import { onDeviceModelAvailable, whisperWithModel } from '../lib/onDeviceModel';
-import { addOrUpdatePerson, newId } from '../lib/people';
+import { addOrUpdatePerson, newId, usePeople } from '../lib/people';
 import { navigate } from '../lib/router';
 import { getSettings, updateSettings, useSettings } from '../lib/settings';
 import type { Cues, Person, WhisperSource } from '../lib/types';
@@ -16,6 +16,11 @@ import { makeWhisper } from '../lib/whisper';
 import { spokenLine, STYLE_LABELS, type WhisperStyle } from '../lib/whisperStyle';
 
 export const MIN_SHOTS = 3;
+/** A closed list, kept small on purpose: who you meet often, not a crowd. */
+export const MAX_PEOPLE = 50;
+export const MAX_PER_DAY = 5;
+/** Two people closer than this may be mixed up. */
+const LOOKALIKE = 0.55;
 const MAX_SHOTS = 5;
 /** Shots of one person sit close together; a far-off shot is probably someone else. */
 const SAME_PERSON_LIMIT = 0.55;
@@ -182,6 +187,14 @@ export function PhotoStep({
         >
           <SwitchCamera size={22} aria-hidden="true" />
         </button>
+        <button
+          type="button"
+          className="shutter camera__shutter"
+          onClick={capture}
+          disabled={!ready || busy || shots.length >= MAX_SHOTS}
+          aria-busy={busy}
+          aria-label={busy ? 'Reading photo' : `Take photo ${shots.length + 1}`}
+        />
       </div>
 
       <div className="capture">
@@ -194,14 +207,6 @@ export function PhotoStep({
           {shots.length < MIN_SHOTS &&
             Array.from({ length: MIN_SHOTS - shots.length }, (_, i) => <span key={`e${i}`} className="shot shot--empty" aria-hidden="true" />)}
         </div>
-        <button
-          type="button"
-          className="shutter"
-          onClick={capture}
-          disabled={!ready || busy || shots.length >= MAX_SHOTS}
-          aria-busy={busy}
-          aria-label={busy ? 'Reading photo' : `Take photo ${shots.length + 1}`}
-        />
         <p className="shot-count" aria-live="polite">
           {shots.length} of {shots.length >= MIN_SHOTS ? MAX_SHOTS : MIN_SHOTS}
         </p>
@@ -294,18 +299,6 @@ function NoteStep({
         <p className="lead">Say or type who {name} is and how you know them.</p>
       </div>
 
-      {canDictate && (
-        <button type="button" className="btn btn--block mic" aria-pressed={listening} onClick={toggleMic}>
-          <Mic size={20} aria-hidden="true" />
-          {listening ? 'Listening, tap to stop' : 'Tap and say it'}
-        </button>
-      )}
-      {micError && (
-        <p className="notice" role="alert">
-          {micError}
-        </p>
-      )}
-
       <label className="field">
         <span className="field__label">Your note</span>
         <textarea
@@ -317,6 +310,21 @@ function NoteStep({
         />
         <span className="field__hint">Only you will ever see or hear this.</span>
       </label>
+
+      {canDictate && (
+        <div className="stack">
+          <button type="button" className="btn btn--block mic" aria-pressed={listening} onClick={toggleMic}>
+            <Mic size={20} aria-hidden="true" />
+            {listening ? 'Listening, tap to stop' : 'Dictate instead'}
+          </button>
+          <span className="field__hint">Dictation is your browser’s: it may send the audio to its maker (Google, in Chrome). Typing stays on the phone.</span>
+        </div>
+      )}
+      {micError && (
+        <p className="notice" role="alert">
+          {micError}
+        </p>
+      )}
 
       <div className="panel whisper-panel">
         <label className="field__label" htmlFor="whisper-text">
@@ -372,7 +380,14 @@ const CUE_FIELDS: Array<{ key: keyof Cues; label: string; placeholder: string }>
 export function Enrol() {
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
-  const [consent, setConsent] = useState(false);
+  const [consentMethod, setConsentMethod] = useState<Person['consentMethod'] | null>(null);
+  const [consentTick, setConsentTick] = useState(false);
+  const [child, setChild] = useState(false);
+  const { people } = usePeople();
+  const real = people.filter((p) => !p.sample);
+  const today = new Date().toDateString();
+  const addedToday = real.filter((p) => new Date(p.createdAt).toDateString() === today).length;
+  const capReached = real.length >= MAX_PEOPLE || addedToday >= MAX_PER_DAY;
   const [shots, setShots] = useState<Shot[]>([]);
   const [note, setNote] = useState('');
   const [whisper, setWhisper] = useState('');
@@ -389,7 +404,11 @@ export function Enrol() {
   }, [step, saved]);
 
   const cleanName = name.trim();
-  const canContinue = [cleanName.length > 0 && consent, shots.length >= MIN_SHOTS, whisper.trim().length > 0, true][step];
+  const lookalikes = shots.length
+    ? people.filter((p) => p.descriptors.some((d) => shots.some((s) => euclidean(d, s.descriptor) < LOOKALIKE))).map((p) => p.name)
+    : [];
+  const canContinue = [cleanName.length > 0 && !capReached, whisper.trim().length > 0, !!consentMethod, shots.length >= MIN_SHOTS, true][step];
+  const TOTAL = 5;
 
   async function save() {
     setSaving(true);
@@ -404,6 +423,8 @@ export function Enrol() {
       descriptors: shots.map((s) => s.descriptor),
       thumb: shots[0]?.thumb ?? '',
       consentAt: consentAt.current || now,
+      consentMethod: consentMethod ?? 'owner-confirmed',
+      child: child || undefined,
       createdAt: now,
       updatedAt: now,
     };
@@ -421,7 +442,9 @@ export function Enrol() {
     setSaved(null);
     setStep(0);
     setName('');
-    setConsent(false);
+    setConsentMethod(null);
+    setConsentTick(false);
+    setChild(false);
     setShots([]);
     setNote('');
     setWhisper('');
@@ -431,9 +454,25 @@ export function Enrol() {
 
   function next() {
     if (!canContinue) return;
-    if (step === 0) consentAt.current = new Date().toISOString();
-    if (step < 3) setStep(step + 1);
+    if (step < TOTAL - 1) setStep(step + 1);
     else void save();
+  }
+
+  function back() {
+    if (step === 3) {
+      // The line they agreed to may change, so they'll be asked again.
+      setConsentMethod(null);
+      setConsentTick(false);
+      setStep(1);
+      return;
+    }
+    setStep(step - 1);
+  }
+
+  function agree(method: NonNullable<Person['consentMethod']>) {
+    consentAt.current = new Date().toISOString();
+    setConsentMethod(method);
+    setStep(3);
   }
 
   if (saved) {
@@ -478,12 +517,12 @@ export function Enrol() {
         <button
           type="button"
           className="icon-btn"
-          onClick={() => (step === 0 ? navigate('/') : setStep(step - 1))}
+          onClick={() => (step === 0 ? navigate('/') : back())}
           aria-label={step === 0 ? 'Cancel adding' : 'Back'}
         >
           {step === 0 ? <X size={22} aria-hidden="true" /> : <ChevronLeft size={24} aria-hidden="true" />}
         </button>
-        <StepBar step={step} total={4} />
+        <StepBar step={step} total={TOTAL} />
       </div>
 
       <form
@@ -500,7 +539,7 @@ export function Enrol() {
                 <h1 tabIndex={-1} id="step-title">
                   Who are you adding?
                 </h1>
-                <p className="lead">Only people who said yes. Their face stays on this phone.</p>
+                <p className="lead">Someone you meet often. Next, you’ll hand them the phone so they can say yes themselves.</p>
               </div>
               <label className="field">
                 <span className="field__label">Their name</span>
@@ -517,22 +556,78 @@ export function Enrol() {
                 />
               </label>
               <label className="consent">
-                <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
+                <input type="checkbox" checked={child} onChange={(e) => setChild(e.target.checked)} />
                 <span>
-                  <span className="consent__title">{cleanName || 'They'} agreed to be added</span>
-                  <span className="consent__body">I asked, and they’re happy for my phone to recognise them. I can delete them any time.</span>
+                  <span className="consent__title">{cleanName || 'They'} is a child</span>
+                  <span className="consent__body">Children’s faces change fast, so Halo will only ever suggest “Could be {cleanName || 'them'}?”, never say it for sure.</span>
                 </span>
               </label>
+              {capReached && (
+                <p className="notice" role="status">
+                  {real.length >= MAX_PEOPLE
+                    ? `Halo keeps a short list: at most ${MAX_PEOPLE} people. Remove someone to add another.`
+                    : `That’s ${MAX_PER_DAY} people added today. Add more tomorrow: a short list stays reliable.`}
+                </p>
+              )}
             </>
           )}
 
-          {step === 1 && <PhotoStep name={cleanName} shots={shots} setShots={setShots} />}
-
           {step === 2 && (
+            <div className="handoff">
+              <p className="handoff__note">Hand the phone to {cleanName}</p>
+              <h1 tabIndex={-1} id="step-title">
+                Hi {cleanName}.
+              </h1>
+              <p className="lead">
+                The person holding this phone finds faces hard to recognise, even friends’. With your OK, this phone learns your face and quietly
+                reminds them who you are, like this:
+              </p>
+              <blockquote className="handoff__line">“{whisper}”</blockquote>
+              <ul className="promises">
+                <li>
+                  <Lock size={20} aria-hidden="true" />
+                  <div>
+                    <b>Your face stays on this phone</b>
+                    <span>Nothing is uploaded or shared.</span>
+                  </div>
+                </li>
+                <li>
+                  <Trash2 size={20} aria-hidden="true" />
+                  <div>
+                    <b>Change your mind any time</b>
+                    <span>Ask, and they delete you in one tap.</span>
+                  </div>
+                </li>
+              </ul>
+              <label className="consent">
+                <input type="checkbox" checked={consentTick} onChange={(e) => setConsentTick(e.target.checked)} />
+                <span>
+                  <span className="consent__title">I’m {cleanName}, and I agree</span>
+                  <span className="consent__body">Three photos of my face and this line stay on this phone. I can ask for them to be deleted any time.</span>
+                </span>
+              </label>
+              <button type="button" className="btn btn--primary btn--block" disabled={!consentTick} onClick={() => agree('in-person')}>
+                I agree
+              </button>
+              <div className="row">
+                <button type="button" className="btn btn--quiet" onClick={() => navigate('/')}>
+                  No thanks
+                </button>
+                <span className="spacer" />
+                <button type="button" className="btn btn--quiet" onClick={() => agree('owner-confirmed')}>
+                  They already said yes
+                </button>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && <PhotoStep name={cleanName} shots={shots} setShots={setShots} />}
+
+          {step === 1 && (
             <NoteStep name={cleanName} note={note} setNote={setNote} whisper={whisper} setWhisper={setWhisper} source={source} setSource={setSource} />
           )}
 
-          {step === 3 && (
+          {step === 4 && (
             <>
               <div className="stack">
                 <h1 tabIndex={-1} id="step-title">
@@ -540,6 +635,12 @@ export function Enrol() {
                 </h1>
                 <p className="lead">Optional. Clothes, hair or a voice often help more than a face. They show under the whisper.</p>
               </div>
+              {lookalikes.length > 0 && (
+                <p className="notice" role="status">
+                  {cleanName} looks a lot like {lookalikes.join(' and ')}. Relatives and look-alikes can be mixed up, so Halo will only speak when it’s
+                  clearly one of them. Cue notes help you tell them apart.
+                </p>
+              )}
               {CUE_FIELDS.map((f) => (
                 <label className="field" key={f.key}>
                   <span className="field__label">{f.label}</span>
@@ -557,11 +658,12 @@ export function Enrol() {
           )}
         </div>
 
+        {step !== 2 && (
         <div className="flow-foot">
           <button type="submit" className="btn btn--primary btn--block" disabled={!canContinue || saving} aria-busy={saving}>
-            {step === 3 ? (saving ? 'Saving…' : `Save ${cleanName}`) : 'Continue'}
+            {step === TOTAL - 1 ? (saving ? 'Saving…' : `Save ${cleanName}`) : 'Continue'}
           </button>
-          {step === 1 && (
+          {step === 3 && (
             <p className="field__hint" style={{ textAlign: 'center' }}>
               {shots.length < MIN_SHOTS
                 ? `${MIN_SHOTS - shots.length} more ${MIN_SHOTS - shots.length === 1 ? 'photo' : 'photos'} to go. Only fingerprints and one small picture are kept.`
@@ -569,6 +671,7 @@ export function Enrol() {
             </p>
           )}
         </div>
+        )}
       </form>
     </main>
   );

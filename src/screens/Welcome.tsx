@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import { drawLamps } from '../lib/lights';
 import { HaloMark } from '../components/ui';
 import { navigate } from '../lib/router';
-import { updateSettings } from '../lib/settings';
+import { getSettings, updateSettings } from '../lib/settings';
+import { speak, speechSupported, unlockAudio } from '../lib/voice';
 import { BRAND } from '../brand';
 
 /**
@@ -14,6 +15,18 @@ export function Welcome() {
   const [part, setPart] = useState(0);
   const last = part === 2;
   const lamps = useRef<HTMLCanvasElement>(null);
+  const [heard, setHeard] = useState('');
+
+  function checkEarbud() {
+    unlockAudio();
+    if (!speechSupported()) {
+      setHeard('This browser has no voice. Names will still show on screen.');
+      return;
+    }
+    const s = getSettings();
+    void speak('This is how a whisper sounds.', { voiceName: s.voiceName, volume: s.volume, rate: s.rate, chimeSound: s.chimeSound });
+    setHeard('asked');
+  }
 
   useEffect(() => {
     const draw = () => lamps.current && drawLamps(lamps.current, { low: 0.72 });
@@ -134,6 +147,39 @@ export function Welcome() {
                 </div>
               </li>
             </ul>
+            <div className="stack">
+              <button type="button" className="btn btn--block" onClick={checkEarbud}>
+                <Ear size={18} aria-hidden="true" /> Check your earbud
+              </button>
+              {heard === 'asked' ? (
+                <div className="stack" aria-live="polite">
+                  <p className="label">Did you hear “This is how a whisper sounds.” in your earbud?</p>
+                  <div className="row">
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => {
+                        updateSettings({ speakAllowed: true });
+                        setHeard('yes');
+                      }}
+                    >
+                      Yes, in my earbud
+                    </button>
+                    <button type="button" className="btn btn--quiet" onClick={() => setHeard('no')}>
+                      Not yet
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p className="label" aria-live="polite">
+                  {heard === 'yes'
+                    ? 'Whispers will be spoken. You can change this in Settings.'
+                    : heard === 'no'
+                      ? 'Fine: until you check again in Settings, you get a buzz and the name on screen, nothing spoken aloud.'
+                      : heard}
+                </p>
+              )}
+            </div>
           </>
         )}
 

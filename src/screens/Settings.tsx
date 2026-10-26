@@ -7,7 +7,7 @@ import { onDeviceModelAvailable } from '../lib/onDeviceModel';
 import { removeEveryone, usePeople } from '../lib/people';
 import { navigate } from '../lib/router';
 import { resetSettings, updateSettings, useSettings, type ChimeSound, type OutputMode, type Theme } from '../lib/settings';
-import { deliver, loadVoices, pickDefaultVoice, playChime, speechSupported, unlockAudio } from '../lib/voice';
+import { activeVoice, deliver, isOnDeviceVoice, loadVoices, pickDefaultVoice, playChime, speechSupported, unlockAudio } from '../lib/voice';
 import { spokenLine, STYLE_LABELS, type WhisperStyle } from '../lib/whisperStyle';
 import { BRAND } from '../brand';
 
@@ -60,6 +60,8 @@ export function Settings() {
   }, []);
 
   const defaultVoice = pickDefaultVoice(voices);
+  const speaking = activeVoice(voices, settings.voiceName);
+  const voiceOffline = voices.length === 0 || isOnDeviceVoice(speaking);
 
   function listen() {
     unlockAudio();
@@ -146,10 +148,17 @@ export function Settings() {
                   <option value="">Automatic{defaultVoice ? ` (${defaultVoice.name})` : ''}</option>
                   {voices.map((v) => (
                     <option key={v.name} value={v.name}>
-                      {v.name}, {v.lang}
+                      {v.name}, {v.lang}, {v.localService ? 'on this phone' : 'needs internet'}
                     </option>
                   ))}
                 </select>
+                {voiceOffline ? (
+                  <span className="panel__hint">This voice is on your phone, so whispers keep working offline.</span>
+                ) : (
+                  <span className="notice" role="status">
+                    This voice needs the internet. Pick one marked “on this phone” so whispers work offline; otherwise Halo shows the name on screen.
+                  </span>
+                )}
               </label>
               <div className="panel__row panel__row--stack">
                 <div className="row">
@@ -197,6 +206,15 @@ export function Settings() {
           </div>
           <div className="panel__row">
             <span className="panel__text">
+              <span className="panel__title">Speak whispers aloud</span>
+              <span className="panel__hint">
+                Turn on once your earbuds are in. Without earbuds the phone speaks out loud. When off: a buzz and the name on screen.
+              </span>
+            </span>
+            <Switch checked={settings.speakAllowed} onChange={(speakAllowed) => updateSettings({ speakAllowed })} label="Speak whispers aloud" />
+          </div>
+          <div className="panel__row">
+            <span className="panel__text">
               <span className="panel__title">Gentle buzz</span>
               <span className="panel__hint">A short vibration first, on phones that have one.</span>
             </span>
@@ -225,7 +243,9 @@ export function Settings() {
               onChange={(strictness) => updateSettings({ strictness })}
             />
             <span className="panel__hint">
-              {settings.strictness === 'careful' ? 'Fewer whispers, very rarely wrong. Recommended.' : 'Recognises more often in poor light, and is wrong a little more often.'}
+              {settings.strictness === 'careful'
+                ? 'Speaks only when it’s sure, and stays quiet more often. Recommended.'
+                : 'Speaks a little more readily, so it will be wrong a little more often.'}
             </span>
           </div>
           <label className="panel__row panel__row--stack">

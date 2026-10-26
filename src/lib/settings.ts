@@ -30,6 +30,8 @@ export interface Settings {
   bigText: boolean;
   highContrast: boolean;
   practiceKind: PracticeKind;
+  /** Whispers are spoken only once the user has checked their earbud (or chosen the speaker). */
+  speakAllowed: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -50,6 +52,7 @@ export const DEFAULT_SETTINGS: Settings = {
   bigText: false,
   highContrast: false,
   practiceKind: 'cues',
+  speakAllowed: false,
 };
 
 const KEY = 'fw.settings';
