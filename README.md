@@ -94,7 +94,7 @@ No camera or friend handy? Tap **Try with sample people**, then **Open the demo 
 
 ### Tests
 
-- Unit (24): the whisper writer, the matcher and tracker, the encrypted vault (ciphertext, delete, wipe).
+- Unit (25): the whisper writer (including the demo lines), the matcher and tracker, the encrypted vault (ciphertext, delete, wipe).
 - End to end (5, Playwright + Chromium fake camera): enrol and recognise; edit, check the database holds ciphertext, delete everything; sample people recognised while the stranger stays unknown (with distances logged); works offline after the first visit; the recorded walkthrough.
 
 ## How it was built: the Devpost Learn skills
