@@ -19,7 +19,7 @@ Build mode: fast (Harsh's brief asked the agent to build and verify autonomously
   Learner check: Open the app on a phone, enrol a friend who agreed, open Whisper mode and point at them: you should hear their whisper and see the ring.
   Commit: `Enrol people and whisper their name on recognition`
 
-- [ ] **2. A calm, complete app around the kernel**
+- [x] **2. A calm, complete app around the kernel**
   Becomes usable: Welcome with the privacy promise, people list with edit and delete, settings with voice, volume, rate, strictness, theme and Delete everything, the privacy and limits page, bottom navigation.
   Why now: The judges' first 30 seconds depend on it, and Delete everything is a privacy promise that must be tested.
   PRD ref: `prd.md > Screens and Layout`, `prd.md > Look and Feel`, `prd.md > Features and Behavior > Privacy and consent`, `prd.md > Features and Behavior > Managing people`, `prd.md > Features and Behavior > Settings`, `prd.md > States and Boundaries`
