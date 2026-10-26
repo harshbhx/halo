@@ -27,3 +27,4 @@ public/wasm/
 /agent/
 .demo-profile/
 docs/shots/*.webm
+.hallmark/salt

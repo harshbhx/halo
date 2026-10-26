@@ -1,0 +1,12 @@
+{
+  "scanned": "2026-10-26",
+  "findings": {
+    "fonts": "Atkinson Hyperlegible Next via @fontsource (src/main.tsx L3-5), chosen for low-vision legibility",
+    "palette": "hex custom properties, warm paper + teal (src/styles/app.css :root)",
+    "motion": "CSS keyframes and transitions only, no library",
+    "spacing": "raw px values, no scale",
+    "framework": "Vite 7 + React 19 + TypeScript, hash routes, single page app"
+  },
+  "preserve": ["Atkinson Hyperlegible Next as the body face (an accessibility choice)", "every route, handler, form field and test hook", "the privacy model and all product logic"],
+  "introduce": ["Ribbon theme tokens and scale", "landing page at / with the app moved to /app", "Hallmark floor: tokens only, no tracked caps, no middle dots, reduced motion, focus rings"]
+}
