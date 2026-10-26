@@ -49,8 +49,8 @@ function brandPlugin(): Plugin {
         scope: './',
         display: 'standalone',
         orientation: 'portrait',
-        background_color: '#0b0f17',
-        theme_color: '#0b0f17',
+        background_color: '#110b08',
+        theme_color: '#253b77',
         icons: [
           { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },

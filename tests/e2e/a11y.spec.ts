@@ -11,6 +11,9 @@ import { APP } from './helpers';
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 
 async function scan(page: Page, label: string) {
+  // Let entrance animations finish first: a half-faded step would be measured at half contrast.
+  await page.evaluate(() => document.getAnimations().forEach((a) => a.finish()));
+  await page.waitForTimeout(150);
   // The live camera canvas and video carry no content of their own (aria-hidden).
   const result = await new AxeBuilder({ page }).withTags(TAGS).exclude('canvas').exclude('video').analyze();
   const blocking = result.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');

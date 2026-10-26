@@ -18,7 +18,7 @@ for (const [file, size, pad] of sizes) {
   const inner = Math.round(size * (1 - pad * 2));
   await page.setViewportSize({ width: size, height: size });
   await page.setContent(
-    `<html><body style="margin:0;background:${pad ? '#141a2c' : 'transparent'};display:grid;place-items:center;width:${size}px;height:${size}px">` +
+    `<html><body style="margin:0;background:${pad ? '#253b77' : 'transparent'};display:grid;place-items:center;width:${size}px;height:${size}px">` +
       svg.replace('<svg ', `<svg width="${inner}" height="${inner}" `) +
       '</body></html>',
   );

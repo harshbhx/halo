@@ -24,11 +24,11 @@ try {
     const dark = v.endsWith('dark');
     const cell = desktop ? 300 : 170;
     const html = `<!doctype html><meta charset="utf-8"><style>
-      body { margin: 0; padding: 32px; background: ${dark ? '#0b0f17' : '#f7f3ec'}; color: ${dark ? '#e9e4da' : '#1d1b18'}; font: 14px/1.3 system-ui, sans-serif; }
+      body { margin: 0; padding: 32px; background: ${dark ? '#110b08' : '#f6f1e7'}; color: ${dark ? '#f0ebdf' : '#1e1713'}; font: 14px/1.3 system-ui, sans-serif; }
       h1 { margin: 0 0 20px; font-size: 22px; font-weight: 500; }
       .grid { display: grid; grid-template-columns: repeat(auto-fill, ${cell}px); gap: 20px 16px; }
       figure { margin: 0; }
-      img { width: ${cell}px; height: auto; display: block; border-radius: 10px; outline: 1px solid ${dark ? '#2a3140' : '#ddd5c8'}; }
+      img { width: ${cell}px; height: auto; display: block; border-radius: 10px; outline: 1px solid ${dark ? '#3a2f29' : '#ddd3c2'}; }
       figcaption { margin-top: 6px; font-size: 12px; opacity: .8; word-break: break-word; }
     </style><h1>${brand.name}: ${v.replace('-', ', ')} (${files.length} screens)</h1><div class="grid">${files
       .map((f) => `<figure><img src="${pathToFileURL(join(dir, f)).href}"><figcaption>${f.replace('.png', '')}</figcaption></figure>`)
