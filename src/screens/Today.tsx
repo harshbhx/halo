@@ -36,6 +36,9 @@ export function Today() {
   async function save() {
     await saveToday({ title: title.trim(), ids: picked, day: isoDay(Date.now()) });
     setEditing(false);
+    window.scrollTo({ top: 0 });
+    document.querySelector('.shell')?.scrollTo({ top: 0 });
+    document.getElementById('today-title')?.focus({ preventScroll: true });
   }
 
   async function playAll() {
