@@ -37,6 +37,17 @@ export interface Settings {
   naturalVoice: boolean;
   whisperLang: string;
   cloudWriter: boolean;
+  /** Quiet hours: between these times nothing is said aloud (a buzz and the caption instead). */
+  quietHours: QuietHours;
+  /** Pocket mode: the phone hangs at chest height with the screen dark; whispers in the earbud or buzz codes. */
+  pocketMode: boolean;
+}
+
+export interface QuietHours {
+  on: boolean;
+  /** "HH:MM", 24-hour, local time. */
+  from: string;
+  to: string;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -62,6 +73,8 @@ export const DEFAULT_SETTINGS: Settings = {
   naturalVoice: true,
   whisperLang: 'en',
   cloudWriter: false,
+  quietHours: { on: false, from: '22:00', to: '07:00' },
+  pocketMode: false,
 };
 
 const KEY = 'fw.settings';

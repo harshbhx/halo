@@ -28,6 +28,8 @@ export interface TodayList {
   title: string;
   ids: string[];
   day: string;
+  /** Event mode: Whisper mode compares faces with this list only. */
+  only?: boolean;
 }
 
 const today = createStore<{ loaded: boolean; list: TodayList | null }>({ loaded: false, list: null });
