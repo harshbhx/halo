@@ -2,6 +2,15 @@
 
 **A quiet voice for faces you know.**
 
+<p align="center">
+  <img src="docs/gifs/hero.gif" width="300" alt="Whisper mode on a phone: a light halo forms around the face of Sam (AI-generated) and the caption reads 'Sam, your teammate from the hackathon. Loves climbing.' while the whisper is spoken to the earbud">
+  <br>
+  <sub>The whisper moment, from the <a href="docs/shots/walkthrough.mp4">full walkthrough video</a> (the video is silent; Halo speaks only to an earbud you have checked).</sub>
+</p>
+
+[![MIT licence](https://img.shields.io/badge/licence-MIT-blue)](LICENSE) [![Live demo](https://img.shields.io/badge/live%20demo-halo.dualmindlab.tech-informational)](https://halo.dualmindlab.tech)
+Tests: 90 unit (Vitest) and 25 end-to-end (Playwright). Runs in the phone's browser; nothing about faces is uploaded.
+
 **Try it: https://halo.dualmindlab.tech** (open it on a phone; the demo mode uses AI-generated faces).
 
 Halo is a phone web app for people with face blindness (prosopagnosia). You add people you know, with their own agreement. When the camera is sure it's one of them, an earbud says who they are and how you know them: *"Raj, your neighbour. Knee surgery last month."* Faces, face fingerprints and photos never leave the phone.
@@ -15,9 +24,37 @@ Halo is a phone web app for people with face blindness (prosopagnosia). You add 
 
 Every face in this repository, the app's demo mode and the fake-camera clips is an AI-generated image of a person who does not exist ([credits](CREDITS.md)). Halo is a prototype, tested so far mainly on AI-generated faces.
 
+## See it
+
+Short clips from the recorded app walkthrough. Each links to the video it was cut from, which has more detail (all are silent).
+
+**Add someone, with their yes.** The note becomes the whisper line; the person being added reads it and agrees themselves. ([walkthrough.mp4](docs/shots/walkthrough.mp4))
+
+<p><img src="docs/gifs/add-with-consent.gif" width="260" alt="Adding a person: typing a note updates the whisper line, then the phone is handed over and Sam reads the exact line and ticks 'I'm Sam, and I agree'"></p>
+
+**Three states, including "No match".** Confident gets a halo and a whisper, maybe gets a dotted ring and is never spoken, and a face that was never added gets a faint outline and nothing is stored. ([walkthrough.mp4](docs/shots/walkthrough.mp4))
+
+<p><img src="docs/gifs/three-states.gif" width="260" alt="Demo camera: Maya is recognised from today's list with a halo and caption, then a face that was never added gets a dashed outline and 'No match'"></p>
+
+**Pocket mode.** The screen goes dark and stays awake, the camera keeps running and whispers go to the earbud. ([walkthrough.mp4](docs/shots/walkthrough.mp4))
+
+<p><img src="docs/gifs/pocket-mode.gif" width="260" alt="Pocket mode screen: near-black, with instructions to wear the phone at chest height and a 'Wake the screen' button"></p>
+
+**Your data and Wipe now.** Everything stored on the phone, with counts, and a two-tap wipe that leaves no database, cache, service worker or settings. ([walkthrough.mp4](docs/shots/walkthrough.mp4))
+
+<p><img src="docs/gifs/your-data-wipe.gif" width="260" alt="Your data screen listing what is stored on the phone with counts, then the Wipe now confirmation and the empty result"></p>
+
+**Halo in 60 seconds.** Three AI-generated sample people and the demo camera, with no camera or tour needed. Try it yourself at [halo.dualmindlab.tech/app/#/try](https://halo.dualmindlab.tech/app/#/try). ([try-60-seconds.mp4](docs/shots/try-60-seconds.mp4))
+
+<p><img src="docs/gifs/try-60-seconds.gif" width="260" alt="The 60-second try: sample people are prepared on the phone and the demo camera recognises two of them while a third face is not matched"></p>
+
+**The landing page**, scrolling from the first whisper to the honest limits. ([landing-scroll.mp4](docs/shots/landing-scroll.mp4))
+
+<p><img src="docs/gifs/landing-scroll.gif" width="480" alt="Scrolling the Halo landing page on a desktop browser"></p>
+
 ## Contents
 
-- [Who it's for](#who-its-for) · [What already exists](#what-already-exists)
+- [See it](#see-it) · [Who it's for](#who-its-for) · [What already exists](#what-already-exists)
 - [What it does](#what-it-does) · [Privacy model](#privacy-model) · [Optional Enhanced mode](#optional-enhanced-mode-off-by-default) · [Honest limits](#honest-limits)
 - [Run it](#run-it) · [Tests and evidence](#tests-and-evidence) · [Deploying](#deploying)
 - [How it works](#how-it-works) · [How it was made](#how-it-was-made) · [Design](#design) · [Project layout](#project-layout) · [Credits and licence](#credits-and-licence)
