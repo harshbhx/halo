@@ -250,6 +250,7 @@ test('Halo in 60 seconds, phone', async ({ page }) => {
   for (const mode of ['light', 'dark'] as Mode[]) {
     await page.emulateMedia({ colorScheme: mode });
     await page.evaluate(() => localStorage.clear()).catch(() => undefined);
+    await page.goto('about:blank'); // a hash-only change wouldn't reload the app
     await page.goto(`${APP}#/try`);
     await expect(page.getByRole('region', { name: 'Halo in 60 seconds' })).toBeVisible({ timeout: 120_000 });
     await expect(page.locator('.caption:not(.caption--maybe) .caption__name')).toHaveText(/Maya|Arjun|Walter/, { timeout: 90_000 });

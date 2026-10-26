@@ -291,7 +291,7 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 .night__notes > * { pointer-events: auto; }
 .silent-chip { max-width: 100%; padding: var(--space-xs) var(--space-md); border: 0; border-radius: var(--radius-pill); background: var(--night-scrim); color: var(--halo); font: 700 var(--text-sm)/1.2 var(--font-body); text-align: center; cursor: pointer; }
 .night-note { max-width: 100%; margin: 0; padding: var(--space-xs) var(--space-md); border-radius: var(--radius-pill); background: var(--night-scrim); color: var(--night-ink); font: 700 var(--text-sm)/1.2 var(--font-body); text-align: center; }
-.coach { width: min(100%, 24rem); display: grid; gap: var(--space-xs); padding: var(--space-sm) var(--space-md); border: var(--rule-hair) solid var(--night-rule); border-radius: var(--radius-input); background: var(--night-scrim); color: var(--night-ink); }
+.coach { width: min(100%, 24rem); display: grid; gap: var(--space-xs); padding: var(--space-sm) var(--space-md); border: var(--rule-hair) solid var(--night-rule); border-radius: var(--radius-input); background: var(--night-paper-2); color: var(--night-ink); }
 .coach__head { display: flex; align-items: center; gap: var(--space-sm); color: var(--night-muted); font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
 .coach__step { margin: 0; font: 400 var(--text-lg)/1.25 var(--font-display); }
 .coach__toggle { min-height: 36px; padding: 0 var(--space-sm); border: var(--rule-hair) solid var(--night-rule); border-radius: var(--radius-pill); background: transparent; color: var(--night-ink); font: 700 var(--text-sm)/1 var(--font-body); cursor: pointer; }
@@ -301,7 +301,8 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 .coach__dots { display: flex; gap: var(--space-2xs); }
 .coach__dots span { width: 28px; height: 4px; border-radius: var(--radius-pill); background: var(--night-rule); transition: background-color var(--dur-short) var(--ease-out); }
 .coach__dots span[data-done="true"] { background: var(--halo); }
-.night__panel--scrim { background: var(--night-scrim); }
+/* The end of the 60-second try sits over everything, on the night itself. */
+.night__panel--scrim { z-index: var(--z-modal); background: var(--night-paper); color: var(--night-ink); }
 /* Pocket mode: the night at its darkest, so an OLED screen is nearly off; the camera keeps running underneath. */
 .pocket { position: absolute; inset: 0; z-index: var(--z-modal); display: grid; place-items: center; padding: var(--space-xl) var(--space-lg); background: var(--pocket); color: var(--night-muted); text-align: center; }
 .pocket > div { display: grid; justify-items: center; gap: var(--space-md); max-width: 22rem; }

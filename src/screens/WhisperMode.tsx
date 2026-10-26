@@ -221,15 +221,24 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
       .finally(() => setPreparingSamples(false));
   }, [guided, loaded]); // once per visit to the try
 
+  // The minute starts when the camera is running with the sample people, not while they're prepared.
+  const samplesReady = people.some((p) => p.sample);
+  const clockStarted = useRef(false);
   useEffect(() => {
-    if (!guided || coach.done) return;
+    if (!guided || clockStarted.current || phase !== 'running' || !samplesReady) return;
+    clockStarted.current = true;
+    setCoach((c) => ({ ...c, startedAt: Date.now() }));
+  }, [guided, phase, samplesReady]);
+
+  useEffect(() => {
+    if (!guided || coach.done || !clockStarted.current) return;
     const timer = setInterval(() => {
       const secs = Math.round((Date.now() - coachRef.current.startedAt) / 1000);
       setElapsed(secs);
       if (secs >= 75) setCoach((c) => ({ ...c, done: true }));
     }, 1000);
     return () => clearInterval(timer);
-  }, [guided, coach.done]);
+  }, [guided, coach.done, coach.startedAt]);
 
   // Pocket mode: keep the screen awake (a locked phone stops the camera), black and still.
   const pocket = settings.pocketMode && phase === 'running';
