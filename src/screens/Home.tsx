@@ -1,4 +1,5 @@
-import { ChevronRight, ShieldCheck, Sparkles, UserPlus } from 'lucide-react';
+import { ChevronRight, ScanFace, ShieldCheck, Sparkles, UserPlus } from 'lucide-react';
+import { unlockAudio } from '../lib/voice';
 import { useState } from 'react';
 import { Avatar, Brand, toast } from '../components/ui';
 import { usePeople } from '../lib/people';
@@ -91,6 +92,30 @@ export function Home() {
               Add someone
             </button>
           </div>
+          {people.some((p) => p.sample) && (
+            <section className="demo-callout" aria-label="Demo camera">
+              <span className="promise__icon" aria-hidden="true">
+                <ScanFace size={22} />
+              </span>
+              <div>
+                <h2 className="demo-callout__title">Try it without anyone else</h2>
+                <p className="demo-callout__body">
+                  The demo camera plays the sample faces and one stranger. Watch who gets a whisper, and who stays unknown.
+                </p>
+                <button
+                  type="button"
+                  className="btn btn--primary btn--block"
+                  style={{ marginTop: 12 }}
+                  onClick={() => {
+                    unlockAudio();
+                    navigate('/whisper?demo=1');
+                  }}
+                >
+                  Open the demo camera
+                </button>
+              </div>
+            </section>
+          )}
           <h2 className="section-label">Your people</h2>
           <ul className="person-list">
             {people.map((p, i) => (
