@@ -8,9 +8,9 @@
 
 On-device reminders of who someone is, for people with face blindness. Faces, face fingerprints and photos never leave the phone.
 
-[![CI](https://github.com/harshbhx/halo/actions/workflows/ci.yml/badge.svg)](https://github.com/harshbhx/halo/actions/workflows/ci.yml) [![MIT licence](https://img.shields.io/badge/licence-MIT-blue)](LICENSE) [![Live demo](https://img.shields.io/badge/live%20demo-halo.dualmindlab.tech-informational)](https://halo.dualmindlab.tech) ![Privacy: on-device](https://img.shields.io/badge/privacy-on--device-success)
+[![CI](https://github.com/harshbhx/halo/actions/workflows/ci.yml/badge.svg)](https://github.com/harshbhx/halo/actions/workflows/ci.yml) [![MIT licence](https://img.shields.io/badge/licence-MIT-blue)](LICENSE) [![Live demo](https://img.shields.io/badge/live%20demo-halo.dualmindlab.tech-informational)](https://halo.dualmindlab.tech) [![Watch the demo](https://img.shields.io/badge/watch-demo%20video-red?logo=youtube&logoColor=white)](https://youtu.be/cHuwJ9DheFM) ![Privacy: on-device](https://img.shields.io/badge/privacy-on--device-success)
 
-[**Live demo**](https://halo.dualmindlab.tech) · [Try it in 60 seconds](https://halo.dualmindlab.tech/app/#/try) · [Docs](docs/README.md) · [Honest limits](#honest-limits) · [Threat model](docs/threat-model.md) · [Changelog](CHANGELOG.md)
+[**Live demo**](https://halo.dualmindlab.tech) · [**Watch the demo**](https://youtu.be/cHuwJ9DheFM) · [Try it in 60 seconds](https://halo.dualmindlab.tech/app/#/try) · [Docs](docs/README.md) · [Honest limits](#honest-limits) · [Threat model](docs/threat-model.md) · [Changelog](CHANGELOG.md)
 
 <img src="docs/gifs/hero.gif" width="300" alt="Whisper mode on a phone: a light halo forms around the face of Sam (AI-generated) and the caption reads 'Sam, your teammate from the hackathon. Loves climbing.' while the whisper is spoken to the earbud">
 <br>
@@ -42,6 +42,11 @@ Every face in this repository, the app's demo mode and the fake-camera clips is 
 ## See it
 
 Short clips from the recorded app walkthrough. Each links to the video it was cut from, which has more detail (all are silent).
+
+<p align="center">
+  <a href="https://youtu.be/cHuwJ9DheFM"><img src="https://img.youtube.com/vi/cHuwJ9DheFM/maxresdefault.jpg" width="560" alt="Watch the demo on YouTube: Halo, a quiet voice for faces you know"></a><br>
+  <sub><b>Watch the demo</b> (YouTube, by Harsh Bhanushali): <a href="https://youtu.be/cHuwJ9DheFM">Halo: a quiet voice for faces you know (face blindness, on your phone)</a></sub>
+</p>
 
 <table>
   <tr>

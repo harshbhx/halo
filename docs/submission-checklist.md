@@ -20,8 +20,8 @@ Per the Devpost Learn `6-ship` skill, the project description, the short descrip
 
 - [ ] Less than 3 minutes. Judges are not required to watch beyond 3:00.
 - [ ] Shows the project functioning on the device it was built for: **a phone**. The headless walkthrough in `docs/shots/` is a reference only; it has no sound and isn't a phone.
-- [ ] Uploaded to **YouTube or Vimeo** and set to **Public** (on YouTube, "No, it's not made for kids").
-- [ ] Link pasted in the submission form.
+- [x] Uploaded to YouTube and public: https://youtu.be/cHuwJ9DheFM (on YouTube, "No, it's not made for kids").
+- [ ] Link pasted in the submission form (https://youtu.be/cHuwJ9DheFM).
 - [ ] No third-party trademarks, copyrighted music or other material without permission: no music, no visible brand logos.
 - [ ] In English (or with an English translation).
 - [ ] Faces in the video are AI-generated, or people who agreed to appear.
