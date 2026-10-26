@@ -33,7 +33,7 @@
   --night-paper: oklch(13.2% 0.022 258); --night-paper-2: oklch(17.5% 0.024 258); --night-paper-3: oklch(22% 0.024 258);
   --night-ink: oklch(93.5% 0.012 85); --night-muted: oklch(76% 0.02 255); --night-rule: oklch(30% 0.022 258);
   --night-scrim: oklch(13.2% 0.022 258 / 0.78); --night-scrim-soft: oklch(13.2% 0.022 258 / 0.45);
-  --pocket: oklch(0% 0 0);
+  --pocket: oklch(5% 0.008 258);
   --halo: oklch(82% 0.11 70); --halo-ink: oklch(20% 0.03 62); --halo-soft: oklch(82% 0.11 70 / 0.35); --halo-unknown: oklch(93.5% 0.012 85 / 0.45);
 }
 

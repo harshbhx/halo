@@ -18,6 +18,16 @@ export function Welcome() {
   const [heard, setHeard] = useState('');
   const ask = useRef<HTMLDivElement>(null);
 
+  // Each part of the tour is a new page for a screen reader: move focus to its heading.
+  const firstPart = useRef(true);
+  useEffect(() => {
+    if (firstPart.current) {
+      firstPart.current = false;
+      return;
+    }
+    document.getElementById('welcome-title')?.focus({ preventScroll: true });
+  }, [part]);
+
   // The question appears under the sticky footer on a phone, so bring it into view.
   useEffect(() => {
     if (heard !== 'asked' || !ask.current) return;

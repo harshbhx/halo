@@ -146,6 +146,9 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
   aloudRef.current = aloud;
   const [elapsed, setElapsed] = useState(0);
   const [wakeLock, setWakeLock] = useState<'on' | 'unsupported' | 'off'>('off');
+  const wakeButton = useRef<HTMLButtonElement>(null);
+  const pocketButton = useRef<HTMLButtonElement>(null);
+  const doneHeading = useRef<HTMLHeadingElement>(null);
   const recentRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -257,6 +260,17 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
       setWakeLock('off');
     };
   }, [pocket]);
+
+  // Keyboard and screen readers: focus moves into pocket mode and back out, and to the end of the try.
+  const wasPocket = useRef(false);
+  useEffect(() => {
+    if (pocket) wakeButton.current?.focus();
+    else if (wasPocket.current) pocketButton.current?.focus();
+    wasPocket.current = pocket;
+  }, [pocket]);
+  useEffect(() => {
+    if (coach.done) doneHeading.current?.focus();
+  }, [coach.done]);
 
   // Camera (or the demo camera) and the face engine, then the detection loop.
   useEffect(() => {
@@ -742,7 +756,9 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
       {guided && coach.done && !tryClosed && phase === 'running' && (
         <div className="night__panel night__panel--scrim" role="dialog" aria-modal="false" aria-labelledby="try-done">
           <div>
-            <h2 id="try-done">That’s Halo.</h2>
+            <h2 id="try-done" tabIndex={-1} ref={doneHeading}>
+              That’s Halo.
+            </h2>
             <p>
               {coach.known.length > 0 ? `Recognised: ${coach.known.join(', ')}. ` : ''}
               {coach.noMatch ? 'One face was never added: no match, nothing said, nothing kept. ' : ''}
@@ -776,7 +792,7 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
                 : 'Buzz codes only: two short for someone you added, three for today’s list, one long for “could be”.'}
             </p>
             {wakeLock === 'unsupported' && <p>This browser may let the screen lock, which stops the camera. Keep the screen on in your phone’s settings.</p>}
-            <button type="button" className="btn" onClick={() => updateSettings({ pocketMode: false })}>
+            <button type="button" className="btn" ref={wakeButton} onClick={() => updateSettings({ pocketMode: false })}>
               Wake the screen
             </button>
             <p className="label">Or double-tap anywhere.</p>
@@ -933,6 +949,7 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
               </button>
               <button
                 type="button"
+                ref={pocketButton}
                 className="night-btn"
                 aria-pressed={settings.pocketMode}
                 aria-label="Pocket mode: screen dark, phone at chest height"
