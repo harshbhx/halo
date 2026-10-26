@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@fontsource/atkinson-hyperlegible-next": "^5.3.0",
+    "@fontsource/instrument-sans": "^5.3.0",
     "@vladmandic/face-api": "^1.7.15",
     "idb": "^8.0.4",
     "lucide-react": "^1.61.0",

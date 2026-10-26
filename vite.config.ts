@@ -1,7 +1,8 @@
 /// <reference types="vitest/config" />
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 
@@ -33,6 +34,8 @@ function precacheList(): Plugin {
   };
 }
 
+const root = dirname(fileURLToPath(import.meta.url));
+
 export default defineConfig({
   plugins: [react(), precacheList()],
   // Relative asset paths so the built app works from any folder or sub-path.
@@ -40,6 +43,10 @@ export default defineConfig({
   build: {
     target: 'es2022',
     chunkSizeWarningLimit: 2500,
+    rollupOptions: {
+      // The landing page at / and the app at /app/.
+      input: { main: resolve(root, 'index.html'), app: resolve(root, 'app/index.html') },
+    },
   },
   server: { host: true },
   preview: { host: true, port: 4173, strictPort: true },

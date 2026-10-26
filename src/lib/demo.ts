@@ -50,7 +50,7 @@ export const SAMPLES: Sample[] = [
 /** A face that is never added: Whisper mode must label it "Not someone you've added". */
 export const STRANGER_FILE = 'stranger.jpg';
 
-const faceUrl = (file: string) => new URL(`demo/faces/${file}`, document.baseURI).href;
+const faceUrl = (file: string) => new URL(`../demo/faces/${file}`, document.baseURI).href;
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
