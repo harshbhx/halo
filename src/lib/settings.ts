@@ -4,8 +4,13 @@
  */
 import { useSyncExternalStore } from 'react';
 import type { Strictness } from './matcher';
+import type { WhisperStyle } from './whisperStyle';
 
 export type Theme = 'system' | 'light' | 'dark';
+/** How a recognised person reaches you. */
+export type OutputMode = 'voice' | 'chime' | 'vibrate' | 'silent';
+export type ChimeSound = 'two-notes' | 'bell' | 'off';
+export type PracticeKind = 'cues' | 'photo';
 
 export interface Settings {
   welcomeSeen: boolean;
@@ -13,11 +18,18 @@ export interface Settings {
   voiceName: string;
   volume: number;
   rate: number;
-  chime: boolean;
+  outputMode: OutputMode;
+  chimeSound: ChimeSound;
+  haptics: boolean;
+  whisperStyle: WhisperStyle;
+  whispersPaused: boolean;
   repeatSeconds: number;
   strictness: Strictness;
   useOnDeviceModel: boolean;
   facing: 'user' | 'environment';
+  bigText: boolean;
+  highContrast: boolean;
+  practiceKind: PracticeKind;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -26,11 +38,18 @@ export const DEFAULT_SETTINGS: Settings = {
   voiceName: '',
   volume: 0.7,
   rate: 0.95,
-  chime: true,
+  outputMode: 'voice',
+  chimeSound: 'two-notes',
+  haptics: true,
+  whisperStyle: 'short',
+  whispersPaused: false,
   repeatSeconds: 45,
   strictness: 'careful',
   useOnDeviceModel: true,
   facing: 'environment',
+  bigText: false,
+  highContrast: false,
+  practiceKind: 'cues',
 };
 
 const KEY = 'fw.settings';
@@ -40,7 +59,12 @@ let current: Settings = read();
 function read(): Settings {
   try {
     const raw = localStorage.getItem(KEY);
-    return raw ? { ...DEFAULT_SETTINGS, ...(JSON.parse(raw) as Partial<Settings>) } : { ...DEFAULT_SETTINGS };
+    if (!raw) return { ...DEFAULT_SETTINGS };
+    const saved = JSON.parse(raw) as Partial<Settings> & { chime?: boolean };
+    // Older versions stored the chime as a yes/no switch.
+    if (typeof saved.chime === 'boolean' && !saved.chimeSound) saved.chimeSound = saved.chime ? 'two-notes' : 'off';
+    delete saved.chime;
+    return { ...DEFAULT_SETTINGS, ...saved };
   } catch {
     return { ...DEFAULT_SETTINGS };
   }
@@ -77,4 +101,13 @@ function subscribe(listener: () => void): () => void {
 
 export function useSettings(): Settings {
   return useSyncExternalStore(subscribe, getSettings, getSettings);
+}
+
+/** Reflect the reading settings on <html> so CSS tokens can follow them. */
+export function applyDocumentSettings(s: Settings): void {
+  const root = document.documentElement;
+  if (s.theme === 'system') root.removeAttribute('data-mode');
+  else root.setAttribute('data-mode', s.theme);
+  root.toggleAttribute('data-big-text', s.bigText);
+  root.toggleAttribute('data-high-contrast', s.highContrast);
 }
