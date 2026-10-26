@@ -3,6 +3,8 @@ import { useRef, useState } from 'react';
 import { BackButton } from '../components/ui';
 import { BACKUP_MESSAGES, BackupError, backupFileName, makeBackup, MIN_PASSPHRASE, parseBackup, readBackup, type BackupFile } from '../lib/backup';
 import { restorePeople, usePeople } from '../lib/people';
+import type { Person } from '../lib/types';
+import { Avatar } from '../components/ui';
 import { BRAND } from '../brand';
 
 type Status = { tone: 'calm' | 'error'; text: string } | null;
@@ -17,6 +19,8 @@ export function Backup() {
   const [file, setFile] = useState<BackupFile | null>(null);
   const [restorePass, setRestorePass] = useState('');
   const [restoreStatus, setRestoreStatus] = useState<Status>(null);
+  const [review, setReview] = useState<Person[] | null>(null);
+  const [keep, setKeep] = useState<string[]>([]);
   const fileInput = useRef<HTMLInputElement>(null);
 
   const mismatch = pass2.length > 0 && pass !== pass2;
@@ -57,18 +61,33 @@ export function Backup() {
     }
   }
 
-  async function restore() {
+  /** Unlocking only shows who is inside; nobody is added until you choose them. */
+  async function unlock() {
     if (!file) return;
     setBusy(true);
     setRestoreStatus(null);
     try {
       const found = await readBackup(file, restorePass);
-      const added = await restorePeople(found);
-      setRestoreStatus({
-        tone: 'calm',
-        text: added === 0 ? 'Everyone in that backup is already on this phone.' : `Restored ${added} ${added === 1 ? 'person' : 'people'}. They’re in your people list now.`,
-      });
+      const fresh = found.filter((p) => !people.some((q) => q.id === p.id));
+      setReview(fresh);
+      setKeep(fresh.map((p) => p.id));
       setRestorePass('');
+      if (fresh.length === 0) setRestoreStatus({ tone: 'calm', text: 'Everyone in that backup is already on this phone.' });
+    } catch (err) {
+      setRestoreStatus({ tone: 'error', text: err instanceof BackupError ? BACKUP_MESSAGES[err.reason] : 'That backup couldn’t be opened.' });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function restore() {
+    if (!review) return;
+    setBusy(true);
+    try {
+      const added = await restorePeople(review.filter((p) => keep.includes(p.id)));
+      setRestoreStatus({ tone: 'calm', text: `Added ${added} ${added === 1 ? 'person' : 'people'}. They’re in your people list now.` });
+      setReview(null);
+      setFile(null);
     } catch (err) {
       setRestoreStatus({ tone: 'error', text: err instanceof BackupError ? BACKUP_MESSAGES[err.reason] : 'That backup couldn’t be restored.' });
     } finally {
@@ -137,12 +156,12 @@ export function Backup() {
           <Upload size={18} aria-hidden="true" />
           {file ? `Chosen: a backup of ${file.people} ${file.people === 1 ? 'person' : 'people'}` : 'Choose a backup file'}
         </button>
-        {file && (
+        {file && !review && (
           <form
             className="stack--lg"
             onSubmit={(e) => {
               e.preventDefault();
-              void restore();
+              void unlock();
             }}
           >
             <label className="field">
@@ -150,7 +169,34 @@ export function Backup() {
               <input className="input" type="password" name="password" autoComplete="current-password" value={restorePass} onChange={(e) => setRestorePass(e.target.value)} />
             </label>
             <button type="submit" className="btn btn--block" disabled={!restorePass || busy} aria-busy={busy}>
-              Restore
+              Open the backup
+            </button>
+          </form>
+        )}
+        {review && review.length > 0 && (
+          <form
+            className="stack--lg"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void restore();
+            }}
+          >
+            <fieldset className="stack" style={{ border: 0, margin: 0, padding: 0 }}>
+              <legend className="field__label">Who should come back?</legend>
+              <p className="field__hint">They agreed when they were first added. If you’re not sure they still agree, leave them out.</p>
+              {review.map((p) => (
+                <label className="pick" key={p.id}>
+                  <input type="checkbox" checked={keep.includes(p.id)} onChange={(e) => setKeep(e.target.checked ? [...keep, p.id] : keep.filter((id) => id !== p.id))} />
+                  <Avatar src={p.thumb} name={p.name} />
+                  <span className="person__body">
+                    <span className="person__name">{p.name}</span>
+                    <span className="person__line">{p.whisper}</span>
+                  </span>
+                </label>
+              ))}
+            </fieldset>
+            <button type="submit" className="btn btn--block" disabled={keep.length === 0 || busy} aria-busy={busy}>
+              {keep.length === 0 ? 'Choose who to add' : `Add ${keep.length} ${keep.length === 1 ? 'person' : 'people'}`}
             </button>
           </form>
         )}

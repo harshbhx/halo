@@ -38,15 +38,18 @@ export function Home() {
     <main className="screen" aria-labelledby="home-title">
       <div className="topbar">
         <Wordmark />
-        <button
-          type="button"
-          className="btn btn--quiet"
-          aria-pressed={settings.whispersPaused}
-          onClick={() => updateSettings({ whispersPaused: !settings.whispersPaused })}
-        >
-          {settings.whispersPaused ? <Play size={18} aria-hidden="true" /> : <Pause size={18} aria-hidden="true" />}
-          {settings.whispersPaused ? 'Whispers paused' : 'Pause whispers'}
-        </button>
+        {people.length > 0 && (
+          <button
+            type="button"
+            className="btn btn--quiet"
+            aria-pressed={settings.whispersPaused}
+            aria-label={settings.whispersPaused ? 'Whispers are paused. Turn them back on' : 'Pause whispers'}
+            onClick={() => updateSettings({ whispersPaused: !settings.whispersPaused })}
+          >
+            {settings.whispersPaused ? <Play size={18} aria-hidden="true" /> : <Pause size={18} aria-hidden="true" />}
+            {settings.whispersPaused ? 'Paused' : 'Pause'}
+          </button>
+        )}
       </div>
 
       <div className="page-head">
@@ -103,9 +106,31 @@ export function Home() {
             Add someone
           </button>
 
+          <section className="section" aria-label="Everyone you’ve added">
+            <ul className="people">
+              {people.map((p) => (
+                <li key={p.id}>
+                  <button type="button" className="person" onClick={() => navigate(`/person/${encodeURIComponent(p.id)}`)}>
+                    <Avatar src={p.thumb} name={p.name} />
+                    <span className="person__body">
+                      <span className="person__name">
+                        {p.name}
+                        {p.sample && <span className="tag tag--sample">Sample</span>}
+                        {!p.sample && Date.now() - new Date(p.consentAt).getTime() > 365 * 24 * 3600 * 1000 && <span className="tag">Ask again</span>}
+                      </span>
+                      <span className="person__line">{p.whisper}</span>
+                    </span>
+                  </button>
+                  <button type="button" className="icon-btn" onClick={() => remind(p)} aria-label={`Remind me how I know ${p.name}`}>
+                    <Volume2 size={20} aria-hidden="true" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
           {hasSamples && (
             <section className="section" aria-labelledby="demo-title">
-              <h2 id="demo-title">See it work without anyone else</h2>
+              <h2 id="demo-title">See it with the demo camera</h2>
               <p className="muted" style={{ marginBottom: 'var(--space-md)' }}>
                 The demo camera plays the sample faces and one face you never added. Watch who gets a whisper, and who doesn’t.
               </p>
@@ -122,28 +147,6 @@ export function Home() {
               </button>
             </section>
           )}
-
-          <section className="section" aria-label="Everyone you’ve added">
-            <ul className="people">
-              {people.map((p) => (
-                <li key={p.id}>
-                  <button type="button" className="person" onClick={() => navigate(`/person/${encodeURIComponent(p.id)}`)}>
-                    <Avatar src={p.thumb} name={p.name} />
-                    <span className="person__body">
-                      <span className="person__name">
-                        {p.name}
-                        {p.sample && <span className="tag tag--sample">Sample</span>}
-                      </span>
-                      <span className="person__line">{p.whisper}</span>
-                    </span>
-                  </button>
-                  <button type="button" className="icon-btn" onClick={() => remind(p)} aria-label={`Remind me how I know ${p.name}`}>
-                    <Volume2 size={20} aria-hidden="true" />
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </section>
         </>
       )}
     </main>

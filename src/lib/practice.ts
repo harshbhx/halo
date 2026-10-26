@@ -96,7 +96,7 @@ export function roundMessage(named: number, total: number): string {
 }
 
 export function boxLabel(card: PracticeCard | undefined): string {
-  if (!card || card.seen === 0) return 'Not practised yet';
+  if (!card || card.seen === 0) return 'New to practice';
   if (card.box >= 4) return 'Feels familiar';
   if (card.box >= 2) return 'Getting there';
   return 'Still new';

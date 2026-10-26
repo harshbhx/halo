@@ -126,11 +126,19 @@ export function Person({ id }: { id: string }) {
           {original.name}
         </h1>
         <div className="tags">
-          {original.sample ? <span className="tag tag--sample">Sample person, AI-generated face</span> : <span className="tag">Agreed {formatDate(original.consentAt)}</span>}
-          <span className="tag">
-            {original.descriptors.length} face {original.descriptors.length === 1 ? 'fingerprint' : 'fingerprints'}
-          </span>
-          <span className="tag">Practice: {boxLabel(practice.cards[original.id]).toLowerCase()}</span>
+          {original.child && <span className="tag">Child: only ever “Could be”</span>}
+          {original.sample ? (
+            <span className="tag tag--sample">Sample person, AI-generated face</span>
+          ) : (
+            <span className="tag">
+              {original.consentMethod === 'in-person' ? 'Said yes on this phone' : 'You confirmed they agreed'}, {formatDate(original.consentAt)}
+            </span>
+          )}
+          {!original.sample && (
+            <span className="tag">Ask again from {formatDate(new Date(new Date(original.consentAt).getTime() + 365 * 24 * 3600 * 1000).toISOString())}</span>
+          )}
+          <span className="tag">Learned from {original.descriptors.length} {original.descriptors.length === 1 ? 'photo' : 'photos'}</span>
+          <span className="tag">{boxLabel(practice.cards[original.id])}</span>
         </div>
       </div>
 

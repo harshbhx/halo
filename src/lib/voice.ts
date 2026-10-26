@@ -36,9 +36,22 @@ export function pickDefaultVoice(voices: SpeechSynthesisVoice[]): SpeechSynthesi
   const lang = (navigator.language || 'en-US').toLowerCase();
   const base = lang.split('-')[0];
   const inLang = voices.filter((v) => v.lang.toLowerCase().startsWith(base));
-  const pool = inLang.length ? inLang : voices;
+  const langPool = inLang.length ? inLang : voices;
+  // Prefer a voice the phone speaks itself, so whispers keep working offline.
+  const local = langPool.filter((v) => v.localService);
+  const pool = local.length ? local : langPool;
   const natural = pool.find((v) => /natural|neural|enhanced|premium|samantha|google/i.test(v.name));
   return natural ?? pool.find((v) => v.lang.toLowerCase() === lang) ?? pool[0];
+}
+
+/** Voices the device synthesises itself keep working offline; the others need the internet. */
+export function isOnDeviceVoice(v: SpeechSynthesisVoice | undefined): boolean {
+  return !!v && v.localService;
+}
+
+/** The voice that will actually speak: the chosen one, or the automatic pick. */
+export function activeVoice(voices: SpeechSynthesisVoice[], name: string): SpeechSynthesisVoice | undefined {
+  return voices.find((v) => v.name === name) ?? pickDefaultVoice(voices);
 }
 
 let audioCtx: AudioContext | null = null;
