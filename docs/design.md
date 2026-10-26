@@ -2,7 +2,7 @@
 
 Halo's look and the decisions behind it. Built with the [Hallmark](https://github.com/Nutlope/hallmark) design skill (MIT), installed in this project only (`.claude/skills/hallmark`, via `npx skills add nutlope/hallmark --agent claude-code -y`). Every colour is in one file, [`src/styles/palette.css`](../src/styles/palette.css), imported by the app, the landing page, the consent page and the helper page, so a recolour is a single swap. Other tokens are in [`src/styles/tokens.css`](../src/styles/tokens.css) (app) and [`landing/tokens.css`](../landing/tokens.css) (landing page); Hallmark's record of the run is in [`.hallmark/picks.md`](../.hallmark/picks.md) and [`.hallmark/log.json`](../.hallmark/log.json).
 
-The architecture and flow diagrams are in the [README](../README.md#architecture); the build pipeline, including the Hallmark pass, is [here](../README.md#build-pipeline).
+The architecture and flow diagrams are in the [diagrams](diagrams.md#architecture); the build pipeline, including the Hallmark pass, is [here](diagrams.md#build-pipeline).
 
 ## Intent
 

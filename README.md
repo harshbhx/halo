@@ -1,91 +1,53 @@
 <div align="center">
 
-<img src="public/icon.svg" width="88" alt="Halo mark: a ring with two arcs, like a voice from an earbud">
+<img src="docs/readme/banner.png" alt="Halo: a quiet voice for faces you know. A phone showing Whisper mode recognising Sam, with the whisper &quot;Sam, your teammate from the hackathon.&quot;" width="100%">
 
-# Halo
-
-**A quiet voice for faces you know.**
-
-On-device reminders of who someone is, for people with face blindness. Faces, face fingerprints and photos never leave the phone.
-
-[![CI](https://github.com/harshbhx/halo/actions/workflows/ci.yml/badge.svg)](https://github.com/harshbhx/halo/actions/workflows/ci.yml) [![MIT licence](https://img.shields.io/badge/licence-MIT-blue)](LICENSE) [![Live demo](https://img.shields.io/badge/live%20demo-halo.dualmindlab.tech-informational)](https://halo.dualmindlab.tech) [![Watch the demo](https://img.shields.io/badge/watch-demo%20video-red?logo=youtube&logoColor=white)](https://youtu.be/cHuwJ9DheFM) ![Privacy: on-device](https://img.shields.io/badge/privacy-on--device-success)
-
-[**Live demo**](https://halo.dualmindlab.tech) · [**Watch the demo**](https://youtu.be/cHuwJ9DheFM) · [Try it in 60 seconds](https://halo.dualmindlab.tech/app/#/try) · [Docs](docs/README.md) · [Honest limits](#honest-limits) · [Threat model](docs/threat-model.md) · [Changelog](CHANGELOG.md)
-
-<img src="docs/gifs/hero.gif" width="300" alt="Whisper mode on a phone: a light halo forms around the face of Sam (AI-generated) and the caption reads 'Sam, your teammate from the hackathon. Loves climbing.' while the whisper is spoken to the earbud">
 <br>
-<sub>The whisper moment, from the <a href="docs/shots/walkthrough.mp4">full walkthrough video</a> (the video is silent; Halo speaks only to an earbud you have checked).</sub>
 
+<p><a href="https://halo.dualmindlab.tech"><img src="https://img.shields.io/badge/TRY_IT-HALO.DUALMINDLAB.TECH-253b77?style=flat-square&labelColor=555" alt="TRY IT: HALO.DUALMINDLAB.TECH"></a>
+<a href="https://halo.dualmindlab.tech/app/#/try"><img src="https://img.shields.io/badge/NO_CAMERA_NEEDED-SEE_IT_IN_60_SECONDS-a63f2c?style=flat-square&labelColor=555" alt="NO CAMERA NEEDED: SEE IT IN 60 SECONDS"></a></p>
+<p><a href="https://github.com/harshbhx/halo/actions/workflows/ci.yml"><img src="https://github.com/harshbhx/halo/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+<img src="https://img.shields.io/badge/faces-never_leave_the_phone-1c1612?style=flat-square&labelColor=555" alt="faces: never leave the phone">
+<img src="https://img.shields.io/badge/tests-90_unit_%2B_25_e2e-5d7a3a?style=flat-square&labelColor=555" alt="tests: 90 unit + 25 e2e">
+<img src="https://img.shields.io/badge/axe-WCAG_2.2_A%2FAA_clean-5d7a3a?style=flat-square&labelColor=555" alt="axe: WCAG 2.2 A/AA clean">
+<img src="https://img.shields.io/badge/licence-MIT-6a5d52?style=flat-square&labelColor=555" alt="licence: MIT">
+<img src="https://img.shields.io/badge/status-prototype-8a7d6e?style=flat-square&labelColor=555" alt="status: prototype"></p>
+<p><a href="#who-its-for">Who it's for</a> &middot;
+<a href="#see-it-work">See it work</a> &middot;
+<a href="#privacy-by-design">Privacy</a> &middot;
+<a href="#honest-limits">Honest limits</a> &middot;
+<a href="#how-it-works">How it works</a> &middot;
+<a href="#run-it">Run it</a> &middot;
+<a href="#design">Design</a></p>
+<p><a href="https://youtu.be/cHuwJ9DheFM"><img src="https://img.youtube.com/vi/cHuwJ9DheFM/maxresdefault.jpg" width="420" alt="Watch the demo on YouTube: Halo, a quiet voice for faces you know"></a><br><sub><b>Watch the demo</b> (YouTube): <a href="https://youtu.be/cHuwJ9DheFM">https://youtu.be/cHuwJ9DheFM</a></sub></p>
 </div>
 
-**Try it: https://halo.dualmindlab.tech** (open it on a phone; the demo mode uses AI-generated faces).
+---
 
-Halo is a phone web app for people with face blindness (prosopagnosia). You add people you know, with their own agreement. When the camera is sure it's one of them, an earbud says who they are and how you know them: *"Raj, your neighbour. Knee surgery last month."* Faces, face fingerprints and photos never leave the phone. It runs in the phone's browser. Tests: 90 unit (Vitest) and 25 end-to-end (Playwright).
+Halo is a phone web app for people with face blindness (prosopagnosia). You add people you know, with their own agreement. When the camera is sure it's one of them, an earbud says who they are and how you know them: *"Raj, your neighbour. Knee surgery last month."* Faces, face fingerprints and photos never leave the phone.
 
-<p align="center">
-  <img src="docs/shots/phone-light/11-whisper-sam.png" width="220" alt="Whisper mode: a light ring around Sam's face (AI-generated) and the caption 'Sam, your teammate from the hackathon. Loves climbing.'">
-  <img src="docs/shots/phone-light/07-enrol-their-yes.png" width="220" alt="The person being added reads the exact line and ticks 'I'm Sam, and I agree'">
-  <img src="docs/shots/phone-light/21-whisper-no-match.png" width="220" alt="A face that was never added gets a dashed outline and 'No match'; nothing is spoken or stored">
-  <img src="docs/shots/phone-dark/15-today-list.png" width="220" alt="Today's list for a dinner, in the night theme: three people with their lines and cues">
-</p>
+> **Open it on a phone: [https://halo.dualmindlab.tech](https://halo.dualmindlab.tech).** Demo mode uses AI-generated faces. Every face in this repository, the app's demo mode and the fake-camera clips is an AI-generated image of a person who does not exist ([credits](CREDITS.md)). Halo is a prototype, tested so far mainly on AI-generated faces.
 
-Every face in this repository, the app's demo mode and the fake-camera clips is an AI-generated image of a person who does not exist ([credits](CREDITS.md)). Halo is a prototype, tested so far mainly on AI-generated faces, and it is not a medical device.
-
-## Contents
-
-- [See it](#see-it) · [Who it's for](#who-its-for) · [What already exists](#what-already-exists)
-- [What it does](#what-it-does) · [Privacy model](#privacy-model) · [Threat model](#threat-model-summary) · [Optional Enhanced mode](#optional-enhanced-mode-off-by-default) · [Honest limits](#honest-limits)
-- [Run it](#run-it) · [Tests and evidence](#tests-and-evidence) · [Deploying](#deploying)
-- [How it works](#how-it-works) · [Architecture](#architecture) · [Privacy data flow](#privacy-data-flow) · [Recognition flow](#recognition-flow) · [Add someone](#add-someone-with-their-yes) · [Build pipeline](#build-pipeline) · [How it was made](#how-it-was-made) · [Design](#design) · [Project layout](#project-layout)
-- [Roadmap](#roadmap) · [FAQ](#faq) · [Contributing](#contributing) · [Security](#security) · [License](#license) · [Credits](#credits)
-
-## See it
-
-Short clips from the recorded app walkthrough. Each links to the video it was cut from, which has more detail (all are silent).
-
-<p align="center">
-  <a href="https://youtu.be/cHuwJ9DheFM"><img src="https://img.youtube.com/vi/cHuwJ9DheFM/maxresdefault.jpg" width="560" alt="Watch the demo on YouTube: Halo, a quiet voice for faces you know"></a><br>
-  <sub><b>Watch the demo</b> (YouTube, by Harsh Bhanushali): <a href="https://youtu.be/cHuwJ9DheFM">Halo: a quiet voice for faces you know (face blindness, on your phone)</a></sub>
-</p>
+## See it work
 
 <table>
-  <tr>
-    <td align="center" width="50%" valign="top">
-      <img src="docs/gifs/add-with-consent.gif" width="260" alt="Adding a person: typing a note updates the whisper line, then the phone is handed over and Sam reads the exact line and ticks 'I'm Sam, and I agree'"><br>
-      <b>Add someone, with their yes</b><br>
-      <sub>The note becomes the whisper line; the person being added reads it and agrees themselves. (<a href="docs/shots/walkthrough.mp4">walkthrough.mp4</a>)</sub>
-    </td>
-    <td align="center" width="50%" valign="top">
-      <img src="docs/gifs/three-states.gif" width="260" alt="Demo camera: Maya is recognised from today's list with a halo and caption, then a face that was never added gets a dashed outline and 'No match'"><br>
-      <b>Three states, including "No match"</b><br>
-      <sub>Confident gets a halo and a whisper, maybe gets a dotted ring and is never spoken, and a face that was never added gets a faint outline and nothing is stored. (<a href="docs/shots/walkthrough.mp4">walkthrough.mp4</a>)</sub>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="50%" valign="top">
-      <img src="docs/gifs/pocket-mode.gif" width="260" alt="Pocket mode screen: near-black, with instructions to wear the phone at chest height and a 'Wake the screen' button"><br>
-      <b>Pocket mode</b><br>
-      <sub>The screen goes dark and stays awake, the camera keeps running and whispers go to the earbud. (<a href="docs/shots/walkthrough.mp4">walkthrough.mp4</a>)</sub>
-    </td>
-    <td align="center" width="50%" valign="top">
-      <img src="docs/gifs/your-data-wipe.gif" width="260" alt="Your data screen listing what is stored on the phone with counts, then the Wipe now confirmation and the empty result"><br>
-      <b>Your data and Wipe now</b><br>
-      <sub>Everything stored on the phone, with counts, and a two-tap wipe that leaves no database, cache, service worker or settings. (<a href="docs/shots/walkthrough.mp4">walkthrough.mp4</a>)</sub>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="50%" valign="top">
-      <img src="docs/gifs/try-60-seconds.gif" width="260" alt="The 60-second try: sample people are prepared on the phone and the demo camera recognises two of them while a third face is not matched"><br>
-      <b>Halo in 60 seconds</b><br>
-      <sub>Three AI-generated sample people and the demo camera, with no camera or tour needed. <a href="https://halo.dualmindlab.tech/app/#/try">Try it yourself</a>. (<a href="docs/shots/try-60-seconds.mp4">try-60-seconds.mp4</a>)</sub>
-    </td>
-    <td align="center" width="50%" valign="top">
-      <img src="docs/gifs/landing-scroll.gif" width="360" alt="Scrolling the Halo landing page on a desktop browser"><br>
-      <b>The landing page</b><br>
-      <sub>Scrolling from the first whisper to the honest limits. (<a href="docs/shots/landing-scroll.mp4">landing-scroll.mp4</a>)</sub>
-    </td>
-  </tr>
+<tr>
+<td align="center" valign="top" width="25%"><img src="docs/readme/gifs/05-add-someone-with-their-yes.gif" width="210" alt="Add someone"><br><b>Add someone</b><br><sub>They read the exact line and say yes themselves</sub></td>
+<td align="center" valign="top" width="25%"><img src="docs/readme/gifs/01-whisper-mode.gif" width="210" alt="Whisper mode"><br><b>Whisper mode</b><br><sub>A light halo, the name, how you know them</sub></td>
+<td align="center" valign="top" width="25%"><img src="docs/readme/gifs/02-no-match.gif" width="210" alt="No match"><br><b>No match</b><br><sub>A face you never added: nothing spoken, nothing stored</sub></td>
+<td align="center" valign="top" width="25%"><img src="docs/readme/gifs/03-pocket-mode.gif" width="210" alt="Pocket mode"><br><b>Pocket mode</b><br><sub>Screen dark, phone at chest height, whispers to your earbud</sub></td>
+</tr>
+<tr>
+<td align="center" valign="top" width="25%"><img src="docs/readme/gifs/04-today-and-event-mode.gif" width="210" alt="Before you walk in"><br><b>Before you walk in</b><br><sub>Today's list, and Event mode looks only for them</sub></td>
+<td align="center" valign="top" width="25%"><img src="docs/readme/gifs/06-halo-in-60-seconds.gif" width="210" alt="Halo in 60 seconds"><br><b>Halo in 60 seconds</b><br><sub>Three sample people, no camera or sign-up</sub></td>
+<td align="center" valign="top" width="25%"><img src="docs/readme/gifs/07-privacy-and-wipe.gif" width="210" alt="Privacy and Wipe now"><br><b>Privacy and Wipe now</b><br><sub>What is stored, what has left (nothing), two taps to erase</sub></td>
+<td align="center" valign="top" width="25%"><img src="docs/readme/gifs/08-works-offline.gif" width="210" alt="Works offline"><br><b>Works offline</b><br><sub>Network off, still recognised on the phone</sub></td>
+</tr>
 </table>
+
+Recorded from the live app on AI-generated sample people. The recordings are silent; on a phone the whisper is spoken in the earbud. The full-length walkthrough is [`docs/shots/walkthrough.mp4`](docs/shots/walkthrough.mp4).
+
+<img src="docs/readme/screens.png" alt="Five screens: add someone, Whisper mode, Event mode, Practice and Privacy" width="100%">
 
 ## Who it's for
 
@@ -120,6 +82,23 @@ How Halo differs: it is built for people who **see** but can't place faces. It s
 
 ## What it does
 
+Halo does one thing well and keeps everything else out of the way. The short version:
+
+| What | How it works |
+|---|---|
+| **Add someone, with their yes** | The person being added reads the exact line and ticks "I'm [name], and I agree" themselves, on your phone or through a link. |
+| **Whisper mode** | A full-screen camera. Confident: a light halo, a caption with the line and cues, and the whisper. Maybe: a dotted ring, never spoken. No match: a faint outline, nothing said. |
+| **Pocket mode** | Phone at chest height, screen near-black, kept awake. Whispers go to your earbud, or a buzz code if there isn't one. |
+| **Today's list and Event mode** | Read or hear everyone's lines before you walk in, then look only for the people expected. |
+| **Where you met** | A line like "At the climbing gym; last saw him at Anu's wedding", typed or dictated. |
+| **Helper** | A partner, parent or friend prepares a card (text only) and sends it as a link. You still add the person, and they still say yes. |
+| **Practice** | Name people from their cues, on a gentle schedule. No streaks. |
+| **Control** | Quiet hours, never-whisper people, passcode or phone lock, encrypted backups, **Delete everything** and a two-tap **Wipe now**. |
+
+
+<details>
+<summary><b>The full list, all 20 things</b></summary>
+
 1. **A short tour and an earbud check.** Halo speaks aloud only after you confirm you heard a test line in your earbud; until then it buzzes and shows the name.
 2. **Add someone, with their yes.** Their name (and whether they are a child), a typed note that becomes a one-line whisper on the phone, then **you hand them the phone**: they read the exact line and tick "I'm [name], and I agree". If they aren't there, a link lets them answer on their own phone; the answer comes back in a link, and nothing goes through a server. Then three to five photos with an oval guide and a light check, and optional cue notes. Halo warns about look-alikes, keeps at most 50 people and 5 new a day, and marks a consent older than a year "Ask again".
 3. **Whisper mode.** A full-screen camera with "Recognised on this phone only". Each face is tracked and given one of three states:
@@ -145,9 +124,13 @@ How Halo differs: it is built for people who **see** but can't place faces. It s
 19. **Help** (`#/help`): getting the camera and microphone back, light, distance, glasses and masks, and plain answers. Camera and dictation errors link to it.
 20. **Hindi and Gujarati** for the main flow (machine-translated and flagged; see [`docs/i18n.md`](docs/i18n.md)), **Battery saver** (about two reads a second instead of six; nothing while hidden; measured in [`docs/accuracy.md`](docs/accuracy.md)), and an installable app that offers updates with a **Reload** button instead of switching mid-conversation.
 
-## Privacy model
+</details>
 
-| | Where it lives |
+## Privacy by design
+
+<p align="center"><img src="docs/readme/privacy-live.png" alt="Halo's own privacy screen: 0 faces, photos or face fingerprints sent. Ever." width="300"><br><sub>Halo's own privacy screen, captured from the live site.</sub></p>
+
+| Data | Where it lives |
 |---|---|
 | Camera frames | Analysed in memory in the browser, never stored or sent |
 | Face fingerprints (128 numbers per photo) | IndexedDB on this phone, AES-GCM encrypted |
@@ -155,6 +138,7 @@ How Halo differs: it is built for people who **see** but can't place faces. It s
 | Encryption key | Created by the browser as non-extractable: the page can use it, nobody can export it |
 | Faces you didn't add | Compared for a moment, then dropped. Never stored or named |
 | Settings | localStorage, nothing personal |
+
 
 - No account, no server for faces, no analytics, no third-party scripts or fonts. Model weights, WebAssembly and fonts are served by the site itself. The Content-Security-Policy allows `connect-src 'self'` only, and `npm run build` fails if the build loads anything from another origin.
 - No API key is needed, and none is in this repository.
@@ -164,26 +148,11 @@ How Halo differs: it is built for people who **see** but can't place faces. It s
 - **Helper cards and consent links** carry text only, in the part of the link after `#`, which browsers never send to a server. They never contain photos or face fingerprints; whatever app you use to send the link can see its text, like any message.
 - **Delete everything** removes the database and the key together.
 
-## Threat model summary
-
-<details>
-<summary>What could go wrong, and what Halo does about it (14 threats)</summary>
-
-The full table, with what is left over after each mitigation, is in [`docs/threat-model.md`](docs/threat-model.md). In short:
-
-- **Misidentification and missed recognition:** a name is spoken only for one steady, front-facing face clearly closer to one person than to anyone else; otherwise "Could be" (silent) or "No match".
-- **Phone access:** an optional lock (passcode hash or WebAuthn), AES-GCM vault with a non-extractable key, encrypted backups.
-- **Consent abuse and surveillance:** the person being added reads the line and agrees; only added people are compared; no lookup, no location, no sighting history.
-- **Data leaving the phone:** CSP `connect-src 'self'`, a build-time external-request check, and a test that fails if the code drifts from the privacy page.
-- **Links, injection, supply chain, bias:** text-only links, no raw HTML, pinned dependencies (the face library is archived), and the limits stated wherever limits are shown.
-
-</details>
-
-## Optional Enhanced mode (off by default)
+### Optional Enhanced mode (off by default)
 
 For people who want a more natural voice or whispers in another language. Turning it on opens a sheet that lists exactly what would leave the phone: the whisper line to voice or translate, and, only if you ask the cloud to write a line, the typed name and note. **Never faces, photos or face fingerprints.** Every request is recorded in the on-phone ledger. The voice clip is made once when you save, stored encrypted with the person, and plays offline afterwards.
 
-The server side is one Cloudflare Worker on the same origin ([`worker/`](worker/README.md)) using Workers AI: MeloTTS for voice, IndicTrans2 and m2m100 for translation, Llama 3.2 3B to write a line, Whisper for an optional short voice note. It checks the origin, signs sessions, enforces strict schemas and size caps, rate-limits per address, stores nothing and logs no content. It has unit tests with Workers AI mocked; **it is live at https://halo.dualmindlab.tech** with its measured results in [`worker/README.md`](worker/README.md).
+The server side is one Cloudflare Worker on the same origin ([`worker/`](worker/README.md)) using Workers AI: MeloTTS for voice, IndicTrans2 and m2m100 for translation, Llama 3.2 3B to write a line, Whisper for an optional short voice note. It checks the origin, signs sessions, enforces strict schemas and size caps, rate-limits per address, stores nothing and logs no content. It has unit tests with Workers AI mocked; **it is live at [https://halo.dualmindlab.tech](https://halo.dualmindlab.tech)** with its measured results in [`worker/README.md`](worker/README.md).
 
 ## Honest limits
 
@@ -198,46 +167,9 @@ These six statements appear word for word on the landing page and in the app:
 
 What has been measured, what it doesn't prove and how to test it properly: [`docs/accuracy.md`](docs/accuracy.md). The face library, [@vladmandic/face-api](https://github.com/vladmandic/face-api), was archived in February 2025; it still works, and a move to a maintained engine is planned.
 
-## Run it
-
-Needs Node 20 or newer (and ffmpeg for the fake-camera clips and the mp4 videos).
-
-```bash
-./run.sh            # install (first run), build, serve on http://localhost:4173
-```
-
-The landing page is at http://localhost:4173/ and the app at http://localhost:4173/app/. It is served with the production headers (strict CSP). The camera works on `localhost`; on a phone, open it through an HTTPS address (the camera needs a secure page).
-
-No camera or second person handy? Open http://localhost:4173/app/#/try for **Halo in 60 seconds**, or tap **Try with sample people**, then **Open the demo camera**.
-
-| Command | What it does |
-|---|---|
-| `./run.sh` | Build and serve |
-| `./run.sh fake-camera [friend\|street]` | Also open Chromium with a fake camera playing "Sam", an AI-generated face (`street` adds a face that was never added). Needs a display; on a server use `xvfb-run` |
-| `./run.sh test` | Unit tests and end-to-end tests |
-| `./run.sh screens` | Every screen in light and dark, phone and desktop, plus contact sheets |
-| `./run.sh record` | The app walkthrough, the landing scroll and the 60-second try videos |
-| `./run.sh accuracy` | Match distances on the synthetic faces |
-| `npm run perf` | Frames a second in Whisper mode: normal, battery saver, hidden (`eval/performance.json`) |
-
-## Tests and evidence
-
-<details>
-<summary>What the 90 unit tests and 25 end-to-end tests cover, and the evidence</summary>
-
-- **Unit (90, Vitest):** the whisper writer and styles; the matcher and the three-state tracker (steady view, margin, face swap, children held at maybe); the encrypted vault and meta records; backups (wrong passphrase, hidden content); practice scheduling; light and pose hints; consent links and helper cards; quiet hours across midnight, never-whisper people, buzz codes and the earbud check; event-mode filtering; splitting a spoken intro into name, note, cues and where you met; the Enhanced mode Worker with Workers AI mocked (sessions, origin and schema checks, size caps, rate limit, daily ceiling, graceful failures); the privacy page against the code (CSP, network calls, Enhanced routes, the Worker's limits); passcode hashing; wrong-match suggestions; translation coverage.
-- **End to end (25, Playwright with Chromium's fake camera):** add a person with their yes and hear their whisper; edit, check the database holds ciphertext, delete everything; sample people recognised while the never-added face stays "No match" (distances logged); works offline after the first visit; consent by link round trip; default mode never calls the server; Enhanced mode sends only short text that appears in the ledger; no request to any other origin (landing page and app); the strict security headers; Halo in 60 seconds before the tour and with no camera; pocket mode (dark, kept awake, buzz codes, nothing aloud before the earbud check); event mode (only the person on the list is named over a 34 s demo cycle); spoken enrolment filling every field, where you met in the caption and a never-whisper person staying silent; helper cards round trip with no request sent; accessibility (axe-core WCAG 2.2 A and AA on every page and screen in light and dark, keyboard focus, reduced motion); the privacy, terms and safety pages linked from the landing page and the app; Your data and Wipe now (no database, cache, service worker or storage left); a passcode lock storing only a hash; the phone lock through a virtual WebAuthn authenticator; a wrong-match report becoming a suggestion; Hindi and Gujarati; axe on the documents, Your data, Help and the lock screen.
-- **Evidence:** [`docs/shots/`](docs/shots/): every screen in four variants ([phone light](docs/shots/contact-sheet-phone-light.png), [phone dark](docs/shots/contact-sheet-phone-dark.png), [desktop light](docs/shots/contact-sheet-desktop-light.png), [desktop dark](docs/shots/contact-sheet-desktop-dark.png)), the [app walkthrough](docs/shots/walkthrough.mp4) (headless, no sound) with stills and a timeline in [`docs/shots/walkthrough/`](docs/shots/walkthrough/), the [landing scroll](docs/shots/landing-scroll.mp4) and [Halo in 60 seconds](docs/shots/try-60-seconds.mp4). The palette change is shown before and after in [`docs/shots/recolour/`](docs/shots/recolour/).
-- **Accuracy:** [`docs/accuracy.md`](docs/accuracy.md) and [`eval/accuracy-synthetic.json`](eval/accuracy-synthetic.json). On the synthetic set, same person 0.05 to 0.21 and different people 0.70 or more; this says nothing yet about real people in real rooms.
-- **Device test:** [`docs/device-test.md`](docs/device-test.md) lists what to check on a real phone.
-
-</details>
-
-## Deploying
-
-The build is a static site with a strict CSP that works at the domain root. `wrangler.jsonc` serves `dist/` as Workers static assets (single-page fallback, `/api/*` to the optional Worker). Steps are in [`worker/README.md`](worker/README.md). Live deploy: `npm run build`, set `SESSION_SECRET`, `npx wrangler deploy`; the `routes` entry creates the `halo.dualmindlab.tech` custom domain.
-
 ## How it works
+
+<img src="docs/readme/architecture.png" alt="Architecture: camera frames go to face-api, then the matcher, then the tracker, then the rules and the earbud, all in the browser. An optional Cloudflare Worker handles text only." width="100%">
 
 ```
 camera frame -> TinyFaceDetector -> 68-point landmarks -> FaceRecognitionNet -> 128-number fingerprint
@@ -251,135 +183,47 @@ fingerprint -> nearest person on your list, or on today's list in event mode (di
                no match  -> faint outline; the fingerprint is dropped
 ```
 
+- **Diagrams:** the privacy data flow, recognition flow, add-someone consent flow and build pipeline are drawn in [`docs/diagrams.md`](docs/diagrams.md).
 - **Stack:** TypeScript, React 19, Vite 7 (a multi-page static site: `/`, `/app/`, `/consent/`, `/helper/`), [@vladmandic/face-api](https://github.com/vladmandic/face-api), [idb](https://github.com/jakearchibald/idb), Web Crypto, Web Speech API, Web Audio, the Vibration and Screen Wake Lock APIs, lucide icons, self-hosted fonts.
 - **Key files:** [`src/lib/faceEngine.ts`](src/lib/faceEngine.ts), [`src/lib/matcher.ts`](src/lib/matcher.ts), [`src/lib/rules.ts`](src/lib/rules.ts) (quiet hours, never whisper, buzz codes, event mode), [`src/lib/intro.ts`](src/lib/intro.ts), [`src/lib/cardLink.ts`](src/lib/cardLink.ts), [`src/lib/vault.ts`](src/lib/vault.ts), [`src/lib/whisper.ts`](src/lib/whisper.ts), [`src/lib/say.ts`](src/lib/say.ts), [`src/lib/consentLink.ts`](src/lib/consentLink.ts), [`src/lib/enhanced.ts`](src/lib/enhanced.ts), [`src/screens/WhisperMode.tsx`](src/screens/WhisperMode.tsx), [`src/screens/Enrol.tsx`](src/screens/Enrol.tsx), [`worker/index.ts`](worker/index.ts).
 - **The name** lives in one place, [`brand.config.json`](brand.config.json): the pages, manifest, app and scripts read it from there.
 
-## Architecture
+## Run it
 
-*Everything that sees a face runs inside the phone's browser; the optional Worker only ever receives text or a short audio clip.*
+Needs Node 20 or newer (and ffmpeg for the fake-camera clips and the mp4 videos).
 
-```mermaid
-flowchart LR
-  subgraph PHONE["On the phone (browser)"]
-    CAM["Camera"] --> DET["Face detection<br/>and embeddings"]
-    DET --> MATCH["Matcher and tracker"]
-    VAULT[("Encrypted IndexedDB vault<br/>names, notes, fingerprints")]
-    MATCH <--> VAULT
-    MATCH --> OUT["Whisper, voice, buzz<br/>and pocket mode"]
-    SW["Service worker<br/>offline cache"]
-  end
-  CUT{{"Cut line: faces, photos and fingerprints stay left of here"}}
-  subgraph EDGE["Optional Enhanced mode: one Cloudflare Worker"]
-    R1["/api/session"]
-    R2["/api/voice"]
-    R3["/api/translate"]
-    R4["/api/write"]
-    R5["/api/transcribe"]
-    AI["Workers AI"]
-    R2 --> AI
-    R3 --> AI
-    R4 --> AI
-    R5 --> AI
-  end
-  OUT -. "text only" .-> CUT
-  CUT -.-> EDGE
+```bash
+./run.sh            # install (first run), build, serve on http://localhost:4173
 ```
 
-## Privacy data flow
+The landing page is at [http://localhost:4173/](http://localhost:4173/) and the app at [http://localhost:4173/app/](http://localhost:4173/app/). It is served with the production headers (strict CSP). The camera works on `localhost`; on a phone, open it through an HTTPS address (the camera needs a secure page).
 
-*What stays on the phone, what Enhanced mode sends (off by default), and what is never sent.*
+No camera or second person handy? Open [http://localhost:4173/app/#/try](http://localhost:4173/app/#/try) for **Halo in 60 seconds**, or tap **Try with sample people**, then **Open the demo camera**.
 
-```mermaid
-flowchart TD
-  subgraph STAYS["Stays on the phone"]
-    A["Camera frames: analysed in memory, never stored"]
-    B["Face fingerprints: AES-GCM encrypted in IndexedDB"]
-    C["Names, notes, cues, today's list, one small thumbnail"]
-  end
-  subgraph SENT["Sent only in Enhanced mode, and logged in the on-phone ledger"]
-    D["A whisper line to voice or translate"]
-    E["A typed name and note, only if you ask the cloud to write a line"]
-    F["A short audio clip, only for the optional voice note"]
-  end
-  subgraph NEVER["Never sent"]
-    G["Faces"]
-    H["Photos"]
-    I["Face fingerprints"]
-  end
-  A --> B
-  B --> C
-  C -. "you opt in" .-> D
-  C -. "you opt in" .-> E
-  C -. "you opt in" .-> F
-```
+| Command | What it does |
+|---|---|
+| `./run.sh` | Build and serve |
+| `./run.sh fake-camera [friend\|street]` | Also open Chromium with a fake camera playing "Sam", an AI-generated face (`street` adds a face that was never added). Needs a display; on a server use `xvfb-run` |
+| `./run.sh test` | Unit tests and end-to-end tests |
+| `./run.sh screens` | Every screen in light and dark, phone and desktop, plus contact sheets |
+| `./run.sh record` | The app walkthrough, the landing scroll and the 60-second try videos |
+| `./run.sh accuracy` | Match distances on the synthetic faces |
+| `npm run perf` | Frames a second in Whisper mode: normal, battery saver, hidden (`eval/performance.json`) |
 
-## Recognition flow
 
-*One tracked face becomes Confident, Maybe or No match, and only Confident ever speaks.*
+## Tests and evidence
 
-```mermaid
-flowchart TD
-  F["Camera frame"] --> T["Face tracked<br/>one track per face"]
-  T --> M{"Match against"}
-  M -->|"Whisper mode"| V["Everyone in the vault"]
-  M -->|"Event mode"| L["Only today's list"]
-  V --> S{"Over time, per track"}
-  L --> S
-  S -->|"Closer than the confident limit, at least 0.08 ahead of the runner-up,<br/>for 1 second and 5 frames, one of them frontal"| C["Confident"]
-  S -->|"Close enough, but not yet sure"| Y["Maybe"]
-  S -->|"No one close enough"| N["No match"]
-  C --> C2["Halo, caption and whisper<br/>or a buzz code, or nothing for Never whisper"]
-  Y --> Y2["Dotted ring and a hint, never spoken"]
-  N --> N2["Faint outline, nothing said,<br/>fingerprint dropped"]
-```
+- **Unit (90, Vitest):** the whisper writer and styles; the matcher and the three-state tracker (steady view, margin, face swap, children held at maybe); the encrypted vault and meta records; backups (wrong passphrase, hidden content); practice scheduling; light and pose hints; consent links and helper cards; quiet hours across midnight, never-whisper people, buzz codes and the earbud check; event-mode filtering; splitting a spoken intro into name, note, cues and where you met; the Enhanced mode Worker with Workers AI mocked (sessions, origin and schema checks, size caps, rate limit, daily ceiling, graceful failures); the privacy page against the code (CSP, network calls, Enhanced routes, the Worker's limits); passcode hashing; wrong-match suggestions; translation coverage.
+- **End to end (25, Playwright with Chromium's fake camera):** add a person with their yes and hear their whisper; edit, check the database holds ciphertext, delete everything; sample people recognised while the never-added face stays "No match" (distances logged); works offline after the first visit; consent by link round trip; default mode never calls the server; Enhanced mode sends only short text that appears in the ledger; no request to any other origin (landing page and app); the strict security headers; Halo in 60 seconds before the tour and with no camera; pocket mode (dark, kept awake, buzz codes, nothing aloud before the earbud check); event mode (only the person on the list is named over a 34 s demo cycle); spoken enrolment filling every field, where you met in the caption and a never-whisper person staying silent; helper cards round trip with no request sent; accessibility (axe-core WCAG 2.2 A and AA on every page and screen in light and dark, keyboard focus, reduced motion); the privacy, terms and safety pages linked from the landing page and the app; Your data and Wipe now (no database, cache, service worker or storage left); a passcode lock storing only a hash; the phone lock through a virtual WebAuthn authenticator; a wrong-match report becoming a suggestion; Hindi and Gujarati; axe on the documents, Your data, Help and the lock screen.
+- **Evidence:** [`docs/shots/`](docs/shots/): every screen in four variants ([phone light](docs/shots/contact-sheet-phone-light.png), [phone dark](docs/shots/contact-sheet-phone-dark.png), [desktop light](docs/shots/contact-sheet-desktop-light.png), [desktop dark](docs/shots/contact-sheet-desktop-dark.png)), the [app walkthrough](docs/shots/walkthrough.mp4) (headless, no sound) with stills and a timeline in [`docs/shots/walkthrough/`](docs/shots/walkthrough/), the [landing scroll](docs/shots/landing-scroll.mp4) and [Halo in 60 seconds](docs/shots/try-60-seconds.mp4). The palette change is shown before and after in [`docs/shots/recolour/`](docs/shots/recolour/).
+- **Accuracy:** [`docs/accuracy.md`](docs/accuracy.md) and [`eval/accuracy-synthetic.json`](eval/accuracy-synthetic.json). On the synthetic set, same person 0.05 to 0.21 and different people 0.70 or more; this says nothing yet about real people in real rooms.
+- **Device test:** [`docs/device-test.md`](docs/device-test.md) lists what to check on a real phone.
 
-The limits come from `STATE_LIMITS` in [`src/lib/matcher.ts`](src/lib/matcher.ts): a lead of 0.08 and five frames in both strictness levels, one second in Careful (distance under 0.42 for Confident, 0.5 for Maybe) and 0.9 seconds in Balanced (0.47 and 0.55).
+## Deploying
 
-## Add someone with their yes
-
-*The person being added reads the line and agrees, photos are taken on your phone, and a helper card carries text only.*
-
-```mermaid
-sequenceDiagram
-  participant H as Helper (optional)
-  participant U as You
-  participant P as Person being added
-  H->>U: Helper card as a link, text only
-  U->>U: Check the card, type the name and note
-  U->>P: Hand over the phone
-  P->>P: Read the exact line, tick "I'm [name], and I agree"
-  Note over P,U: Not there? They answer by link on their own phone
-  U->>U: Take 3 to 5 photos on your phone
-  U->>U: Fingerprints and consent record saved to the encrypted vault
-```
-
-## Build pipeline
-
-*From the Devpost skill pack's six steps, through nine verified slices and the test and design gates, to a Cloudflare Worker.*
-
-```mermaid
-flowchart LR
-  S1["1-start<br/>learner profile"] --> S2["2-scope<br/>scope.md"]
-  S2 --> S3["3-prd<br/>prd.md"]
-  S3 --> S4["4-spec<br/>spec.md"]
-  S4 --> S5["5-build<br/>nine slices"]
-  S5 --> G{"Gates"}
-  G --> T1["Vitest"]
-  G --> T2["Playwright"]
-  G --> T3["axe"]
-  G --> T4["Hallmark design pass"]
-  T1 --> S6["6-ship<br/>submission checklist"]
-  T2 --> S6
-  T3 --> S6
-  T4 --> S6
-  S6 --> D["Deploy to Cloudflare Worker"]
-```
+The build is a static site with a strict CSP that works at the domain root. `wrangler.jsonc` serves `dist/` as Workers static assets (single-page fallback, `/api/*` to the optional Worker). Steps are in [`worker/README.md`](worker/README.md). Live deploy: `npm run build`, set `SESSION_SECRET`, `npx wrangler deploy`; the `routes` entry creates the `halo.dualmindlab.tech` custom domain.
 
 ## How it was made
-
-<details>
-<summary>Read more</summary>
 
 Built for Devpost's [Build With AI: Basics](https://learn-ai-basics.devpost.com/) with the [Devpost Learn skill pack](https://github.com/challengepost/learn-ai-basics) (`npx skills add challengepost/learn-ai-basics --all -y`), run in an AI coding agent. The idea, the users' problem, the privacy rules, the name and the product decisions are Harsh's; the agent wrote the planning documents and the code from his written brief, and each slice was verified with tests before it was committed.
 
@@ -392,16 +236,27 @@ Built for Devpost's [Build With AI: Basics](https://learn-ai-basics.devpost.com/
 
 `scope.md`, `prd.md` and `spec.md` are the single source and describe the app as it is now; `devpost/` links to them.
 
-</details>
-
 ## Design
 
 Designed with the [Hallmark](https://github.com/Nutlope/hallmark) design skill, installed in this project only: the structure of its Ribbon theme (Instrument Sans over Atkinson Hyperlegible Next, machined controls lit from above) in a palette taken from Ajrakh, the block-printed cotton of Kutch and Sindh: undyed cotton for paper, iron black for ink and night, indigo for what you act on, madder for the mark, and the halo as the resist white, the part of the cloth left light. All colours live in one file, [`src/styles/palette.css`](src/styles/palette.css). Every screen was swept with Hallmark's `sloplint` (static and rendered) to zero failures, and the landing page went through two fresh-context reviews. The system, the decisions and the record of the sweeps: [`docs/design.md`](docs/design.md).
 
-## Project layout
-
 <details>
-<summary>Read more</summary>
+<summary><b>Colours and type</b></summary>
+
+| Pigment | Where it shows up |
+|---|---|
+| Undyed cotton | The page by day, the text by night |
+| Iron black | Text by day; the ground for Whisper mode, pocket mode and the landing hero |
+| Indigo | What you act on: buttons, links, focus rings |
+| Madder | The mark; serious things; "silent until you check your earbud" |
+| Resist white | The halo and name tag: a known face is the part of the cloth left light |
+
+
+Instrument Sans for headings and names, Atkinson Hyperlegible Next for reading. The README images reuse the same system: a printed-cloth lozenge border, and the halo's ripple as the one repeated shape. The full record is in [`docs/design.md`](docs/design.md).
+
+</details>
+
+## Project layout
 
 ```
 index.html, landing/   the landing page
@@ -417,42 +272,8 @@ docs/                  accuracy, design, device test, submission checklist, scre
 scope.md, prd.md, spec.md, devpost/   the Devpost Learn planning documents and build checklist
 ```
 
-</details>
+## Credits and licence
 
-## Roadmap
+MIT, see [LICENSE](LICENSE). Third-party code, models, fonts, faces and the design skill are listed in [CREDITS.md](CREDITS.md).
 
-From [`scope.md`](scope.md) and [`docs/accuracy.md`](docs/accuracy.md); none of this is built yet.
-
-- A real-world test with consenting adults, published honestly.
-- A move to a maintained face engine (the current library is archived).
-- Per-person thresholds measured at enrolment, and a yearly photo refresh.
-- Smart glasses or bone-conduction audio, the form factor people asked for (pocket mode is the phone's stand-in).
-- An automatic "last seen" and search by cue or place.
-
-## FAQ
-
-**Who is it for?** People with face blindness who can see but can't place faces, and the people who help them. See [Who it's for](#who-its-for).
-
-**What leaves the phone?** By default nothing about faces or people: no photos, no face fingerprints, no names. The optional Enhanced mode sends only short text the sheet lists before you turn it on, and records every request in an on-phone ledger. Helper cards and consent links carry text only, in the part of the link after `#`. See the [privacy model](#privacy-model).
-
-**Is it a medical device?** No. It is a prototype and a hint, not proof. It can name the wrong person and it stays silent for many people who are there; never use it to decide who to trust or let in. See the [honest limits](#honest-limits).
-
-**Does it work offline?** Yes, after the first visit.
-
-**Can it identify strangers?** No. It only compares faces with people who agreed to be added, and drops every other face after the comparison.
-
-## Contributing
-
-Contributions are welcome. Read [CONTRIBUTING](.github/CONTRIBUTING.md) first; the main rules are no real faces or photos in issues or pull requests, and no new network call without updating the privacy page and its drift test. Please follow the [Code of Conduct](.github/CODE_OF_CONDUCT.md). Questions: [SUPPORT](.github/SUPPORT.md).
-
-## Security
-
-Report vulnerabilities privately through [GitHub security advisories](https://github.com/harshbhx/halo/security/advisories/new), not in public issues. See [SECURITY](.github/SECURITY.md).
-
-## License
-
-MIT, see [LICENSE](LICENSE).
-
-## Credits
-
-Third-party code, models, fonts, faces and the design skill are listed in [CREDITS.md](CREDITS.md).
+Roadmap and FAQ: [`docs/roadmap-faq.md`](docs/roadmap-faq.md). [Contributing](.github/CONTRIBUTING.md) · [Code of Conduct](.github/CODE_OF_CONDUCT.md) · [Support](.github/SUPPORT.md) · [Security](.github/SECURITY.md) (report vulnerabilities privately through [GitHub security advisories](https://github.com/harshbhx/halo/security/advisories/new)).

@@ -2,7 +2,7 @@
 
 What could go wrong with Halo, who it would hurt, what the app does about it today, and what is left over. Written for the code in this repository; "residual" means the risk the app does not remove.
 
-Diagrams of where data goes and how consent works: [architecture](../README.md#architecture), [privacy data flow](../README.md#privacy-data-flow), [recognition flow](../README.md#recognition-flow) and [adding someone with their yes](../README.md#add-someone-with-their-yes).
+Diagrams of where data goes and how consent works: [architecture](diagrams.md#architecture), [privacy data flow](diagrams.md#privacy-data-flow), [recognition flow](diagrams.md#recognition-flow) and [adding someone with their yes](diagrams.md#add-someone-with-their-yes).
 
 ## What there is to protect
 
