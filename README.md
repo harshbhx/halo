@@ -2,6 +2,8 @@
 
 **A quiet voice for faces you know.**
 
+**Try it: https://halo.dualmindlab.tech** (open it on a phone; the demo mode uses AI-generated faces).
+
 Halo is a phone web app for people with face blindness (prosopagnosia). You add people you know, with their own agreement. When the camera is sure it's one of them, an earbud says who they are and how you know them: *"Raj, your neighbour. Knee surgery last month."* Faces, face fingerprints and photos never leave the phone.
 
 <p>
@@ -101,7 +103,7 @@ How Halo differs: it is built for people who **see** but can't place faces. It s
 
 For people who want a more natural voice or whispers in another language. Turning it on opens a sheet that lists exactly what would leave the phone: the whisper line to voice or translate, and, only if you ask the cloud to write a line, the typed name and note. **Never faces, photos or face fingerprints.** Every request is recorded in the on-phone ledger. The voice clip is made once when you save, stored encrypted with the person, and plays offline afterwards.
 
-The server side is one Cloudflare Worker on the same origin ([`worker/`](worker/README.md)) using Workers AI: MeloTTS for voice, IndicTrans2 and m2m100 for translation, Llama 3.2 3B to write a line, Whisper for an optional short voice note. It checks the origin, signs sessions, enforces strict schemas and size caps, rate-limits per address, stores nothing and logs no content. It has unit tests with Workers AI mocked; **it is not deployed from this repository.**
+The server side is one Cloudflare Worker on the same origin ([`worker/`](worker/README.md)) using Workers AI: MeloTTS for voice, IndicTrans2 and m2m100 for translation, Llama 3.2 3B to write a line, Whisper for an optional short voice note. It checks the origin, signs sessions, enforces strict schemas and size caps, rate-limits per address, stores nothing and logs no content. It has unit tests with Workers AI mocked; **it is live at https://halo.dualmindlab.tech** with its measured results in [`worker/README.md`](worker/README.md).
 
 ## Honest limits
 
@@ -148,7 +150,7 @@ No camera or second person handy? Open http://localhost:4173/app/#/try for **Hal
 
 ## Deploying
 
-The build is a static site with a strict CSP that works at the domain root. `wrangler.jsonc` serves `dist/` as Workers static assets (single-page fallback, `/api/*` to the optional Worker). Steps are in [`worker/README.md`](worker/README.md). Nothing is deployed from this repository.
+The build is a static site with a strict CSP that works at the domain root. `wrangler.jsonc` serves `dist/` as Workers static assets (single-page fallback, `/api/*` to the optional Worker). Steps are in [`worker/README.md`](worker/README.md). Live deploy: `npm run build`, set `SESSION_SECRET`, `npx wrangler deploy`; the `routes` entry creates the `halo.dualmindlab.tech` custom domain.
 
 ## How it works
 

@@ -128,11 +128,11 @@ export function stopSpeaking(): void {
   clip?.pause();
 }
 
-/** Plays a stored natural-voice clip (base64 MP3) from memory: no network involved. */
+/** Plays a stored natural-voice clip (base64 WAV or MP3) from memory: no network involved. */
 export async function playClip(base64: string, volume: number): Promise<boolean> {
   try {
     const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
-    const url = URL.createObjectURL(new Blob([bytes], { type: 'audio/mpeg' }));
+    const url = URL.createObjectURL(new Blob([bytes], { type: base64.startsWith('UklG') ? 'audio/wav' : 'audio/mpeg' }));
     clip = new Audio(url);
     clip.volume = Math.min(Math.max(volume, 0), 1);
     await clip.play();

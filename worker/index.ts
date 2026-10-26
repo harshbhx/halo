@@ -157,6 +157,15 @@ function toBase64(bytes: Uint8Array): string {
 
 /* ---------- Routes ---------- */
 
+/** MeloTTS answers with WAV on the live account; report what the bytes are, not what we hoped. */
+export function audioType(audio: ArrayBuffer): string {
+  const b = new Uint8Array(audio, 0, Math.min(12, audio.byteLength));
+  const tag = (i: number, t: string) => t.split('').every((c, k) => b[i + k] === c.charCodeAt(0));
+  if (tag(0, 'RIFF') && tag(8, 'WAVE')) return 'audio/wav';
+  if (tag(0, 'OggS')) return 'audio/ogg';
+  return 'audio/mpeg';
+}
+
 async function voice(env: Env, request: Request): Promise<Response> {
   const body = await readJson(request, ['text', 'lang']);
   const text = str(body, 'text', LIMITS.voiceChars);
@@ -168,7 +177,7 @@ async function voice(env: Env, request: Request): Promise<Response> {
   else if (out && typeof out === 'object' && 'audio' in out && typeof out.audio === 'string') audio = fromBase64(out.audio).buffer as ArrayBuffer;
   else if (out instanceof ReadableStream) audio = await new Response(out).arrayBuffer();
   else throw new HttpError(502, 'The voice service didn’t answer. The phone’s own voice will speak instead.');
-  return new Response(audio, { headers: { 'Content-Type': 'audio/mpeg', ...SECURITY } });
+  return new Response(audio, { headers: { 'Content-Type': audioType(audio), ...SECURITY } });
 }
 
 async function translate(env: Env, request: Request): Promise<Response> {
