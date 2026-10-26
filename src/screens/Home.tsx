@@ -37,9 +37,9 @@ export function Home() {
     <main className="screen" aria-labelledby="home-title">
       <div className="topline">
         <Brand />
-        <button type="button" className="btn btn--quiet small" onClick={() => navigate('/privacy')}>
-          <ShieldCheck size={20} aria-hidden="true" />
-          On this phone only
+        <button type="button" className="privacy-pill" onClick={() => navigate('/privacy')} aria-label="On this phone only. Read the privacy promise">
+          <ShieldCheck size={18} aria-hidden="true" />
+          On this phone
         </button>
       </div>
 
