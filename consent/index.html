@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>%BRAND_NAME%: a question for you</title>
+    <meta name="description" content="Someone you know would like %BRAND_NAME% to recognise you on their phone. Read what it keeps and answer." />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/svg+xml" href="../icon.svg" />
+    <link rel="stylesheet" href="../landing/fonts.css" />
+    <link rel="stylesheet" href="./consent.css" />
+    <script type="module" src="./consent.ts"></script>
+  </head>
+  <body>
+    <main class="ask" id="main">
+      <p class="ask__brand">%BRAND_NAME%</p>
+      <h1 data-hello>Hi.</h1>
+      <p class="lead">Someone you know has face blindness: they can find faces hard to recognise, even friends’. They’d like %BRAND_NAME% on their phone to recognise you and quietly remind them who you are.</p>
+      <div class="ask__line" data-line-wrap hidden>
+        <p class="label">It would whisper this in their earbud:</p>
+        <blockquote data-line></blockquote>
+      </div>
+      <ul class="ask__keeps">
+        <li><b>What their phone keeps:</b> your name, this line, a few face fingerprints from photos they take of you in person, and anything you add below.</li>
+        <li><b>What it never does:</b> upload your face, look you up, or share any of it. Nothing on this page is sent to a server.</li>
+        <li><b>Changing your mind:</b> ask them, and they delete you in one tap.</li>
+      </ul>
+      <form class="ask__form" data-form hidden>
+        <label class="field"><span>How should it introduce you?</span><textarea name="intro" rows="3" maxlength="200" data-intro></textarea></label>
+        <label class="field"><span>Something that helps them spot you (optional)</span><input name="cue" maxlength="80" placeholder="Green raincoat, a loud laugh" /></label>
+        <label class="agree"><input type="checkbox" name="agree" data-agree /> <span>I agree to be recognised on their phone</span></label>
+        <button type="submit" class="btn btn--primary" data-send disabled>Yes, send my answer</button>
+        <p class="label">This makes a link with your answer for you to send back. Nothing is uploaded.</p>
+      </form>
+      <div class="ask__done" data-done hidden>
+        <h2>Thank you.</h2>
+        <p data-done-text>Send the link back to them, in the same chat they used to ask you.</p>
+        <p class="ask__url" data-url></p>
+        <button type="button" class="btn" data-share>Share the link again</button>
+      </div>
+      <p class="notice" data-broken hidden>This link looks incomplete. Ask them to send it again.</p>
+      <noscript><p class="notice">This page needs JavaScript to read the question in the link and make your answer. Nothing is sent anywhere.</p></noscript>
+    </main>
+  </body>
+</html>
