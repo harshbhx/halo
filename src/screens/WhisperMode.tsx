@@ -93,6 +93,19 @@ export function WhisperMode({ demo }: { demo: boolean }) {
     trackerRef.current.setCooldown(settings.repeatSeconds * 1000);
   }, [settings.repeatSeconds]);
 
+  // Phones stop the camera when the screen locks or the app is backgrounded; restart it on return.
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState !== 'visible') return;
+      const stream = videoRef.current?.srcObject as MediaStream | null;
+      const ended = !stream || stream.getVideoTracks().every((t) => t.readyState === 'ended');
+      if (ended && phase === 'running') setAttempt((a) => a + 1);
+      else void videoRef.current?.play().catch(() => undefined);
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [phase]);
+
   // Unlock speech/audio on the first touch inside Whisper mode (mobile browsers need a gesture).
   useEffect(() => {
     const once = () => unlockAudio();
