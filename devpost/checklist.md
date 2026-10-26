@@ -39,7 +39,7 @@ Build mode: fast (Harsh's brief asked the agent to build and verify autonomously
   Learner check: On a fresh install tap Try with sample people, open Whisper mode with the demo camera and watch the names and the unknown face.
   Commit: `Add demo mode with synthetic sample people`
 
-- [ ] **4. Ready to demo and record**
+- [x] **4. Ready to demo and record**
   Becomes usable: `./run.sh` starts the app; `./run.sh fake-camera` opens Chromium with a synthetic-face camera; `npm run demo:record` produces the walkthrough video and screenshots; works offline after first load; README and DEMO.md explain everything.
   Why now: The submission needs a video, and the video agent gets only this folder.
   PRD ref: `prd.md > What We're Building`, `prd.md > Features and Behavior > Privacy and consent` (offline)
@@ -64,11 +64,11 @@ Build mode: fast (Harsh's brief asked the agent to build and verify autonomously
 - [ ] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
 - [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
 
-Activity and evidence: not started
-Route and stops: not started
-Edit outcome: not started
-Reflection: not started
-Activity mode: not started
+Activity and evidence: not started with Harsh yet (he was asleep during the build). `devpost/app-map.html` was generated from commit f9e2636 with a reference route and a practice note grounded in `tests/e2e/demo-mode.spec.ts`; it has not been shown to him, so the boxes above stay open.
+Route and stops: reference only — `src/screens/WhisperMode.tsx` (`const tick = async`), `src/lib/matcher.ts` (`export class Tracker`), `src/lib/voice.ts` (`export async function speak`)
+Edit outcome: not applicable yet
+Reflection: not offered yet
+Activity mode: pending
 
 ## Revisions
 
@@ -77,3 +77,7 @@ Activity mode: not started
 - Added a WebAssembly fallback for the face engine — headless Chromium (and some phones) refuse a GPU context for TensorFlow.js, and plain-JavaScript detection took 2.3 s a frame, too slow for a steady match; WebAssembly brought it to about 0.1 s.
 - The caption now follows whoever was just recognised, even inside the repeat interval — the build showed the caption stuck on the previous person while the next one was in view.
 - Measured on the synthetic faces (answers the spec's open uncertainty): same person 0.08–0.28, the stranger 0.79–0.81 from everyone, so the 0.45 Careful threshold leaves a wide margin.
+- Fake and demo cameras are 9:16 portrait (432x768) — a 3:4 clip shown full-screen on a phone was cropped so hard that faces filled the screen; real phone cameras deliver 9:16 in portrait.
+- The caption now disappears the moment a face that isn't enrolled replaces its person — the recording showed Maya's caption lingering over the stranger, which could make someone think the stranger was Maya.
+- Enrolment rejects a shot that is far from the earlier shots (likely a different person), so one person's fingerprints can't be mixed with another's.
+- The service worker matches cached files ignoring `Vary` — the offline test found module scripts (requested with an Origin header) missing the cache and the page loading blank offline.
