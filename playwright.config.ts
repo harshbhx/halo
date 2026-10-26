@@ -58,9 +58,8 @@ export default defineConfig({
       testMatch: /.*\.record\.ts/,
       use: {
         ...phone,
-        deviceScaleFactor: 1,
         browserName: 'chromium',
-        launchOptions: { args: chromiumArgs('street') },
+        launchOptions: { args: chromiumArgs('friend') },
         video: { mode: 'on', size: { width: 390, height: 844 } },
       },
     },

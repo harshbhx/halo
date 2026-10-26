@@ -33,7 +33,7 @@ test('edit a person, then delete everything and start fresh', async ({ page }) =
   expect(leaked).toBe(false);
 
   // Delete everything from Settings.
-  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByRole('button', { name: 'Delete everything' }).click();
   await expect(page.getByRole('heading', { name: 'Delete everything?' })).toBeVisible();
   await page.getByRole('button', { name: 'Yes, delete everything' }).click();
