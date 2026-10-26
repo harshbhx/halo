@@ -70,7 +70,7 @@ export default defineConfig({
     },
     {
       name: 'record',
-      testMatch: /(demo|landing)\.record\.ts/,
+      testMatch: /(demo|landing|try)\.record\.ts/,
       use: {
         ...phone,
         browserName: 'chromium',

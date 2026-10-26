@@ -39,7 +39,7 @@ And the objection Halo has to answer:
 > "What would actually be useful is something that could recognize and label someone as I'm speaking to them, but I feel like that's more in the realm of smart glasses than phones because I'm not going to go around pointing my phone at everyone."
 > u/Ilaxilil, [thread](https://www.reddit.com/r/prosopagnosia/comments/1th3clh/)
 
-Quotes are shown word for word.
+Pocket mode is Halo's answer for now (the phone worn at chest height, screen dark); glasses would be the better one, and are listed under later work in `scope.md`. Quotes are shown word for word.
 
 ## What already exists
 
@@ -49,7 +49,7 @@ Halo is not the first tool to name a taught face:
 - [NameVault](https://apps.apple.com/app/id1525602410) helps people practise names from photos.
 - SocialRecall was a 2018 concept for prosopagnosia; Meta's idea of name tags for its glasses is unreleased.
 
-How Halo differs: it is built for people who **see** but can't place faces. It says *how you know* someone, not just a name; it shows the cues people with face blindness already use (clothes, hair, voice); it briefs you before an event and lets you practise from cues; the person being added reads their line and agrees themselves; and it runs free in an ordinary phone browser, with nothing uploaded.
+How Halo differs: it is built for people who **see** but can't place faces. It says *how you know* someone, not just a name; it shows the cues people with face blindness already use (clothes, hair, voice); it briefs you before an event and can look only for the people expected there; it can hang at chest height in pocket mode instead of being held up; it lets you practise from cues; the person being added reads their line and agrees themselves; and it runs free in an ordinary phone browser, with nothing uploaded.
 
 ## What it does
 
@@ -60,12 +60,17 @@ How Halo differs: it is built for people who **see** but can't place faces. It s
    - **Maybe**: a dotted ring and "Could be Raj? Check: green parka", never spoken. Children and look-alikes never go past this.
    - **No match**: a faint outline. "Silence doesn't mean a stranger."
    "Who was that?" lists the last five, in memory only.
-4. **Today's list.** Pick who you'll see, then read or hear their lines before you walk in.
-5. **Practice.** Name people from their cues (or a photo if that helps), on a gentle spaced schedule. No streaks.
-6. **Settings.** Voice, chime, buzz or silent; short, warm or full whispers; volume and speed; strictness; repeat interval; pause; bigger text; higher contrast; light, dark or automatic theme; backups locked with a passphrase (restoring lets you choose who comes back); **Delete everything**.
-7. **Privacy and honest limits.** A ledger of everything that has left the phone (by default: nothing) and the six limits below.
-8. **Try it alone.** **Try with sample people** adds three AI-generated people; **Open the demo camera** cycles through them and one face that was never added.
-9. **A landing page** at `/` (the app is at `/app/`) that speaks a real whisper in the browser voice and turns a typed note into a whisper with the app's own rules.
+4. **Pocket mode, for not holding a phone up.** Hang the phone at chest height (a lanyard or a shirt pocket, camera facing out) and tap the pocket button: the screen goes near-black and is kept awake with the Wake Lock API, the camera keeps running, and whispers go to your earbud. Without an earbud check, Halo buzzes a code instead: two short for someone you added, three for someone on today's list, one long for "could be". Double-tap or **Wake the screen** to come back.
+5. **Today's list and event mode.** Pick who you'll see, then read or hear their lines before you walk in. Turn on **Event mode** and Whisper mode compares faces with that short list only: fewer people to mix up, and everyone else is "No match" until you turn it off.
+6. **Where you met.** Each person can carry a line such as "At the climbing gym; last saw him at Anu's wedding", typed or dictated. It shows under the whisper and in today's list.
+7. **Say it all at once.** On the first step of adding someone you can say one sentence ("This is Raj, my neighbour, had knee surgery, wears a green parka, we met at the climbing gym") and Halo's rules fill the name, the note, the cues and where you met, for you to check. Typing stays the default.
+8. **Quiet hours and never whisper.** Set hours when nothing is said aloud (a buzz and the caption instead), and mark any person "Never whisper": Halo still shows who it is, but says nothing and doesn't buzz.
+9. **A helper.** Send a partner, parent or friend the helper page. They prepare a card for someone you'll meet (name, how you know them, cues, where you met) and send it back as a link, text only. You check it and add the person when you meet; the person still reads their line and says yes, and the photos are taken on your phone.
+10. **Practice.** Name people from their cues (or a photo if that helps), on a gentle spaced schedule. No streaks.
+11. **Settings.** Voice, chime, buzz or silent; short, warm or full whispers; volume and speed; strictness; repeat interval; pause; quiet hours; bigger text; higher contrast; light, dark or automatic theme; backups locked with a passphrase (restoring lets you choose who comes back); **Delete everything**.
+12. **Privacy and honest limits.** A ledger of everything that has left the phone (by default: nothing) and the six limits below.
+13. **Halo in 60 seconds.** `/app/#/try` (or **See it in 60 seconds** on the first screen) prepares the three AI-generated sample people on the phone and runs the demo camera with a short guide: two people recognised, one face that was never added. No camera, no tour needed; nothing is said aloud unless you turn it on.
+14. **A landing page** at `/` (the app is at `/app/`) that speaks a real whisper in the browser voice and turns a typed note into a whisper with the app's own rules.
 
 ## Privacy model
 
@@ -81,7 +86,8 @@ How Halo differs: it is built for people who **see** but can't place faces. It s
 - No account, no server for faces, no analytics, no third-party scripts or fonts. Model weights, WebAssembly and fonts are served by the site itself. The Content-Security-Policy allows `connect-src 'self'` only, and `npm run build` fails if the build loads anything from another origin.
 - No API key is needed, and none is in this repository.
 - Works offline after the first visit (a service worker caches the app and the face models).
-- **Dictation** is optional and labelled: typing is the default, because a browser's speech recognition may send audio to the browser maker.
+- **Dictation** (the note, "say it all at once", where you met) is optional and labelled: typing is the default, because a browser's speech recognition may send audio to the browser maker.
+- **Helper cards and consent links** carry text only, in the part of the link after `#`, which browsers never send to a server. They never contain photos or face fingerprints; whatever app you use to send the link can see its text, like any message.
 - **Delete everything** removes the database and the key together.
 
 ## Optional Enhanced mode (off by default)
@@ -113,7 +119,7 @@ Needs Node 20 or newer (and ffmpeg for the fake-camera clips and the mp4 videos)
 
 The landing page is at http://localhost:4173/ and the app at http://localhost:4173/app/. It is served with the production headers (strict CSP). The camera works on `localhost`; on a phone, open it through an HTTPS address (the camera needs a secure page).
 
-No camera or second person handy? In the app, tap **Try with sample people**, then **Open the demo camera**.
+No camera or second person handy? Open http://localhost:4173/app/#/try for **Halo in 60 seconds**, or tap **Try with sample people**, then **Open the demo camera**.
 
 | Command | What it does |
 |---|---|
@@ -121,14 +127,14 @@ No camera or second person handy? In the app, tap **Try with sample people**, th
 | `./run.sh fake-camera [friend\|street]` | Also open Chromium with a fake camera playing "Sam", an AI-generated face (`street` adds a face that was never added). Needs a display; on a server use `xvfb-run` |
 | `./run.sh test` | Unit tests and end-to-end tests |
 | `./run.sh screens` | Every screen in light and dark, phone and desktop, plus contact sheets |
-| `./run.sh record` | The app walkthrough video and the landing scroll video |
+| `./run.sh record` | The app walkthrough, the landing scroll and the 60-second try videos |
 | `./run.sh accuracy` | Match distances on the synthetic faces |
 
 ## Tests and evidence
 
-- **Unit (64, Vitest):** the whisper writer and styles; the matcher and the three-state tracker (steady view, margin, face swap, children held at maybe); the encrypted vault and meta records; backups (wrong passphrase, hidden content); practice scheduling; light and pose hints; consent links; the Enhanced mode Worker with Workers AI mocked (sessions, origin and schema checks, size caps, rate limit, daily ceiling, graceful failures).
-- **End to end (9, Playwright with Chromium's fake camera):** add a person with their yes and hear their whisper; edit, check the database holds ciphertext, delete everything; sample people recognised while the never-added face stays "No match" (distances logged); works offline after the first visit; consent by link round trip; default mode never calls the server; Enhanced mode sends only short text that appears in the ledger; no request to any other origin (landing page and app); the strict security headers.
-- **Evidence:** [`docs/shots/`](docs/shots/): every screen in four variants ([phone light](docs/shots/contact-sheet-phone-light.png), [phone dark](docs/shots/contact-sheet-phone-dark.png), [desktop light](docs/shots/contact-sheet-desktop-light.png), [desktop dark](docs/shots/contact-sheet-desktop-dark.png)), the [app walkthrough](docs/shots/walkthrough.mp4) (headless, no sound) with stills and a timeline in [`docs/shots/walkthrough/`](docs/shots/walkthrough/), and the [landing scroll](docs/shots/landing-scroll.mp4).
+- **Unit (78, Vitest):** the whisper writer and styles; the matcher and the three-state tracker (steady view, margin, face swap, children held at maybe); the encrypted vault and meta records; backups (wrong passphrase, hidden content); practice scheduling; light and pose hints; consent links and helper cards; quiet hours across midnight, never-whisper people, buzz codes and the earbud check; event-mode filtering; splitting a spoken intro into name, note, cues and where you met; the Enhanced mode Worker with Workers AI mocked (sessions, origin and schema checks, size caps, rate limit, daily ceiling, graceful failures).
+- **End to end (18, Playwright with Chromium's fake camera):** add a person with their yes and hear their whisper; edit, check the database holds ciphertext, delete everything; sample people recognised while the never-added face stays "No match" (distances logged); works offline after the first visit; consent by link round trip; default mode never calls the server; Enhanced mode sends only short text that appears in the ledger; no request to any other origin (landing page and app); the strict security headers; Halo in 60 seconds before the tour and with no camera; pocket mode (dark, kept awake, buzz codes, nothing aloud before the earbud check); event mode (only the person on the list is named over a 34 s demo cycle); spoken enrolment filling every field, where you met in the caption and a never-whisper person staying silent; helper cards round trip with no request sent; accessibility (axe-core WCAG 2.2 A and AA on every page and screen in light and dark, keyboard focus, reduced motion).
+- **Evidence:** [`docs/shots/`](docs/shots/): every screen in four variants ([phone light](docs/shots/contact-sheet-phone-light.png), [phone dark](docs/shots/contact-sheet-phone-dark.png), [desktop light](docs/shots/contact-sheet-desktop-light.png), [desktop dark](docs/shots/contact-sheet-desktop-dark.png)), the [app walkthrough](docs/shots/walkthrough.mp4) (headless, no sound) with stills and a timeline in [`docs/shots/walkthrough/`](docs/shots/walkthrough/), the [landing scroll](docs/shots/landing-scroll.mp4) and [Halo in 60 seconds](docs/shots/try-60-seconds.mp4).
 - **Accuracy:** [`docs/accuracy.md`](docs/accuracy.md) and [`eval/accuracy-synthetic.json`](eval/accuracy-synthetic.json). On the synthetic set, same person 0.05 to 0.21 and different people 0.70 or more; this says nothing yet about real people in real rooms.
 - **Device test:** [`docs/device-test.md`](docs/device-test.md) lists what to check on a real phone.
 
@@ -141,15 +147,17 @@ The build is a static site with a strict CSP that works at the domain root. `wra
 ```
 camera frame -> TinyFaceDetector -> 68-point landmarks -> FaceRecognitionNet -> 128-number fingerprint
                 (face-api with TensorFlow.js on WebGL, then WebAssembly, then CPU, all in the browser)
-fingerprint -> nearest person on your list (distance and lead over the runner-up)
+fingerprint -> nearest person on your list, or on today's list in event mode (distance and lead over the runner-up)
             -> FaceTracker: one track per face, three states over time
-               confident -> halo, caption, whisper (stored clip, the phone's voice, a buzz or a caption)
+               confident -> halo, caption, and the rules decide: whisper (stored clip or the phone's voice),
+                            a buzz code (quiet hours, before the earbud check, pocket mode without an earbud)
+                            or nothing (a never-whisper person)
                maybe     -> dotted ring, "Could be ...?", silent
                no match  -> faint outline; the fingerprint is dropped
 ```
 
-- **Stack:** TypeScript, React 19, Vite 7 (a multi-page static site: `/`, `/app/`, `/consent/`), [@vladmandic/face-api](https://github.com/vladmandic/face-api), [idb](https://github.com/jakearchibald/idb), Web Crypto, Web Speech API, Web Audio, lucide icons, self-hosted fonts.
-- **Key files:** [`src/lib/faceEngine.ts`](src/lib/faceEngine.ts), [`src/lib/matcher.ts`](src/lib/matcher.ts), [`src/lib/vault.ts`](src/lib/vault.ts), [`src/lib/whisper.ts`](src/lib/whisper.ts), [`src/lib/say.ts`](src/lib/say.ts), [`src/lib/consentLink.ts`](src/lib/consentLink.ts), [`src/lib/enhanced.ts`](src/lib/enhanced.ts), [`src/screens/WhisperMode.tsx`](src/screens/WhisperMode.tsx), [`src/screens/Enrol.tsx`](src/screens/Enrol.tsx), [`worker/index.ts`](worker/index.ts).
+- **Stack:** TypeScript, React 19, Vite 7 (a multi-page static site: `/`, `/app/`, `/consent/`, `/helper/`), [@vladmandic/face-api](https://github.com/vladmandic/face-api), [idb](https://github.com/jakearchibald/idb), Web Crypto, Web Speech API, Web Audio, the Vibration and Screen Wake Lock APIs, lucide icons, self-hosted fonts.
+- **Key files:** [`src/lib/faceEngine.ts`](src/lib/faceEngine.ts), [`src/lib/matcher.ts`](src/lib/matcher.ts), [`src/lib/rules.ts`](src/lib/rules.ts) (quiet hours, never whisper, buzz codes, event mode), [`src/lib/intro.ts`](src/lib/intro.ts), [`src/lib/cardLink.ts`](src/lib/cardLink.ts), [`src/lib/vault.ts`](src/lib/vault.ts), [`src/lib/whisper.ts`](src/lib/whisper.ts), [`src/lib/say.ts`](src/lib/say.ts), [`src/lib/consentLink.ts`](src/lib/consentLink.ts), [`src/lib/enhanced.ts`](src/lib/enhanced.ts), [`src/screens/WhisperMode.tsx`](src/screens/WhisperMode.tsx), [`src/screens/Enrol.tsx`](src/screens/Enrol.tsx), [`worker/index.ts`](worker/index.ts).
 - **The name** lives in one place, [`brand.config.json`](brand.config.json): the pages, manifest, app and scripts read it from there.
 
 ## How it was made
@@ -175,6 +183,7 @@ Designed with the [Hallmark](https://github.com/Nutlope/hallmark) design skill, 
 index.html, landing/   the landing page
 app/, src/             the app: screens, face engine, tracker, vault, voice, consent, Enhanced client
 consent/               the page the person being added opens from a link
+helper/                the page a helper uses to prepare a card
 worker/                the optional Enhanced mode Worker (source only)
 public/                sample faces (AI-generated) and credits, service worker, icons, _headers, robots.txt
 scripts/               model copier, fake-camera clips, the header-aware server, external-request check, icons, contact sheets

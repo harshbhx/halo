@@ -44,7 +44,11 @@ Whisper mode and the landing hero always sit on the night, whatever the mode. **
 - **Switches** for on/off settings; **sheets** for confirmations (delete, Enhanced mode consent) that say exactly what happens.
 - **People list:** name tags (round face, name, the line, a play button), not cards.
 - **Tab bar:** People, Today, a lit **Whisper** lamp in the middle, Practice, Settings.
-- **Whisper mode:** the night, a "Recognised on this phone only" badge, the camera, the ring states (amber halo for confident, dotted for maybe, a faint dashed outline for no match), a caption card with the line and cues, four round controls.
+- **Whisper mode:** the night, a "Recognised on this phone only" badge, the camera, the ring states (amber halo for confident, dotted for maybe, a faint dashed outline for no match), a caption card with the line, cues and where you met, five round controls (mute, pause, switch camera, who was that, pocket mode).
+- **Notes under the status line:** small night pills for "silent until you check your earbud", quiet hours and event mode, so the state that changes what you hear is always on screen.
+- **Pocket mode:** the night at its darkest (`--pocket`, near black so an OLED screen is nearly off), one line of status in large type, a plain **Wake the screen** button and double-tap to wake. Buzz codes stand in for sound: two short, three short, one long.
+- **The 60-second coach:** a compact card on the night with the step, a timer, three progress marks that light amber, and an explicit "Play whispers aloud" toggle; it ends in a summary sheet.
+- **Helper page:** the consent page's system (dawn paper, one form, the line set large and written live), so a helper sees the same product.
 
 ## Motion
 
@@ -52,11 +56,14 @@ Only `transform` and `opacity`, 120 to 420ms with an ease-out, plus one signatur
 
 ## Accessibility
 
-- Contrast passes in both modes; higher contrast mode for more.
-- Focus rings everywhere (3px, offset).
-- A visually hidden live region announces who was recognised; captions always accompany speech.
-- Speech is never the only output: buzz, caption and chime modes; nothing aloud before the earbud check.
-- Bigger text scales the whole interface, not just body copy.
+Checked by [`tests/e2e/a11y.spec.ts`](../tests/e2e/a11y.spec.ts), which runs axe-core with the WCAG 2.0, 2.1 and 2.2 A and AA rules on the landing, helper and consent pages and on every app screen in light and dark (tour, people, today, practice, settings, privacy, a person, add someone, Whisper mode, pocket mode). Result on the final build: no serious or critical findings on any of them, and no minor ones either. Axe can't judge everything; the items below were checked by hand or by the same test file.
+
+- **Screen readers.** Every screen has one `h1`; on each route change, each tour step, entering pocket mode and the end of the 60-second try, focus moves to the new heading or the main control, so the change is announced. A visually hidden live region says who was recognised; the 60-second coach's step text is a live region too. Icon-only buttons have labels ("Pocket mode: screen dark, phone at chest height", "Who was that? The last five whispers"); toggles use `aria-pressed` or `role="switch"` with `aria-checked`. The camera video and canvas are `aria-hidden`: everything they show is also in text.
+- **Keyboard.** Every control is a real button, link or input, reachable with Tab in reading order, with a 3px focus ring (the test checks the ring on each tour control). Sheets are native `<dialog>` elements, so Escape closes them and focus stays inside. Pocket mode returns focus to its own button when you wake the screen.
+- **Reduced motion.** `prefers-reduced-motion` turns off screen transitions, the halo bloom, smooth scrolling and the loader; the test checks the step animation is `none`.
+- **Not only sound.** Speech is never the only output: captions always show, and buzz, chime and silent modes exist. Nothing is said aloud before the earbud check, in quiet hours, or for anyone marked "never whisper".
+- **Reading.** Contrast passes in both modes; **Higher contrast** steps muted text and rules toward the ink; **Bigger text** scales the whole interface; body text is never under 16px; Atkinson Hyperlegible Next for reading.
+- **Touch.** Controls are at least 48px; the main ones 52px; the Whisper mode buttons 56px.
 
 ## The landing page
 
@@ -70,7 +77,8 @@ Hallmark shape: **Narrative Workflow** (swapped from the drawn Marquee Hero, bec
 4. **Design before code:** the picks (theme, shape, chrome, hero, sections, material) were written to `.hallmark/picks.md` before building.
 5. **Sweeps:** `sloplint` static and `--render` (Chromium through `puppeteer-core`) on the app (`--scope app`) and the landing page, repeated until clean. Gates fixed along the way include tracked caps, off-scale spacing, colour literals, width animations, glass, middle-dot bullets, a filled pressed state, two filled hero buttons, content hidden without JavaScript, the hero over the fold and word counts.
 6. **Reviews in fresh context:** a hero review (verdict *fix*, 5 findings, 4 resolved, 1 partial: the night drawn as light) and a finish review (verdict *fix*, 8 findings, all resolved: an old capture, the horizon's edges and fold, a cropped consent capture, the close line against its capture, a faded label, the faders, amber numbers, an empty gap).
-7. **Final state:** app 0 FAIL, 0 REFLEX, 0 WARN, 2 waived (28b: the live camera video has no poster), 18 dismissed with reasons in the stamp; landing 0 FAIL, 0 WARN, 4 dismissed (verbatim quotes, one-sentence ledes), 2 notes (word count: the quotes and the six limits are fixed wording).
+7. **Second round** (pocket mode, the coach, the notes, the helper page, quiet hours, event mode): swept again with the helper page added to the app scope. It found one FAIL (gate 34: the tour footer ran 50px past a 375px screen once "See it in 60 seconds" joined it) and two REFLEX (gates 7b and 22: pocket mode's pure black). All fixed: the footer wraps, and the black is now the night at its darkest.
+8. **Final state:** app and helper page 0 FAIL, 0 REFLEX, 0 WARN, 2 waived (28b: the live camera video has no poster), 20 dismissed with reasons in the stamps; landing 0 FAIL, 0 WARN, 4 dismissed (verbatim quotes, one-sentence ledes), 2 notes (word count: the quotes and the six limits are fixed wording).
 
 ## Evidence
 

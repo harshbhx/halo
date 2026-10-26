@@ -36,7 +36,7 @@ Facts that can be copied as they are:
 | Project name | Halo (from `brand.config.json`) |
 | Tagline chosen by Harsh | A quiet voice for faces you know. |
 | Try it out | The public repository URL (required here). Optional: https://halo.dualmindlab.tech once deployed and checked |
-| Built with | typescript, react, vite, face-api, tensorflow.js, webassembly, indexeddb, web-crypto, web-speech-api, service-worker, playwright, vitest, cloudflare-workers (optional Enhanced mode), workers-ai (optional) |
+| Built with | typescript, react, vite, face-api, tensorflow.js, webassembly, indexeddb, web-crypto, web-speech-api, vibration-api, screen-wake-lock-api, service-worker, playwright, vitest, axe-core, cloudflare-workers (optional Enhanced mode), workers-ai (optional) |
 | Image gallery | JPG, PNG or GIF, up to 5 MB, 3:2 works best for the thumbnail. Candidates: `docs/shots/desktop-dark/00-landing-first-screen.png`, `docs/shots/desktop-light/00-landing-first-screen.png`, phone screens from `docs/shots/phone-*/` |
 | Video link | (Harsh) |
 
@@ -62,7 +62,7 @@ Stage one is pass or fail: the project fits the theme and was built with the Ski
 - [ ] `scope.md`, `prd.md`, `spec.md` still match the app (they were rewritten for the final build; re-read after any late change).
 - [ ] The hands-on checkpoints, final review and learning wrap-up in `devpost/checklist.md` are done and ticked by Harsh (they are left open until then).
 - [ ] Harsh's own notes added where the planning docs say "Harsh's own notes (to fill in)".
-- [ ] The description mentions the no-account path: **Try with sample people** and the demo camera.
+- [ ] The description mentions the no-account path: **Halo in 60 seconds** (`/app/#/try`), or **Try with sample people** and the demo camera.
 - [ ] Video link opens in a private window without signing in.
 - [ ] Repository link opens in a private window.
 - [ ] Submitted before 5:00 pm EDT.

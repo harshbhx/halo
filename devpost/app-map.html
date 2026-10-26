@@ -35,7 +35,7 @@
   <p>A phone web app for people with face blindness. You add people who agreed, from a few photos and a short note. When the camera is sure it's one of them, an earbud says who they are and how you know them. Everything that touches a face runs and stays in the browser on the phone.</p>
 
   <div class="card">
-    <p><strong>The main pieces.</strong> A <em>face reader</em> (face-api models in the browser) turns each face into a 128-number fingerprint. A <em>tracker</em> follows each face over a second or so and gives it one of three states: confident, maybe or no match. A <em>vault</em> keeps people encrypted in the browser's database. A <em>whisper writer</em> turns a note into one line, and <em>say</em> delivers it: a stored natural voice, the phone's voice, a buzz or a caption. An optional <em>Enhanced mode</em> sends only text to Halo's own Worker, and every request is written to a ledger on the phone.</p>
+    <p><strong>The main pieces.</strong> A <em>face reader</em> (face-api models in the browser) turns each face into a 128-number fingerprint. A <em>tracker</em> follows each face over a second or so and gives it one of three states: confident, maybe or no match. A <em>vault</em> keeps people encrypted in the browser's database. A <em>whisper writer</em> turns a note into one line, and <em>say</em> delivers it, following small <em>rules</em> (quiet hours, never-whisper people, the earbud check, buzz codes, event mode's short list): a stored natural voice, the phone's voice, a buzz or a caption. An optional <em>Enhanced mode</em> sends only text to Halo's own Worker, and every request is written to a ledger on the phone.</p>
   </div>
 
   <h2>One action, end to end: the camera sees Sam</h2>
@@ -58,7 +58,7 @@
   <ol class="route">
     <li><code>src/screens/WhisperMode.tsx</code>, anchor <code>const tick = async</code>: each frame goes through <code>detectAll</code>, every face is compared with <code>nearest</code>, and only boxes and distances go on to <code>trackerRef.current.update</code>. The comment "The fingerprints of these faces are dropped here" marks the privacy line.</li>
     <li><code>src/lib/matcher.ts</code>, anchors <code>export const STATE_LIMITS</code> and <code>export class FaceTracker</code>: a face is confident only after at least a second and five frames, one of them facing the camera, under the limit and clearly ahead of the runner-up. If a different face steps into the same spot, the track starts again. Tests: <code>tests/unit/tracker.test.ts</code>.</li>
-    <li><code>src/lib/say.ts</code>, anchor <code>export async function sayPerson</code>: picks the line (style, translation), stays silent and buzzes until the earbud check allowed speech, plays a stored natural voice if there is one, otherwise the phone's voice from <code>src/lib/voice.ts</code>.</li>
+    <li><code>src/lib/say.ts</code>, anchor <code>export async function sayPerson</code>, with <code>src/lib/rules.ts</code>, anchor <code>export function outputFor</code>: a never-whisper person stays silent, quiet hours and a missing earbud check turn voice into a buzz code, otherwise a stored natural voice or the phone's voice from <code>src/lib/voice.ts</code>.</li>
   </ol>
 
   <h2>To change this, start here</h2>
@@ -68,6 +68,9 @@
     <li><strong>Consent:</strong> the handoff step in <code>src/screens/Enrol.tsx</code> (search <code>Hand the phone to</code>); links in <code>src/lib/consentLink.ts</code> and <code>consent/</code>.</li>
     <li><strong>Colours, type and spacing:</strong> <code>src/styles/tokens.css</code> (app) and <code>landing/tokens.css</code> (landing page); the reasons are in <code>docs/design.md</code>.</li>
     <li><strong>Defaults:</strong> <code>DEFAULT_SETTINGS</code> in <code>src/lib/settings.ts</code>. <strong>List limits:</strong> <code>MAX_PEOPLE</code> in <code>src/screens/Enrol.tsx</code>.</li>
+    <li><strong>Quiet hours, buzz codes, event mode:</strong> <code>src/lib/rules.ts</code>; tests in <code>tests/unit/prize.test.ts</code>.</li>
+    <li><strong>Pocket mode and Halo in 60 seconds:</strong> <code>src/screens/WhisperMode.tsx</code> (search <code>pocket</code> and <code>COACH_STEPS</code>).</li>
+    <li><strong>Saying it all at once:</strong> <code>parseIntro</code> in <code>src/lib/intro.ts</code>. <strong>Helper cards:</strong> <code>src/lib/cardLink.ts</code> and <code>helper/</code>.</li>
     <li><strong>The product name:</strong> <code>brand.config.json</code>, the only place it is written.</li>
     <li><strong>What may leave the phone:</strong> <code>src/lib/enhanced.ts</code> (the only client code that calls a server) and <code>worker/index.ts</code>.</li>
   </ul>
@@ -78,7 +81,7 @@
   </div>
 
   <h2>Run it again</h2>
-  <p><code>./run.sh</code>, then open <code>http://localhost:4173/app/</code> (the landing page is at <code>/</code>). <code>./run.sh test</code> runs the unit and end-to-end tests; <code>./run.sh record</code> records the walkthrough. No camera handy: <strong>Try with sample people</strong>, then <strong>Open the demo camera</strong>.</p>
+  <p><code>./run.sh</code>, then open <code>http://localhost:4173/app/</code> (the landing page is at <code>/</code>). <code>http://localhost:4173/app/#/try</code> is Halo in 60 seconds. <code>./run.sh test</code> runs the unit and end-to-end tests; <code>./run.sh record</code> records the walkthrough. No camera handy: <strong>Try with sample people</strong>, then <strong>Open the demo camera</strong>.</p>
   <details>
     <summary>About this map</summary>
     <p class="meta">A snapshot of the code at commit <code>02e3a70</code> on 26 Oct 2026. Paths and anchors were checked against that commit; later changes can drift from it. It needs no network and works offline.</p>
