@@ -1,21 +1,25 @@
 #!/usr/bin/env bash
-# Face Whisper: one command to run it.
+# One command to run the app (the product name lives in brand.config.json).
 #
 #   ./run.sh                     install (first time), build, serve on http://localhost:4173
+#                                (landing page at /, the app at /app/)
 #   ./run.sh fake-camera [clip]  same, plus Chromium with a synthetic-face fake camera
 #                                (clip: friend = "Sam" only, street = Sam, a stranger, Sam)
-#   ./run.sh record              record the full demo walkthrough (video + screenshots in docs/shots/)
-#   ./run.sh test                unit tests + end-to-end tests
+#   ./run.sh test                unit tests + end-to-end tests (Chromium, fake camera)
+#   ./run.sh screens             every screen, light and dark, phone and desktop (docs/shots/)
+#   ./run.sh record              the app walkthrough and the landing scroll videos (docs/shots/)
+#   ./run.sh accuracy            match distances on the synthetic faces (eval/accuracy-synthetic.json)
 #
 # The camera only works on a secure origin; http://localhost counts as secure.
-# PORT=5000 ./run.sh to use another port.
+# PORT=5000 ./run.sh to use another port (the tests always use 4173).
 set -euo pipefail
 cd "$(dirname "$0")"
 PORT="${PORT:-4173}"
 URL="http://localhost:${PORT}"
+NAME="$(sed -n 's/.*"name": *"\([^"]*\)".*/\1/p' brand.config.json | head -1)"
 
-say() { printf '\033[1;36m[face-whisper]\033[0m %s\n' "$*"; }
-die() { printf '\033[1;31m[face-whisper]\033[0m %s\n' "$*" >&2; exit 1; }
+say() { printf '\033[1;33m[%s]\033[0m %s\n' "$NAME" "$*"; }
+die() { printf '\033[1;31m[%s]\033[0m %s\n' "$NAME" "$*" >&2; exit 1; }
 
 # --- Node 20+ -------------------------------------------------------------
 node_major() { node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0; }
@@ -37,8 +41,8 @@ install_deps() {
 }
 
 build_app() {
-  say "Building…"
-  npx vite build --logLevel warn
+  say "Building (type check, Vite build, external-request check)…"
+  npm run --silent build >/dev/null
 }
 
 ensure_clips() {
@@ -48,10 +52,15 @@ ensure_clips() {
   fi
 }
 
-serve_fg() {
-  say "Face Whisper is running at ${URL}  (Ctrl+C to stop)"
-  say "Open it in Chrome, Edge, Firefox or Safari. On a phone, use an HTTPS tunnel (the camera needs a secure page)."
-  exec npx vite preview --port "$PORT" --strictPort
+ensure_browser() {
+  npx playwright install chromium >/dev/null
+}
+
+to_mp4() {
+  # $1 = webm path; writes the .mp4 beside it when ffmpeg is installed.
+  if command -v ffmpeg >/dev/null && [ -f "$1" ]; then
+    ffmpeg -loglevel error -y -i "$1" -c:v libx264 -pix_fmt yuv420p -crf 20 -movflags +faststart "${1%.webm}.mp4"
+  fi
 }
 
 find_chromium() {
@@ -67,29 +76,31 @@ case "${1:-start}" in
   start)
     install_deps
     build_app
-    serve_fg
+    say "Landing page: ${URL}/   The app: ${URL}/app/   (Ctrl+C to stop)"
+    say "Served with the production headers (strict CSP). On a phone, use an HTTPS tunnel: the camera needs a secure page."
+    PORT="$PORT" exec node scripts/serve-dist.mjs
     ;;
 
   fake-camera)
     CLIP="${2:-friend}"
-    [ -f "demo/fake-camera/${CLIP}.y4m" ] || [ "$CLIP" = friend ] || [ "$CLIP" = street ] || die "Unknown clip '$CLIP' (use friend or street)"
+    [ "$CLIP" = friend ] || [ "$CLIP" = street ] || die "Unknown clip '$CLIP' (use friend or street)"
     install_deps
     build_app
     ensure_clips
     CHROME=$(find_chromium)
     [ -n "$CHROME" ] || die "No Chromium found. Run: npx playwright install chromium"
     [ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ] || say "No display found. On a headless machine use: xvfb-run -s '-screen 0 1280x1000x24' ./run.sh fake-camera ${CLIP}  (or ./run.sh record)"
-    npx vite preview --port "$PORT" --strictPort >/tmp/face-whisper-preview.log 2>&1 &
+    PORT="$PORT" node scripts/serve-dist.mjs >/dev/null 2>&1 &
     SERVER=$!
     trap 'kill $SERVER 2>/dev/null || true' EXIT
-    for _ in $(seq 1 40); do curl -sf "$URL" >/dev/null && break; sleep 0.25; done
-    say "Opening Chromium with the '${CLIP}' fake camera (AI-generated face, not a real person)."
+    for _ in $(seq 1 40); do curl -sf "$URL/" >/dev/null && break; sleep 0.25; done
+    say "Opening Chromium with the '${CLIP}' fake camera (an AI-generated face, not a real person)."
     EXTRA=()
-    # Ubuntu 23.10+ blocks the Chromium sandbox for browsers outside a snap/package (AppArmor).
+    # Ubuntu 23.10+ blocks the Chromium sandbox for browsers outside a snap or package (AppArmor).
     if [ "$(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns 2>/dev/null || echo 0)" = 1 ] || [ "$(id -u)" = 0 ]; then
       EXTRA+=(--no-sandbox --test-type)
     fi
-    say "The browser profile lives in .demo-profile/ so people you enrol survive a restart; delete that folder to start fresh."
+    say "The browser profile lives in .demo-profile/ so people you add survive a restart; delete that folder to start fresh."
     "$CHROME" \
       --user-data-dir="$PWD/.demo-profile" \
       --use-fake-device-for-media-stream \
@@ -99,33 +110,49 @@ case "${1:-start}" in
       --no-first-run --no-default-browser-check --disable-background-networking --disable-sync \
       --window-size=430,932 \
       "${EXTRA[@]}" \
-      --app="$URL" || true
-    ;;
-
-  record)
-    install_deps
-    ensure_clips
-    npx playwright install chromium >/dev/null
-    say "Recording the demo walkthrough (headless, about 2.5 minutes)…"
-    npx vite build --logLevel warn
-    npx playwright test --project=record
-    if command -v ffmpeg >/dev/null; then
-      ffmpeg -loglevel error -y -i docs/shots/walkthrough.webm -c:v libx264 -pix_fmt yuv420p -crf 20 -movflags +faststart docs/shots/walkthrough.mp4
-    fi
-    say "Done: docs/shots/walkthrough.webm (.mp4) and docs/shots/*.png"
+      --app="$URL/app/" || true
     ;;
 
   test)
     install_deps
     ensure_clips
-    npx playwright install chromium >/dev/null
+    ensure_browser
     npx vitest run
-    npx vite build --logLevel warn
+    build_app
     npx playwright test --project=e2e
     ;;
 
+  screens)
+    install_deps
+    ensure_clips
+    ensure_browser
+    build_app
+    npx playwright test --project=screens
+    node scripts/contact-sheet.mjs
+    say "Done: docs/shots/<phone|desktop>-<light|dark>/ and docs/shots/contact-sheet-*.png"
+    ;;
+
+  record)
+    install_deps
+    ensure_clips
+    ensure_browser
+    build_app
+    say "Recording the app walkthrough (about 3 minutes) and the landing scroll (about 30 seconds), headless…"
+    npx playwright test --project=record
+    to_mp4 docs/shots/walkthrough.webm
+    to_mp4 docs/shots/landing-scroll.webm
+    say "Done: docs/shots/walkthrough.(webm|mp4), docs/shots/landing-scroll.(webm|mp4), stills in docs/shots/walkthrough/"
+    ;;
+
+  accuracy)
+    install_deps
+    ensure_browser
+    build_app
+    npx playwright test --project=accuracy
+    ;;
+
   *)
-    sed -n '2,12p' "$0"
+    sed -n '2,13p' "$0"
     exit 1
     ;;
 esac

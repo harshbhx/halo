@@ -138,7 +138,7 @@ async function flow(page: Page, dir: string, captureLanding: boolean) {
   await shot('20-whisper-demo-maya');
   await forLanding('whisper-maya');
   await expect(page.locator('.night__status')).toContainText('No match', { timeout: 40_000 });
-  await settle(page, 900);
+  await settle(page, 400);
   await shot('21-whisper-no-match');
   await forLanding('whisper-stranger');
   await page.getByRole('button', { name: 'Close Whisper mode' }).click();

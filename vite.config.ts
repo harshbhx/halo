@@ -10,7 +10,7 @@ import react from '@vitejs/plugin-react';
 function precacheList(): Plugin {
   let outDir = 'dist';
   return {
-    name: 'face-whisper-precache-list',
+    name: 'precache-list',
     apply: 'build',
     configResolved(config) {
       outDir = config.build.outDir;

@@ -7,6 +7,7 @@ import { extname, join, normalize } from 'node:path';
 
 const root = new URL('../dist/', import.meta.url).pathname;
 const port = Number(process.env.PORT || 4173);
+const brandName = JSON.parse(readFileSync(new URL('../brand.config.json', import.meta.url), 'utf8')).name;
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css',
   '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.svg': 'image/svg+xml', '.png': 'image/png',
@@ -61,4 +62,4 @@ createServer((req, res) => {
   }
   res.writeHead(status, { 'Content-Type': TYPES[extname(file)] || 'application/octet-stream' });
   res.end(readFileSync(file));
-}).listen(port, () => console.log(`Halo is being served from dist/ at http://localhost:${port}/ (app at /app/)`));
+}).listen(port, () => console.log(`${brandName} is being served from dist/ at http://localhost:${port}/ (app at /app/)`));
