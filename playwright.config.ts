@@ -1,0 +1,68 @@
+import { defineConfig } from '@playwright/test';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const here = dirname(fileURLToPath(import.meta.url));
+
+// Chromium's fake camera plays a Y4M clip of an AI-generated face (see scripts/make-fake-camera.sh).
+const clip = (name: string) => resolve(here, 'demo/fake-camera', `${name}.y4m`);
+
+const chromiumArgs = (video: string) => [
+  '--use-fake-device-for-media-stream',
+  '--use-fake-ui-for-media-stream',
+  `--use-file-for-fake-video-capture=${clip(video)}`,
+  '--enable-unsafe-swiftshader',
+  '--autoplay-policy=no-user-gesture-required',
+];
+
+const phone = {
+  viewport: { width: 390, height: 844 },
+  deviceScaleFactor: 2,
+  isMobile: false,
+  hasTouch: true,
+};
+
+export default defineConfig({
+  testDir: 'tests/e2e',
+  timeout: 180_000,
+  expect: { timeout: 60_000 },
+  fullyParallel: false,
+  workers: 1,
+  retries: 0,
+  reporter: [['list']],
+  outputDir: 'test-results',
+  use: {
+    baseURL: 'http://localhost:4173',
+    trace: 'retain-on-failure',
+    permissions: ['camera', 'microphone'],
+  },
+  webServer: {
+    command: 'npx vite preview --port 4173 --strictPort',
+    url: 'http://localhost:4173',
+    reuseExistingServer: true,
+    timeout: 60_000,
+  },
+  projects: [
+    {
+      name: 'e2e',
+      testMatch: /.*\.spec\.ts/,
+      use: {
+        ...phone,
+        browserName: 'chromium',
+        launchOptions: { args: chromiumArgs('friend') },
+        screenshot: 'only-on-failure',
+      },
+    },
+    {
+      name: 'record',
+      testMatch: /.*\.record\.ts/,
+      use: {
+        ...phone,
+        deviceScaleFactor: 1,
+        browserName: 'chromium',
+        launchOptions: { args: chromiumArgs('street') },
+        video: { mode: 'on', size: { width: 390, height: 844 } },
+      },
+    },
+  ],
+});

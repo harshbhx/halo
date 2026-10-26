@@ -1,0 +1,11 @@
+{
+  "name": "Face Whisper",
+  "short_name": "Face Whisper",
+  "description": "Quiet, on-device reminders of who someone is, for people with face blindness.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f3ee",
+  "theme_color": "#1e6b5c",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
