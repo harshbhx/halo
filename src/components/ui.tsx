@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { ChevronLeft, Ear, Lock, Settings as SettingsIcon, UsersRound } from 'lucide-react';
 import { navigate, type Route } from '../lib/router';
+import { unlockAudio } from '../lib/voice';
 
 export function Brand() {
   return (
@@ -34,7 +35,15 @@ export function BottomBar({ route }: { route: Route }) {
         <UsersRound size={26} aria-hidden="true" />
         People
       </button>
-      <button type="button" className="bar-whisper" onClick={() => navigate('/whisper')} aria-label="Start Whisper mode">
+      <button
+        type="button"
+        className="bar-whisper"
+        onClick={() => {
+          unlockAudio();
+          navigate('/whisper');
+        }}
+        aria-label="Start Whisper mode"
+      >
         <Ear size={30} strokeWidth={2.2} aria-hidden="true" />
         <span aria-hidden="true">Whisper</span>
       </button>
@@ -181,4 +190,64 @@ export function useOnline(): boolean {
     };
   }, []);
   return online;
+}
+
+/* ---------- Form controls ---------- */
+
+export function Switch({
+  checked,
+  onChange,
+  label,
+  id,
+}: {
+  checked: boolean;
+  onChange: (value: boolean) => void;
+  label: string;
+  id?: string;
+}) {
+  return (
+    <button
+      type="button"
+      id={id}
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      className="switch"
+      onClick={() => onChange(!checked)}
+    />
+  );
+}
+
+export function Segmented<T extends string>({
+  value,
+  options,
+  onChange,
+  label,
+}: {
+  value: T;
+  options: Array<{ value: T; label: string }>;
+  onChange: (value: T) => void;
+  label: string;
+}) {
+  return (
+    <div className="segmented" role="radiogroup" aria-label={label}>
+      {options.map((o) => (
+        <button
+          type="button"
+          key={o.value}
+          role="radio"
+          aria-checked={value === o.value}
+          tabIndex={value === o.value ? 0 : -1}
+          onClick={() => onChange(o.value)}
+          onKeyDown={(e) => {
+            const i = options.findIndex((x) => x.value === value);
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') onChange(options[(i + 1) % options.length].value);
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') onChange(options[(i - 1 + options.length) % options.length].value);
+          }}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
 }
