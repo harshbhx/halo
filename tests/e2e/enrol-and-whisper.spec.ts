@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { enableDebug, enrolSam, SAM_WHISPER } from './helpers';
+import { enableDebug, enrolSam, passWelcome, SAM_WHISPER } from './helpers';
 
 test('enrol a person and hear their whisper in Whisper mode', async ({ page }) => {
   await enableDebug(page);
@@ -7,6 +7,7 @@ test('enrol a person and hear their whisper in Whisper mode', async ({ page }) =
     if (msg.type() === 'error') console.log('[browser error]', msg.text());
   });
   await page.goto('/');
+  await passWelcome(page);
   await enrolSam(page);
 
   await page.getByRole('button', { name: 'Start Whisper mode' }).click();

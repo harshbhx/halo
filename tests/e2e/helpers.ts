@@ -24,6 +24,13 @@ export async function takePhotos(page: Page, count: number) {
   await expect(page.getByRole('button', { name: /^Remove photo/ })).toHaveCount(count);
 }
 
+/** First run shows the privacy promise; accept it. */
+export async function passWelcome(page: Page) {
+  await expect(page.getByRole('heading', { name: "Know who's in front of you." })).toBeVisible();
+  await page.getByRole('button', { name: "I understand, let's start" }).click();
+  await expect(page.getByRole('heading', { name: 'People you know' })).toBeVisible();
+}
+
 export async function enrolSam(page: Page) {
   await page.getByRole('button', { name: 'Add someone' }).first().click();
   await page.getByLabel('Their name').fill('Sam');
