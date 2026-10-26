@@ -1,12 +1,15 @@
-/** Tiny hash router: #/, #/enrol, #/whisper, #/person/<id>, #/settings, #/privacy, #/welcome */
+/** Tiny hash router for the app at /app: #/, #/today, #/practice, #/enrol, #/whisper, #/person/<id>, #/settings, #/backup, #/privacy, #/welcome */
 import { useSyncExternalStore } from 'react';
 
 export type Route =
   | { name: 'home' }
+  | { name: 'today' }
+  | { name: 'practice' }
   | { name: 'enrol' }
   | { name: 'whisper'; demo: boolean }
   | { name: 'person'; id: string }
   | { name: 'settings' }
+  | { name: 'backup' }
   | { name: 'privacy' }
   | { name: 'welcome' };
 
@@ -15,6 +18,10 @@ export function parseHash(hash: string): Route {
   const [path, query = ''] = clean.split('?');
   const parts = path.split('/').filter(Boolean);
   switch (parts[0]) {
+    case 'today':
+      return { name: 'today' };
+    case 'practice':
+      return { name: 'practice' };
     case 'enrol':
       return { name: 'enrol' };
     case 'whisper':
@@ -23,6 +30,8 @@ export function parseHash(hash: string): Route {
       return parts[1] ? { name: 'person', id: decodeURIComponent(parts[1]) } : { name: 'home' };
     case 'settings':
       return { name: 'settings' };
+    case 'backup':
+      return { name: 'backup' };
     case 'privacy':
       return { name: 'privacy' };
     case 'welcome':
