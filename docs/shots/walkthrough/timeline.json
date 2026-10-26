@@ -1,6 +1,6 @@
 [
   {
-    "t": 0.4,
+    "t": 0.5,
     "event": "Tour 1 of 3: who it is for"
   },
   {
@@ -8,7 +8,7 @@
     "event": "Tour 2 of 3: how it works"
   },
   {
-    "t": 5.4,
+    "t": 5.5,
     "event": "Tour 3 of 3: the promise and the earbud check"
   },
   {
@@ -16,71 +16,71 @@
     "event": "Empty people list"
   },
   {
-    "t": 11.9,
+    "t": 11.8,
     "event": "Add someone: name"
   },
   {
-    "t": 13.1,
+    "t": 13,
     "event": "Add someone: typing the note; the whisper line updates"
   },
   {
-    "t": 17.5,
+    "t": 17.8,
     "event": "Handoff: Sam reads the exact line and agrees"
   },
   {
-    "t": 22.3,
+    "t": 22.5,
     "event": "Photos: three shots with the oval guide and light check"
   },
   {
-    "t": 28.6,
+    "t": 28.9,
     "event": "Cue notes"
   },
   {
-    "t": 32.7,
+    "t": 33,
     "event": "Saved"
   },
   {
-    "t": 34.6,
+    "t": 34.9,
     "event": "Whisper mode opens: \"Recognised on this phone only\""
   },
   {
-    "t": 36.2,
+    "t": 36.6,
     "event": "Confident: halo, caption, whisper spoken: \"Sam, your teammate from the hackathon. Loves climbing.\""
   },
   {
-    "t": 39.9,
+    "t": 40.2,
     "event": "Who was that? The last few, in memory only"
   },
   {
-    "t": 44.6,
+    "t": 44.8,
     "event": "Settings: add the AI-generated sample people"
   },
   {
-    "t": 46.9,
+    "t": 47.1,
     "event": "Today: pick who you will see"
   },
   {
-    "t": 49.3,
+    "t": 49.6,
     "event": "Today’s list: lines and cues before you walk in"
   },
   {
-    "t": 51.7,
+    "t": 51.9,
     "event": "Event mode: Whisper mode looks only for these three"
   },
   {
-    "t": 58.1,
+    "t": 58.6,
     "event": "Demo camera: Maya, confident, \"On today’s list\""
   },
   {
-    "t": 63.3,
+    "t": 63.1,
     "event": "A face never added: \"No match\", nothing spoken, nothing stored"
   },
   {
-    "t": 71.7,
+    "t": 71.8,
     "event": "The next sample person"
   },
   {
-    "t": 73.3,
+    "t": 73.4,
     "event": "Pocket mode: screen dark and kept awake, whispers go to the earbud"
   },
   {
@@ -88,27 +88,27 @@
     "event": "Practice from cues"
   },
   {
-    "t": 86,
+    "t": 86.1,
     "event": "Privacy: what has left this phone (nothing) and the six honest limits"
   },
   {
-    "t": 92,
+    "t": 92.1,
     "event": "Network off (like airplane mode), page reloaded"
   },
   {
-    "t": 94.9,
+    "t": 95.3,
     "event": "Offline: still recognised on the phone"
   },
   {
-    "t": 99.9,
+    "t": 100.3,
     "event": "Delete everything"
   },
   {
-    "t": 101.9,
+    "t": 102.3,
     "event": "A fresh start"
   },
   {
-    "t": 104.4,
+    "t": 104.8,
     "event": "End"
   }
 ]

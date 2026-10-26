@@ -27,18 +27,18 @@ An adult with prosopagnosia (lifelong face blindness affects roughly 2% of peopl
 ## The Core Loop
 1. With the person's agreement, the user writes a short note ("This is Raj, my neighbour, had knee surgery last month"), hands them the phone to read the line it will say and tap "I agree", takes three photos and adds cue notes.
 2. Before an event, the user can pick who they'll see and hear their lines.
-3. Out in the world, Whisper mode listens through the camera. When it's sure, a soft amber halo settles on the face and the line is whispered into an earbud; when it isn't, it shows "Could be Raj? Check: green parka" and stays quiet.
+3. Out in the world, Whisper mode listens through the camera. When it's sure, a soft light halo settles on the face and the line is whispered into an earbud; when it isn't, it shows "Could be Raj? Check: green parka" and stays quiet.
 
 They come back because every encounter with someone they added gets a little easier, and practice from cues keeps names fresh.
 
 ## Inspiration & Identity
-Calm and kind, like a friend leaning in. Designed with the Hallmark design skill: its Ribbon theme (warm dawn paper, a blue-black night, Instrument Sans over Atkinson Hyperlegible Next, machined controls lit from above) with one amber "lit window" accent: the halo. It should feel like an assistive tool people trust, never surveillance. A visible "Recognised on this phone only" badge whenever the camera is on.
+Calm and kind, like a friend leaning in. Designed with the Hallmark design skill: its Ribbon theme's structure (Instrument Sans over Atkinson Hyperlegible Next, machined controls lit from above) in a palette from Ajrakh block-printed cotton: undyed cotton, iron black, indigo and madder, with the halo as the resist white. It should feel like an assistive tool people trust, never surveillance. A visible "Recognised on this phone only" badge whenever the camera is on.
 
 ## Why This Matters to the Learner
 Harsh picked this from first-person accounts of people with face blindness asking for exactly this, and because it can now be built privately: face matching, speech and storage all inside the browser.
 
 ## What "Working" Looks Like
-Someone opens Halo on a phone, reads a short tour and the promise, adds a friend in about a minute (the friend reads the line and agrees on the phone), switches to Whisper mode with an earbud in, points the camera at the friend and **hears** "Sam, your teammate from the hackathon. Loves climbing." with a soft amber ring around Sam's face. Pointing at someone not added shows "No match" and nothing is stored. One button deletes everything. With nobody else around, the demo camera shows three AI-generated sample people being recognised and a fourth staying "No match".
+Someone opens Halo on a phone, reads a short tour and the promise, adds a friend in about a minute (the friend reads the line and agrees on the phone), switches to Whisper mode with an earbud in, points the camera at the friend and **hears** "Sam, your teammate from the hackathon. Loves climbing." with a soft light ring around Sam's face. Pointing at someone not added shows "No match" and nothing is stored. One button deletes everything. With nobody else around, the demo camera shows three AI-generated sample people being recognised and a fourth staying "No match".
 
 ## The POC Boundary
 - Consent-first enrolment: the note and whisper line first, then the person reads the line and agrees on the phone (or by a link on their own phone), three to five photos, optional cue notes; children only ever reach "Could be …?".

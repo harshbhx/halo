@@ -49,7 +49,7 @@ PRD ref: `prd.md > The Core Journey`.
 - Submission needs a public repo and a video; both are Harsh's steps (`docs/submission-checklist.md`).
 
 ## Look and Feel
-From `prd.md > Look and Feel`, built as Hallmark's Ribbon theme: dawn paper `oklch(98.2% 0.008 82)`, ink `oklch(18% 0.006 80)`, the night `oklch(13.2% 0.022 258)` for Whisper mode and dark mode, one amber accent `oklch(80% 0.12 72)` (the halo). Instrument Sans 400/500 for heads and names, Atkinson Hyperlegible Next 400/700 for reading, root size 18px (21px with Bigger text), a 1.2 type ratio, the 4px-based spacing scale, machined pills and faders, 420ms ease-out at most. Full system: `docs/design.md`; tokens: `src/styles/tokens.css`.
+From `prd.md > Look and Feel`, built on Hallmark's Ribbon structure with an Ajrakh palette (base dealt by Hallmark as Loom: ecru, warm near-black, deep indigo): undyed cotton `oklch(96% 0.014 85)`, iron-black ink `oklch(21% 0.014 50)`, the iron night `oklch(15.5% 0.012 50)` for Whisper mode and dark mode, indigo `oklch(37% 0.105 266)` for actions, madder `oklch(47% 0.14 29)` for the mark, and the halo as resist white `oklch(94% 0.03 85)`. Instrument Sans 400/500 for heads and names, Atkinson Hyperlegible Next 400/700 for reading, root size 18px (21px with Bigger text), a 1.2 type ratio, the 4px-based spacing scale, machined pills and faders, 420ms ease-out at most. Full system: `docs/design.md`; every colour: `src/styles/palette.css`; other tokens: `src/styles/tokens.css`.
 
 ## Components
 

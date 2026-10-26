@@ -1,5 +1,14 @@
 [
  {
+  "mode": "redesign",
+  "depth": "restyle",
+  "scope": "app",
+  "theme": "loom",
+  "axes": "light/grotesk-sans/cool",
+  "prompt": "Recolour Halo end to end with a human palette from a real craft (Ajrakh: undyed cotton, indigo, madder, iron black); keep type and parts",
+  "date": "2026-10-26"
+ },
+ {
   "mode": "build",
   "theme": "ribbon",
   "shape": "narrative-workflow",

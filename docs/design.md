@@ -1,27 +1,38 @@
 # Design
 
-Halo's look and the decisions behind it. Built with the [Hallmark](https://github.com/Nutlope/hallmark) design skill (MIT), installed in this project only (`.claude/skills/hallmark`, via `npx skills add nutlope/hallmark --agent claude-code -y`). The tokens are in [`src/styles/tokens.css`](../src/styles/tokens.css) (app) and [`landing/tokens.css`](../landing/tokens.css) (landing page); Hallmark's record of the run is in [`.hallmark/picks.md`](../.hallmark/picks.md) and [`.hallmark/log.json`](../.hallmark/log.json).
+Halo's look and the decisions behind it. Built with the [Hallmark](https://github.com/Nutlope/hallmark) design skill (MIT), installed in this project only (`.claude/skills/hallmark`, via `npx skills add nutlope/hallmark --agent claude-code -y`). Every colour is in one file, [`src/styles/palette.css`](../src/styles/palette.css), imported by the app, the landing page, the consent page and the helper page, so a recolour is a single swap. Other tokens are in [`src/styles/tokens.css`](../src/styles/tokens.css) (app) and [`landing/tokens.css`](../landing/tokens.css) (landing page); Hallmark's record of the run is in [`.hallmark/picks.md`](../.hallmark/picks.md) and [`.hallmark/log.json`](../.hallmark/log.json).
 
 ## Intent
 
 - **Who:** adults with face blindness, often in a social moment, often one-handed, sometimes anxious. Many have low vision or read on a small screen in poor light.
-- **Feel:** calm and kind, like a friend leaning in to remind you. An assistive tool people trust, never surveillance.
-- **One memorable thing:** the amber halo that settles on a face you know. Everything else stays quiet so it can carry the product.
+- **Feel:** calm and kind, like a friend leaning in to remind you. An assistive tool people trust, never surveillance, and never a generic tech look.
+- **One memorable thing:** the light halo that settles on a face you know. Everything else stays quiet so it can carry the product.
 
-## Theme: Ribbon, with an amber halo
+## Palette: Ajrakh cotton
 
-Hallmark dealt the Ribbon theme: the hour drawn as light. A warm dawn paper for the day, a blue-black "two in the morning" night, machined parts lit from above. Halo keeps one accent in both modes, the amber of a lit window, and it is the halo.
+**The source.** Ajrakh is a block-printed cotton made in Kutch, in Gujarat, and across the border in Sindh. A length of cloth goes through many rounds of printing with carved wooden blocks, washing and dyeing. The dyes are few and come from plants and earth: indigo from the indigo plant, a deep red from madder root, and a black made by leaving scrap iron to rust with jaggery. Where the printer stamps a paste of clay and lime, the dye can't reach, so the cotton's own off-white survives as the pattern. The cloth reads as a few honest colours, worn soft, with the light parts held back on purpose.
 
-| Token | Light | Night / dark | Use |
+**How Halo uses it.**
+
+| Pigment | Light mode | Dark mode and the night | Use |
 |---|---|---|---|
-| `--color-paper` | `oklch(98.2% 0.008 82)` | `oklch(13.2% 0.022 258)` | Page |
-| `--color-ink` | `oklch(18% 0.006 80)` | `oklch(93.5% 0.012 85)` | Text |
-| `--color-muted` | `oklch(44% 0.012 80)` | `oklch(74% 0.02 255)` | Secondary text, numbers |
-| `--color-accent` | `oklch(80% 0.12 72)` | `oklch(82% 0.095 68)` | Primary buttons, the lit Whisper tab |
-| `--halo` | `oklch(82% 0.11 70)` | same | The ring and the name label in Whisper mode |
-| `--color-focus` | `oklch(48% 0.12 60)` | `oklch(84% 0.1 68)` | Focus rings (3px) |
+| Undyed cotton | paper `oklch(96% 0.014 85)`, steps to `oklch(89% 0.026 82)` | ink `oklch(93.5% 0.016 85)` | The page by day; the text by night |
+| Iron black | ink `oklch(21% 0.014 50)`, muted `oklch(44% 0.017 55)` | paper `oklch(17% 0.012 50)`, the night `oklch(15.5% 0.012 50)` | Text by day; the ground for dark mode, Whisper mode, pocket mode and the landing hero. A warm brown-black, not blue |
+| Indigo | `oklch(37% 0.105 266)` filled, `oklch(41% 0.12 266)` as text and lines | washed pale, `oklch(78% 0.06 262)` | What you act on: the primary button, the Whisper lamp, links, focus rings, fader fills |
+| Madder | `oklch(47% 0.14 29)` | `oklch(70% 0.12 33)` | The mark, like a maker's seal; serious things (errors, delete); "silent until you check your earbud" |
+| Resist white | | `oklch(94% 0.03 85)` | The halo and the name tag in Whisper mode: a known face is the part of the cloth left light |
 
-Whisper mode and the landing hero always sit on the night, whatever the mode. **Higher contrast** steps muted text and rules toward the ink.
+A small amount of moss green (`oklch(46% 0.08 135)`) marks success. There is no gradient wash, no neon and no blue-purple glow; depth still comes from light on machined parts, now lit in warm whites.
+
+**Why this and not the old palette.** The first version used Hallmark's Ribbon colours: a warm white day, a blue-black night and an amber accent. Harsh found it generic. Asked again for a craft palette, Hallmark's `theme.mjs deal --genre editorial` with a prompt about a textile palette dealt **Loom** first ("fits: textile, craft, indigo"): ecru paper, warm near-black ink and one deep indigo. Halo takes Loom's colours as the base and adds the other two Ajrakh dyes, madder and iron black, from the source above. Type and parts stay Ribbon's (Instrument Sans over Atkinson Hyperlegible Next, machined controls), because this was a recolour, not a redesign. `theme.mjs check --axes light/grotesk-sans/cool --hue 266` noted that Cobalt and Grid sit on the same axes; neither has a warm cotton paper, a brown-black night or a second pigment, so they don't read alike.
+
+**Before and after.** Contact sheets of every screen in the old and new palettes: [`docs/shots/recolour/`](shots/recolour/) (`before-*.png`, `after-*.png`).
+
+**Contrast.** Checked with the WCAG formula for every pair the screens use: ink on cotton 15.8:1, muted on the deepest cotton step 5.6:1, cotton on indigo 9.6:1, indigo text on cotton 8.0:1, madder on cotton 6.5:1; in dark mode ink on iron 15.8:1, muted 6.8:1 or more, iron text on pale indigo 9.4:1, madder 6.8:1; on the night, the name tag's iron text on resist white 15.2:1. Axe finds no contrast problems on any page or screen (`tests/e2e/a11y.spec.ts`).
+
+**Not by colour alone.** The three recognition states differ by line, label and sound, not only by colour: **Confident** is a solid ring (a resist-white core with a dark edge and a soft glow) with the name tag and the caption; **Maybe** is a dotted ring with "Could be Raj?" and no sound; **No match** is a faint dashed outline with "No match". Buzz codes differ by rhythm.
+
+Whisper mode, pocket mode and the landing hero always sit on the night, whatever the mode. **Higher contrast** steps muted text and rules toward the ink.
 
 ## Type
 
@@ -38,17 +49,17 @@ Whisper mode and the landing hero always sit on the night, whatever the mode. **
 
 ## Components
 
-- **Buttons:** one filled primary per screen (amber); secondary buttons are paper with a hairline; quiet buttons are text. Every control has hover, focus-visible, active, disabled and busy states.
+- **Buttons:** one filled primary per screen (indigo with cotton text; on the night, resist white with iron text); secondary buttons are paper with a hairline; quiet buttons are text. Every control has hover, focus-visible, active, disabled and busy states.
 - **Segmented control:** a sunk bed with a raised, lit segment (whisper style, output mode, theme).
-- **Faders:** volume and speed as a machined fader: a sunk track, an amber fill to the level, a tick scale either side, a gripped cap with a lit index line.
+- **Faders:** volume and speed as a machined fader: a sunk track, an indigo fill to the level, a tick scale either side, a gripped cap with a lit index line.
 - **Switches** for on/off settings; **sheets** for confirmations (delete, Enhanced mode consent) that say exactly what happens.
 - **People list:** name tags (round face, name, the line, a play button), not cards.
 - **Tab bar:** People, Today, a lit **Whisper** lamp in the middle, Practice, Settings.
-- **Whisper mode:** the night, a "Recognised on this phone only" badge, the camera, the ring states (amber halo for confident, dotted for maybe, a faint dashed outline for no match), a caption card with the line, cues and where you met, five round controls (mute, pause, switch camera, who was that, pocket mode).
+- **Whisper mode:** the night, a "Recognised on this phone only" badge, the camera, the ring states (a solid resist-white halo with a dark edge for confident, dotted for maybe, a faint dashed outline for no match), a caption card with the line, cues and where you met, five round controls (mute, pause, switch camera, who was that, pocket mode).
 - **Notes under the status line:** small night pills for "silent until you check your earbud", quiet hours and event mode, so the state that changes what you hear is always on screen.
 - **Pocket mode:** the night at its darkest (`--pocket`, near black so an OLED screen is nearly off), one line of status in large type, a plain **Wake the screen** button and double-tap to wake. Buzz codes stand in for sound: two short, three short, one long.
-- **The 60-second coach:** a compact card on the night with the step, a timer, three progress marks that light amber, and an explicit "Play whispers aloud" toggle; it ends in a summary sheet.
-- **Helper page:** the consent page's system (dawn paper, one form, the line set large and written live), so a helper sees the same product.
+- **The 60-second coach:** a compact card on the night with the step, a timer, three progress marks that turn resist white, and an explicit "Play whispers aloud" toggle; it ends in a summary sheet.
+- **Helper page:** the consent page's system (cotton paper, one form, the line set large and written live), so a helper sees the same product.
 
 ## Motion
 

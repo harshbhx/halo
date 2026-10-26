@@ -5,12 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Halo app map</title>
 <style>
-  :root { --bg:#faf7f1; --card:#ffffff; --ink:#1d1b18; --muted:#4f4a42; --line:#e5ded2; --accent:#8a5a14; --wash:#fbeccd; --halo:#e9b265; color-scheme: light; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#0b0f17; --card:#131a26; --ink:#eee9df; --muted:#b7bfcc; --line:#273041; --accent:#f0c27f; --wash:#2c2416; --halo:#e9b265; color-scheme: dark; } }
+  :root { --bg:#f6f1e7; --card:#fbf8f2; --ink:#1e1713; --muted:#5a504a; --line:#ddd3c2; --accent:#2b458b; --wash:#e3e8f3; --mark:#9a3228; color-scheme: light; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#140e0b; --card:#1d1612; --ink:#eee9de; --muted:#afa69c; --line:#3a2f29; --accent:#a5bfec; --wash:#262a38; --mark:#df816d; color-scheme: dark; } }
   * { box-sizing: border-box; }
   body { margin:0; background:var(--bg); color:var(--ink); font: 17px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
   main { max-width: 840px; margin: 0 auto; padding: 32px 18px 64px; }
   h1 { font-size: 30px; font-weight: 500; margin: 0 0 6px; }
+  h1::before { content: ""; display: inline-block; width: 12px; height: 12px; margin-right: 10px; border-radius: 50%; background: var(--mark); vertical-align: middle; }
   h2 { font-size: 21px; font-weight: 500; margin: 32px 0 10px; }
   p, li { color: var(--muted); }
   strong { color: var(--ink); }
