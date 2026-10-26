@@ -176,8 +176,8 @@ export function grabFrame(video: HTMLVideoElement): HTMLCanvasElement {
 
 let sampler: CanvasRenderingContext2D | null = null;
 
-/** Average brightness of a small copy of the frame, 0 to 255. */
-export function frameBrightness(input: Input): number {
+/** Average brightness, 0 to 255, of the face region when given (else the whole frame). */
+export function frameBrightness(input: Input, box?: { x: number; y: number; width: number; height: number }): number {
   if (!sampler) {
     const c = document.createElement('canvas');
     c.width = 32;
@@ -185,7 +185,8 @@ export function frameBrightness(input: Input): number {
     sampler = c.getContext('2d', { willReadFrequently: true });
   }
   if (!sampler) return 128;
-  sampler.drawImage(input, 0, 0, 32, 32);
+  if (box && box.width > 4 && box.height > 4) sampler.drawImage(input, box.x, box.y, box.width, box.height, 0, 0, 32, 32);
+  else sampler.drawImage(input, 0, 0, 32, 32);
   const data = sampler.getImageData(0, 0, 32, 32).data;
   let sum = 0;
   for (let i = 0; i < data.length; i += 4) sum += 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];

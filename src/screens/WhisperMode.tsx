@@ -5,13 +5,13 @@ import { CAMERA_MESSAGES, CameraError, openCamera, stopStream, type CameraProble
 import { createDemoStream, loadSamplePeople, SAMPLE_AVAILABLE } from '../lib/demo';
 import { detectAll, engineBackend, frameBrightness, loadEngine } from '../lib/faceEngine';
 import { HINT_TEXT, HintSmoother, pickHint, yawFrom, type Hint } from '../lib/hints';
-import { bestMatch, resolveFrame, THRESHOLDS, Tracker, type Match } from '../lib/matcher';
+import { FaceTracker, nearest, STATE_LIMITS, type FaceState, type Observation } from '../lib/matcher';
 import { usePeople } from '../lib/people';
 import { navigate } from '../lib/router';
 import { getSettings, updateSettings, useSettings } from '../lib/settings';
 import { useToday } from '../lib/stores';
 import type { Person } from '../lib/types';
-import { deliver, stopSpeaking, unlockAudio } from '../lib/voice';
+import { deliver, haptic, stopSpeaking, unlockAudio } from '../lib/voice';
 import { cueItems, spokenLine } from '../lib/whisperStyle';
 
 interface Box {
@@ -21,15 +21,17 @@ interface Box {
   height: number;
 }
 
-interface TrackedFace {
-  key: string;
+interface DrawnFace {
+  key: number;
   target: Box;
   shown: Box;
-  match: Match;
-  confirmed: boolean;
-  confirmedAt: number;
+  state: FaceState;
+  personId: string | null;
+  confidentAt: number;
   seenAt: number;
 }
+
+type CaptionKind = 'confident' | 'maybe';
 
 type Phase = 'starting' | 'running' | 'camera-error' | 'engine-error';
 
@@ -89,16 +91,16 @@ export function WhisperMode({ demo }: { demo: boolean }) {
   const { list: today } = useToday();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const facesRef = useRef<TrackedFace[]>([]);
+  const facesRef = useRef<DrawnFace[]>([]);
   const peopleRef = useRef<Person[]>(people);
   const pausedRef = useRef(false);
   const mutedRef = useRef(false);
   const speakingRef = useRef(false);
   const queueRef = useRef<string[]>([]);
-  const trackerRef = useRef(new Tracker({ need: 3, window: 4, cooldownMs: settings.repeatSeconds * 1000 }));
+  const trackerRef = useRef(new FaceTracker(STATE_LIMITS[settings.strictness], settings.repeatSeconds * 1000));
+  const maybeTapRef = useRef<Set<number>>(new Set());
   const smootherRef = useRef(new HintSmoother(4));
   const captionSeenRef = useRef(0);
-  const confirmedRef = useRef<Set<string>>(new Set());
   const captionIdRef = useRef<string | null>(null);
 
   const [phase, setPhase] = useState<Phase>('starting');
@@ -107,8 +109,9 @@ export function WhisperMode({ demo }: { demo: boolean }) {
   const [paused, setPaused] = useState(false);
   const [muted, setMuted] = useState(false);
   const [captionId, setCaptionId] = useState<string | null>(null);
+  const [captionKind, setCaptionKind] = useState<CaptionKind>('confident');
   const [attempt, setAttempt] = useState(0);
-  const [faceCount, setFaceCount] = useState({ known: 0, unknown: 0 });
+  const [faceCount, setFaceCount] = useState({ known: 0, maybe: 0, unknown: 0 });
   const [hint, setHint] = useState<Hint | null>(null);
   const [preparingSamples, setPreparingSamples] = useState(false);
 
@@ -122,8 +125,8 @@ export function WhisperMode({ demo }: { demo: boolean }) {
   mutedRef.current = muted || whispersOff;
 
   useEffect(() => {
-    trackerRef.current.setCooldown(settings.repeatSeconds * 1000);
-  }, [settings.repeatSeconds]);
+    trackerRef.current.configure(STATE_LIMITS[settings.strictness], settings.repeatSeconds * 1000, (id) => !!peopleRef.current.find((p) => p.id === id)?.child);
+  }, [settings.repeatSeconds, settings.strictness]);
 
   // Phones stop the camera when the screen locks; restart it on return.
   useEffect(() => {
@@ -158,7 +161,9 @@ export function WhisperMode({ demo }: { demo: boolean }) {
     speakingRef.current = true;
     const s = getSettings();
     try {
-      await deliver(spokenLine(person, s.whisperStyle), s.outputMode, {
+      // Spoken only after the earbud check (or when the user chose the speaker); otherwise a buzz and the caption.
+      const mode = s.outputMode === 'voice' && !s.speakAllowed ? 'vibrate' : s.outputMode;
+      await deliver(spokenLine(person, s.whisperStyle), mode, {
         voiceName: s.voiceName,
         volume: s.volume,
         rate: s.rate,
@@ -223,70 +228,98 @@ export function WhisperMode({ demo }: { demo: boolean }) {
           try {
             const detected = await detectAll(v, inputSize);
             if (cancelled) return;
-            if (frames % 5 === 0) light = frameBrightness(v);
             frames += 1;
-            const threshold = THRESHOLDS[getSettings().strictness];
-            const enrolled = peopleRef.current.map((p) => ({ id: p.id, descriptors: p.descriptors }));
-            const frame = resolveFrame(detected.map((d) => ({ box: d.box, marks: d.marks, match: bestMatch(d.descriptor, enrolled, threshold) })));
-            // The fingerprints of these faces are dropped here: only boxes and match results are kept.
-            const now = performance.now();
-            const update = trackerRef.current.update(
-              frame.flatMap((f) => (f.match.personId ? [f.match.personId] : [])),
-              now,
-            );
-            const previous = facesRef.current;
-            facesRef.current = frame.map((f, i) => {
-              const key = f.match.personId ?? `unknown-${i}`;
-              const old = previous.find((p) => p.key === key);
-              const confirmed = !!f.match.personId && update.confirmed.has(f.match.personId);
+            const people = peopleRef.current;
+            const enrolled = people.map((p) => ({ id: p.id, descriptors: p.descriptors }));
+            const observations: Observation[] = detected.map((d) => {
+              const m = nearest(d.descriptor, enrolled);
               return {
-                key,
+                box: d.box,
+                personId: m.personId,
+                distance: m.distance,
+                runnerUp: m.runnerUp,
+                frontal: yawFrom(d.marks.nose, d.marks.leftEye, d.marks.rightEye) < 0.2,
+              };
+            });
+            // The fingerprints of these faces are dropped here: only boxes and distances are kept.
+            const now = performance.now();
+            const tracked = trackerRef.current.update(observations, now);
+            // One person can't be two faces: keep the closest, the others become no match.
+            const closest = new Map<string, number>();
+            tracked.forEach((f, i) => {
+              if (!f.personId || f.state === 'unsure') return;
+              const c = closest.get(f.personId);
+              if (c === undefined || tracked[c].distance > f.distance) closest.set(f.personId, i);
+            });
+            const faces = tracked.map((f, i) => (f.personId && closest.get(f.personId) !== i ? { ...f, state: 'unsure' as FaceState, personId: null } : f));
+            if (frames % 5 === 1) light = frameBrightness(v, faces[0]?.box);
+
+            const previous = facesRef.current;
+            facesRef.current = faces.map((f) => {
+              const old = previous.find((p) => p.key === f.trackId);
+              const confident = f.state === 'confident';
+              return {
+                key: f.trackId,
                 target: f.box,
                 shown: old ? old.shown : { ...f.box },
-                match: f.match,
-                confirmed,
-                confirmedAt: confirmed ? (old?.confirmed ? old.confirmedAt : now) : 0,
+                state: f.state,
+                personId: f.personId,
+                confidentAt: confident ? (old?.state === 'confident' ? old.confidentAt : now) : 0,
                 seenAt: now,
               };
             });
 
-            // The caption is only for someone in view now. If a face we don't know replaces
-            // its person, it goes at once so the stranger is never mistaken for them.
-            const shown = captionIdRef.current;
-            if (shown && update.confirmed.has(shown)) captionSeenRef.current = now;
-            else if (shown && frame.some((f) => !f.match.personId)) captionSeenRef.current = 0;
-            const newlyConfirmed = [...update.confirmed].filter((id) => !confirmedRef.current.has(id));
-            confirmedRef.current = update.confirmed;
-            if (newlyConfirmed.length && !update.toSpeak.includes(newlyConfirmed[0])) {
-              captionIdRef.current = newlyConfirmed[0];
+            const confident = faces.filter((f) => f.state === 'confident' && f.personId);
+            const maybe = faces.filter((f) => f.state === 'maybe' && f.personId);
+            const unsure = faces.filter((f) => f.state === 'unsure');
+
+            // The caption follows who is in view now. If an unknown face replaces its person,
+            // it goes at once so nobody is mistaken for them.
+            const lead = confident[0] ?? maybe[0];
+            if (lead?.personId) {
+              const kind: CaptionKind = lead.state === 'confident' ? 'confident' : 'maybe';
+              captionIdRef.current = lead.personId;
               captionSeenRef.current = now;
-              setCaptionId(newlyConfirmed[0]);
+              setCaptionId(lead.personId);
+              setCaptionKind(kind);
+            } else if (captionIdRef.current && unsure.length) {
+              captionSeenRef.current = 0;
             }
 
-            const unmatched = frame.filter((f) => !f.match.personId);
-            setFaceCount({ known: update.confirmed.size, unknown: unmatched.length });
+            // A soft tap once when a face becomes "maybe": look for the cue.
+            for (const f of maybe) {
+              if (!maybeTapRef.current.has(f.trackId)) {
+                maybeTapRef.current.add(f.trackId);
+                if (getSettings().haptics && !mutedRef.current) haptic(12);
+              }
+            }
+
+            setFaceCount({ known: confident.length, maybe: maybe.length, unknown: unsure.length });
             setHint(
               smootherRef.current.push(
-                update.confirmed.size
+                confident.length || maybe.length
                   ? null
                   : pickHint({
                       brightness: light,
-                      anyFace: frame.length > 0,
-                      unmatched: unmatched.map((f) => ({
-                        widthShare: f.box.width / v.videoWidth,
-                        yaw: yawFrom(f.marks.nose, f.marks.leftEye, f.marks.rightEye),
-                      })),
+                      anyFace: faces.length > 0,
+                      unmatched: unsure.map((f) => {
+                        const o = observations[faces.indexOf(f)];
+                        return { widthShare: f.box.width / v.videoWidth, yaw: o?.frontal ? 0 : 0.5 };
+                      }),
                     }),
               ),
             );
-            for (const id of update.toSpeak) if (!queueRef.current.includes(id)) queueRef.current.push(id);
+            for (const f of confident) {
+              if (f.personId && trackerRef.current.shouldSpeak(f.personId, now) && !queueRef.current.includes(f.personId)) queueRef.current.push(f.personId);
+            }
             void pumpSpeech();
             if (import.meta.env.DEV || (window as unknown as { __fwDebug?: boolean }).__fwDebug) {
               (window as unknown as { __fwPerf?: unknown }).__fwPerf = { backend: engineBackend(), detectMs: Math.round(performance.now() - started), light: Math.round(light) };
-              (window as unknown as { __fwLastFrame?: unknown }).__fwLastFrame = frame.map((f) => ({
-                personId: f.match.personId,
-                distance: Number(f.match.distance.toFixed(3)),
-                runnerUp: Number(f.match.runnerUp.toFixed(3)),
+              (window as unknown as { __fwLastFrame?: unknown }).__fwLastFrame = faces.map((f, i) => ({
+                state: f.state,
+                personId: f.personId,
+                distance: Number(observations[i].distance.toFixed(3)),
+                runnerUp: Number(observations[i].runnerUp.toFixed(3)),
               }));
             }
           } catch {
@@ -308,7 +341,7 @@ export function WhisperMode({ demo }: { demo: boolean }) {
       stopSpeaking();
       facesRef.current = [];
       queueRef.current = [];
-      confirmedRef.current = new Set();
+      maybeTapRef.current = new Set();
       trackerRef.current.reset();
     };
   }, [loaded, hasPeople, demo, settings.facing, attempt, pumpSpeech]);
@@ -352,13 +385,14 @@ export function WhisperMode({ demo }: { demo: boolean }) {
           height: face.shown.height + (face.target.height - face.shown.height) * k,
         };
         const r = toScreen(face.shown, { w: video.videoWidth, h: video.videoHeight }, { w: vw, h: vh }, mirror);
-        const cx = r.x + r.w / 2;
-        const cy = r.y + r.h / 2 - r.h * 0.06;
-        const rx = r.w * 0.6;
-        const ry = r.h * 0.8;
+        // The halo hugs the head and always stays inside the screen, clear of the top bar.
+        const cx = Math.min(Math.max(r.x + r.w / 2, 24), vw - 24);
+        const cy = r.y + r.h / 2 - r.h * 0.04;
+        const rx = Math.min(r.w * 0.58, cx - 10, vw - cx - 10);
+        const ry = Math.min(r.h * 0.74, cy - 70, vh - cy - 10);
 
-        if (face.confirmed) {
-          const age = now - face.confirmedAt;
+        if (face.state === 'confident') {
+          const age = now - face.confidentAt;
           const t = reduce ? 1 : Math.min(age / 520, 1);
           const ease = 1 - Math.pow(1 - t, 3);
           const grow = 1 + (1 - ease) * 0.18;
@@ -389,7 +423,7 @@ export function WhisperMode({ demo }: { demo: boolean }) {
           ctx.stroke();
           ctx.restore();
 
-          const person = peopleRef.current.find((p) => p.id === face.match.personId);
+          const person = peopleRef.current.find((p) => p.id === face.personId);
           if (person) {
             ctx.save();
             ctx.globalAlpha = ease;
@@ -398,9 +432,10 @@ export function WhisperMode({ demo }: { demo: boolean }) {
             const pw = tw + 32;
             const ph = 40;
             const px = Math.min(Math.max(cx - pw / 2, 8), vw - pw - 8);
+            // Above the halo when there is room; otherwise just inside its top.
             let py = cy - ry * grow - ph - 10;
-            if (py < 128) py = Math.max(cy - ry * grow + 14, 128);
-            py = Math.min(py, vh - 340);
+            if (py < 120) py = cy - ry * grow + 14;
+            py = Math.min(Math.max(py, 120), vh - 340);
             ctx.fillStyle = palette.halo;
             roundRect(ctx, px, py, pw, ph, ph / 2);
             ctx.fill();
@@ -409,16 +444,34 @@ export function WhisperMode({ demo }: { demo: boolean }) {
             ctx.fillText(person.name, px + 16, py + ph / 2 + 1);
             ctx.restore();
           }
-        } else if (face.match.personId) {
-          // Possibly someone you know: a faint dotted ring while it makes sure.
+        } else if (face.state === 'maybe' && face.personId) {
+          // Could be someone you know: a dotted ring and a question, never a name said aloud.
+          const person = peopleRef.current.find((p) => p.id === face.personId);
           ctx.save();
-          ctx.globalAlpha = 0.6;
+          ctx.globalAlpha = 0.75;
           ctx.strokeStyle = palette.halo;
           ctx.lineWidth = 2;
           ctx.setLineDash([3, 9]);
           ctx.beginPath();
           ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
           ctx.stroke();
+          ctx.setLineDash([]);
+          if (person) {
+            ctx.font = `500 17px ${palette.display}`;
+            const label = `Could be ${person.name}?`;
+            const tw = ctx.measureText(label).width;
+            const pw = tw + 24;
+            const ph = 34;
+            const px = Math.min(Math.max(cx - pw / 2, 8), vw - pw - 8);
+            const py = Math.min(Math.max(cy - ry - ph - 10, 120), vh - 340);
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = palette.scrim;
+            roundRect(ctx, px, py, pw, ph, ph / 2);
+            ctx.fill();
+            ctx.fillStyle = palette.halo;
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, px + 12, py + ph / 2 + 1);
+          }
           ctx.restore();
         } else {
           ctx.save();
@@ -430,7 +483,7 @@ export function WhisperMode({ demo }: { demo: boolean }) {
           ctx.stroke();
           ctx.setLineDash([]);
           ctx.font = `700 15px ${palette.body}`;
-          const label = 'Not someone you’ve added';
+          const label = 'No match';
           const tw = ctx.measureText(label).width;
           const pw = tw + 24;
           const ph = 32;
@@ -480,9 +533,11 @@ export function WhisperMode({ demo }: { demo: boolean }) {
     ? 'Paused'
     : faceCount.known > 0
       ? `${faceCount.known === 1 ? 'Someone' : `${faceCount.known} people`} you know`
-      : faceCount.unknown > 0
-        ? 'No one you’ve added'
-        : 'Looking for people you’ve added';
+      : faceCount.maybe > 0
+        ? 'Could be someone you know'
+        : faceCount.unknown > 0
+          ? 'No match'
+          : 'Looking for people you’ve added';
 
   return (
     <main className="night" aria-label="Whisper mode">
@@ -561,10 +616,19 @@ export function WhisperMode({ demo }: { demo: boolean }) {
         </div>
       )}
 
+      <p className="visually-hidden" aria-live="polite">
+        {caption && phase === 'running' ? `${caption.name}. ${caption.whisper}` : ''}
+      </p>
+
       <div className="night__bottom">
         {whispersOff && phase === 'running' && (
           <button type="button" className="paused-banner" onClick={() => updateSettings({ whispersPaused: false })}>
             Whispers paused. Tap to turn them back on.
+          </button>
+        )}
+        {!settings.speakAllowed && settings.outputMode === 'voice' && phase === 'running' && (
+          <button type="button" className="paused-banner" onClick={() => navigate('/settings')}>
+            Whispers are silent until you check your earbud in Settings.
           </button>
         )}
         {hint && !caption && phase === 'running' && (
@@ -573,8 +637,8 @@ export function WhisperMode({ demo }: { demo: boolean }) {
             {HINT_TEXT[hint]}
           </p>
         )}
-        {caption && phase === 'running' && (
-          <button type="button" className="caption" key={caption.id} onClick={repeatCaption} aria-live="polite">
+        {caption && phase === 'running' && captionKind === 'confident' && (
+          <button type="button" className="caption" key={caption.id} onClick={repeatCaption}>
             <span className="caption__who">
               {caption.thumb && <img className="caption__avatar" src={caption.thumb} alt="" width={44} height={44} />}
               <span className="caption__name">{caption.name}</span>
@@ -591,6 +655,23 @@ export function WhisperMode({ demo }: { demo: boolean }) {
               </ul>
             )}
             <span className="caption__hint">Tap to hear it again</span>
+          </button>
+        )}
+        {caption && phase === 'running' && captionKind === 'maybe' && (
+          <button type="button" className="caption caption--maybe" key={`maybe-${caption.id}`} onClick={repeatCaption}>
+            <span className="caption__who">
+              <span className="caption__name">Could be {caption.name}?</span>
+            </span>
+            <span className="caption__check">
+              {cueItems(caption.cues)[0] ? (
+                <>
+                  Check: {cueItems(caption.cues)[0].label.toLowerCase()} <b>{cueItems(caption.cues)[0].text}</b>
+                </>
+              ) : (
+                'Not sure yet. Look for something you know about them.'
+              )}
+            </span>
+            <span className="caption__hint">Not said aloud until Halo is sure. Tap to hear the line anyway.</span>
           </button>
         )}
 
@@ -622,7 +703,7 @@ export function WhisperMode({ demo }: { demo: boolean }) {
                 <SwitchCamera size={24} aria-hidden="true" />
               </button>
             </div>
-            <p className="limits">Light and angles can fool it. Never use it for safety or security decisions.</p>
+            <p className="limits">Silence doesn’t mean a stranger. A hint, not proof: never use it to decide who to trust.</p>
           </>
         )}
       </div>
