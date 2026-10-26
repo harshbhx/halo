@@ -3,6 +3,7 @@ import { useSyncExternalStore } from 'react';
 import type { Person } from './types';
 import * as vault from './vault';
 import { resetStores } from './stores';
+import { resetLedgerState } from './ledger';
 
 interface PeopleState {
   loaded: boolean;
@@ -42,6 +43,7 @@ export async function removePerson(id: string): Promise<void> {
 export async function removeEveryone(): Promise<void> {
   await vault.wipeVault();
   resetStores();
+  resetLedgerState();
   set({ loaded: true, people: [], error: null });
 }
 
