@@ -20,14 +20,14 @@ export interface ConsentAnswer {
   at: string;
 }
 
-function encode(value: unknown): string {
+export function encode(value: unknown): string {
   const bytes = new TextEncoder().encode(JSON.stringify(value));
   let s = '';
   for (const b of bytes) s += String.fromCharCode(b);
   return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-function decode<T>(text: string): T | null {
+export function decode<T>(text: string): T | null {
   try {
     const b64 = text.replace(/-/g, '+').replace(/_/g, '/');
     const s = atob(b64 + '==='.slice((b64.length + 3) % 4));

@@ -91,7 +91,7 @@ export default defineConfig({
     chunkSizeWarningLimit: 2500,
     rollupOptions: {
       // The landing page at / and the app at /app/.
-      input: { main: resolve(root, 'index.html'), app: resolve(root, 'app/index.html'), consent: resolve(root, 'consent/index.html') },
+      input: { main: resolve(root, 'index.html'), app: resolve(root, 'app/index.html'), consent: resolve(root, 'consent/index.html'), helper: resolve(root, 'helper/index.html') },
     },
   },
   server: { host: true },
