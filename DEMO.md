@@ -2,6 +2,8 @@
 
 For recording the submission video on a real phone. Bullets and questions only: the narration and the words on screen are Harsh's to write. Rules for the video are in [`docs/submission-checklist.md`](docs/submission-checklist.md); a headless reference recording of the same path (no sound, not a phone) is [`docs/shots/walkthrough.mp4`](docs/shots/walkthrough.mp4), with stills and timings in [`docs/shots/walkthrough/`](docs/shots/walkthrough/).
 
+The recorded demo is live: https://youtu.be/cHuwJ9DheFM.
+
 ## Before recording
 
 - [ ] Phone: Do Not Disturb on, notifications off, battery and clock tidy, no personal apps in the recents view.

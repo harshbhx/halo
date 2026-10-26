@@ -2,7 +2,7 @@
 
 ## 1.0.0 - 2026-10-26
 
-First public release, built for Devpost's Build With AI: Basics.
+First public release, built for Devpost's Build With AI: Basics. Demo video: https://youtu.be/cHuwJ9DheFM.
 
 - Add someone with their own yes: a typed note becomes a one-line whisper; the person reads it and agrees on the phone, or by a text-only link.
 - Whisper mode with three states: confident (halo, caption, whisper), maybe (dotted ring, never spoken) and no match.

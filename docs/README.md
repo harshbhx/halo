@@ -26,6 +26,7 @@ Everything written about Halo, in the order most people want it. Back to the [pr
 |---|---|
 | [`i18n.md`](i18n.md) | Hindi and Gujarati, what is translated and how it is flagged |
 | [`device-test.md`](device-test.md) | What to check on a real phone |
+| [Demo video](https://youtu.be/cHuwJ9DheFM) | The recorded demo on YouTube |
 | [`DEMO.md`](../DEMO.md) | Click path and shot checklist for recording the demo on a phone |
 | [`shots/`](shots/) | Every screen in four variants, contact sheets and the recorded videos |
 | [`gifs/`](gifs/) | The clips used in the README |
