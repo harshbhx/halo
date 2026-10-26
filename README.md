@@ -1,127 +1,188 @@
-# Face Whisper
+# Halo
 
-**Quiet, on-device reminders of who someone is, for people with face blindness.**
+**A quiet voice for faces you know.**
 
-Point your phone at someone you've added (with their agreement) and an earbud whispers who they are and how you know them: *"Raj, your neighbour. Knee surgery last month."* Faces never leave the phone.
+Halo is a phone web app for people with face blindness (prosopagnosia). You add people you know, with their own agreement. When the camera is sure it's one of them, an earbud says who they are and how you know them: *"Raj, your neighbour. Knee surgery last month."* Faces, face fingerprints and photos never leave the phone.
 
 <p>
-  <img src="docs/shots/10-whisper-sam.png" width="230" alt="Whisper mode: a soft ring around Sam's face and a caption reading 'Sam, your teammate from the hackathon. Loves climbing.'">
-  <img src="docs/shots/07-enrol-note-whisper.png" width="230" alt="Enrolment step 3: a typed note turns into a whisper preview">
-  <img src="docs/shots/13-demo-stranger-unknown.png" width="230" alt="A face that was never added is labelled 'Not someone you've added' and nothing is spoken">
+  <img src="docs/shots/phone-light/11-whisper-sam.png" width="220" alt="Whisper mode: an amber ring around Sam's face (AI-generated) and the caption 'Sam, your teammate from the hackathon. Loves climbing.'">
+  <img src="docs/shots/phone-light/07-enrol-their-yes.png" width="220" alt="The person being added reads the exact line and ticks 'I'm Sam, and I agree'">
+  <img src="docs/shots/phone-light/21-whisper-no-match.png" width="220" alt="A face that was never added gets a dashed outline and 'No match'; nothing is spoken or stored">
+  <img src="docs/shots/phone-dark/15-today-list.png" width="220" alt="Today's list for a dinner, in the night theme: three people with their lines and cues">
 </p>
 
-All faces in this README, the demo mode and the fake-camera clips are AI-generated images of people who do not exist ([credits](public/demo/faces/CREDITS.md)).
+Every face in this repository, the app's demo mode and the fake-camera clips is an AI-generated image of a person who does not exist ([credits](CREDITS.md)). Halo is a prototype, tested so far mainly on AI-generated faces.
 
-## The problem
+## Contents
 
-About 2% of people have prosopagnosia (face blindness): they can't recognise familiar faces, even of colleagues, neighbours or relatives. People in the community describe exactly what they want:
+- [Who it's for](#who-its-for) · [What already exists](#what-already-exists)
+- [What it does](#what-it-does) · [Privacy model](#privacy-model) · [Optional Enhanced mode](#optional-enhanced-mode-off-by-default) · [Honest limits](#honest-limits)
+- [Run it](#run-it) · [Tests and evidence](#tests-and-evidence) · [Deploying](#deploying)
+- [How it works](#how-it-works) · [How it was made](#how-it-was-made) · [Design](#design) · [Project layout](#project-layout) · [Credits and licence](#credits-and-licence)
 
-> "What we need is some dude saying in our ears 'yes, you know that person it's &lt;name&gt;'"
-> — [r/prosopagnosia](https://www.reddit.com/r/prosopagnosia/comments/1th3clh/)
+## Who it's for
 
-> "glasses that would tell me who people are and how I know them"
-> — [r/prosopagnosia](https://www.reddit.com/r/prosopagnosia/comments/1r58f5g/)
+Lifelong face blindness affects roughly 2% of people ([Kennerknecht et al. 2006](https://doi.org/10.1002/ajmg.a.31343): 2.47% of 689 students; later estimates range from 0.64% to 5.42% depending on the cut-off, [DeGutis et al. 2022](https://bu.edu/ballab/pubs/DeGutis2022_Ax2.pdf)). People with it often can't place neighbours, colleagues or relatives, and get by on voices, clothes, context or a partner's help. In their words, from public posts on r/prosopagnosia:
 
-> "photo contact cards don't help, I'd only be practicing to recognize that specific picture"
-> — [r/prosopagnosia](https://www.reddit.com/r/prosopagnosia/comments/1v0faz5/)
+> "What we need is some dude saying in our ears "yes , you know that person it's insert name""
+> and "My boyfriend does it for me. I need that but like, in my earphones, for when he's not around."
+> u/Adventurous_Kiwi, [thread](https://www.reddit.com/r/prosopagnosia/comments/1th3clh/)
 
-Nothing like this ships today: a name-tag feature for smart glasses has been talked about but not released, and the rest are research prototypes.
+> "The contact cards would not help me, unfortunately. I'd only be practicing to recognize that specific picture of my friend."
+> u/HereForMcCormackAMA, [thread](https://www.reddit.com/r/prosopagnosia/comments/1v0faz5/)
+
+> "I'd like it to have only a database of people I actually care about... I want to know who they are and where I met them before. ... But just seeing the names of people standing in line next to me at the store or walking down the street would be both useless and overwhelming."
+> u/EinsTwo
+
+And the objection Halo has to answer:
+
+> "What would actually be useful is something that could recognize and label someone as I'm speaking to them, but I feel like that's more in the realm of smart glasses than phones because I'm not going to go around pointing my phone at everyone."
+> u/Ilaxilil, [thread](https://www.reddit.com/r/prosopagnosia/comments/1th3clh/)
+
+Quotes are shown word for word.
+
+## What already exists
+
+Halo is not the first tool to name a taught face:
+
+- [OrCam MyEye](https://knowledgebase.orcam.com/knowledge/how-do-i-use-face-recognition-on-my-orcam-myeye) and [Envision's Teach a Face](https://support.letsenvision.com/hc/en-us/articles/8118364337297) recognise faces the user has taught, for blind and low-vision users, on dedicated hardware or glasses.
+- [NameVault](https://apps.apple.com/app/id1525602410) helps people practise names from photos.
+- SocialRecall was a 2018 concept for prosopagnosia; Meta's idea of name tags for its glasses is unreleased.
+
+How Halo differs: it is built for people who **see** but can't place faces. It says *how you know* someone, not just a name; it shows the cues people with face blindness already use (clothes, hair, voice); it briefs you before an event and lets you practise from cues; the person being added reads their line and agrees themselves; and it runs free in an ordinary phone browser, with nothing uploaded.
 
 ## What it does
 
-1. **Welcome.** A one-screen promise: faces stay on this phone, only people who said yes, honest limits.
-2. **Enrol someone, with consent.** Name, a consent tick ("they agreed to be added"), 3 to 5 photos from the camera, a short spoken or typed note, and optional cue notes (usual clothes, hair, glasses, voice), because people with face blindness often recognise others by those.
-3. **Note to whisper.** "This is Raj, my neighbour, had knee surgery last month" becomes "Raj, your neighbour. Knee surgery last month." Written by built-in rules on the phone (no key, no network); if the browser has an on-device language model, it can write it instead. Always editable.
-4. **Whisper mode.** Full-screen camera with a "Recognised on this phone only" badge. When an enrolled face is steady in view, a soft ring settles around it, the whisper is spoken quietly (a soft chime first) and a caption shows the whisper and cue notes. Faces that aren't enrolled get a faint outline and "Not someone you've added". Nothing about them is kept.
-5. **Manage.** People list, edit any field, add photos, delete a person, and **Delete everything**.
-6. **Try it alone.** Sample people with AI-generated faces and a demo camera that cycles through them plus one stranger.
+1. **A short tour and an earbud check.** Halo speaks aloud only after you confirm you heard a test line in your earbud; until then it buzzes and shows the name.
+2. **Add someone, with their yes.** Their name (and whether they are a child), a typed note that becomes a one-line whisper on the phone, then **you hand them the phone**: they read the exact line and tick "I'm [name], and I agree". If they aren't there, a link lets them answer on their own phone; the answer comes back in a link, and nothing goes through a server. Then three to five photos with an oval guide and a light check, and optional cue notes. Halo warns about look-alikes, keeps at most 50 people and 5 new a day, and marks a consent older than a year "Ask again".
+3. **Whisper mode.** A full-screen camera with "Recognised on this phone only". Each face is tracked and given one of three states:
+   - **Confident** (one face, at least a second and five frames, one of them facing the camera, clearly closer to one person than to anyone else): an amber halo, a caption with the line and cues, and the whisper.
+   - **Maybe**: a dotted ring and "Could be Raj? Check: green parka", never spoken. Children and look-alikes never go past this.
+   - **No match**: a faint outline. "Silence doesn't mean a stranger."
+   "Who was that?" lists the last five, in memory only.
+4. **Today's list.** Pick who you'll see, then read or hear their lines before you walk in.
+5. **Practice.** Name people from their cues (or a photo if that helps), on a gentle spaced schedule. No streaks.
+6. **Settings.** Voice, chime, buzz or silent; short, warm or full whispers; volume and speed; strictness; repeat interval; pause; bigger text; higher contrast; light, dark or automatic theme; backups locked with a passphrase (restoring lets you choose who comes back); **Delete everything**.
+7. **Privacy and honest limits.** A ledger of everything that has left the phone (by default: nothing) and the six limits below.
+8. **Try it alone.** **Try with sample people** adds three AI-generated people; **Open the demo camera** cycles through them and one face that was never added.
+9. **A landing page** at `/` (the app is at `/app/`) that speaks a real whisper in the browser voice and turns a typed note into a whisper with the app's own rules.
 
 ## Privacy model
 
 | | Where it lives |
 |---|---|
 | Camera frames | Analysed in memory in the browser, never stored or sent |
-| Face fingerprints (128 numbers per photo) | IndexedDB on this device, AES-GCM encrypted |
-| Names, notes, whispers, cues, one small thumbnail | IndexedDB on this device, AES-GCM encrypted |
-| Encryption key | Created by the browser as non-extractable: page code can use it but nobody can read or export it |
-| Unknown faces | Compared, then discarded. Never stored or named |
-| Settings (voice, volume, theme) | localStorage, nothing personal |
+| Face fingerprints (128 numbers per photo) | IndexedDB on this phone, AES-GCM encrypted |
+| Names, notes, whispers, cues, one small thumbnail, today's list, practice | IndexedDB on this phone, AES-GCM encrypted |
+| Encryption key | Created by the browser as non-extractable: the page can use it, nobody can export it |
+| Faces you didn't add | Compared for a moment, then dropped. Never stored or named |
+| Settings | localStorage, nothing personal |
 
-- No server, no account, no analytics, no third-party scripts or fonts. Model weights, fonts and WebAssembly are served by the app itself, and a service worker keeps it working offline after the first visit.
+- No account, no server for faces, no analytics, no third-party scripts or fonts. Model weights, WebAssembly and fonts are served by the site itself. The Content-Security-Policy allows `connect-src 'self'` only, and `npm run build` fails if the build loads anything from another origin.
 - No API key is needed, and none is in this repository.
-- **Dictation caveat:** voice notes use the browser's speech recognition. The app asks for on-device recognition where the browser supports it; some browsers (for example Chrome on many phones) send the audio to the browser maker's speech service. Typing keeps everything local. The in-app privacy page says this plainly.
+- Works offline after the first visit (a service worker caches the app and the face models).
+- **Dictation** is optional and labelled: typing is the default, because a browser's speech recognition may send audio to the browser maker.
 - **Delete everything** removes the database and the key together.
+
+## Optional Enhanced mode (off by default)
+
+For people who want a more natural voice or whispers in another language. Turning it on opens a sheet that lists exactly what would leave the phone: the whisper line to voice or translate, and, only if you ask the cloud to write a line, the typed name and note. **Never faces, photos or face fingerprints.** Every request is recorded in the on-phone ledger. The voice clip is made once when you save, stored encrypted with the person, and plays offline afterwards.
+
+The server side is one Cloudflare Worker on the same origin ([`worker/`](worker/README.md)) using Workers AI: MeloTTS for voice, IndicTrans2 and m2m100 for translation, Llama 3.2 3B to write a line, Whisper for an optional short voice note. It checks the origin, signs sessions, enforces strict schemas and size caps, rate-limits per address, stores nothing and logs no content. It has unit tests with Workers AI mocked; **it is not deployed from this repository.**
 
 ## Honest limits
 
-- Poor light, backlight, steep angles, masks, new glasses or a new beard can stop a match, or rarely cause a wrong one. Relatives and look-alikes can be confused.
-- To stay calm and avoid wrong names, it only whispers when a face is closer than a strict threshold to one person, clearly closer to them than to anyone else, and steady for 3 of the last 4 frames. When unsure it stays silent.
-- It is a gentle reminder, **not** identification. Never use it for safety, security or identity decisions.
-- Browser storage is per browser: clearing site data or a private window loses everything.
+These six statements appear word for word on the landing page and in the app:
+
+1. A hint, not proof. It can name the wrong person, especially relatives, look-alikes and children. Never use it to decide who to trust or let in.
+2. Silence doesn't mean a stranger. Dim light, side angles, masks, new glasses or a haircut can stop a match.
+3. It works better for some faces than others. Open face models make more mistakes for darker-skinned and East Asian faces, women, children and older people.
+4. It only knows people who said yes. It can't look anyone up. Each face in view is measured for a moment, checked against your list, then forgotten.
+5. The app records that you asked them, but it can't check. Remove anyone the moment they ask.
+6. A prototype, tested so far mainly on AI-generated faces, not yet with people who have face blindness. Without earbuds, your phone speaks out loud.
+
+What has been measured, what it doesn't prove and how to test it properly: [`docs/accuracy.md`](docs/accuracy.md). The face library, [@vladmandic/face-api](https://github.com/vladmandic/face-api), was archived in February 2025; it still works, and a move to a maintained engine is planned.
+
+## Run it
+
+Needs Node 20 or newer (and ffmpeg for the fake-camera clips and the mp4 videos).
+
+```bash
+./run.sh            # install (first run), build, serve on http://localhost:4173
+```
+
+The landing page is at http://localhost:4173/ and the app at http://localhost:4173/app/. It is served with the production headers (strict CSP). The camera works on `localhost`; on a phone, open it through an HTTPS address (the camera needs a secure page).
+
+No camera or second person handy? In the app, tap **Try with sample people**, then **Open the demo camera**.
+
+| Command | What it does |
+|---|---|
+| `./run.sh` | Build and serve |
+| `./run.sh fake-camera [friend\|street]` | Also open Chromium with a fake camera playing "Sam", an AI-generated face (`street` adds a face that was never added). Needs a display; on a server use `xvfb-run` |
+| `./run.sh test` | Unit tests and end-to-end tests |
+| `./run.sh screens` | Every screen in light and dark, phone and desktop, plus contact sheets |
+| `./run.sh record` | The app walkthrough video and the landing scroll video |
+| `./run.sh accuracy` | Match distances on the synthetic faces |
+
+## Tests and evidence
+
+- **Unit (64, Vitest):** the whisper writer and styles; the matcher and the three-state tracker (steady view, margin, face swap, children held at maybe); the encrypted vault and meta records; backups (wrong passphrase, hidden content); practice scheduling; light and pose hints; consent links; the Enhanced mode Worker with Workers AI mocked (sessions, origin and schema checks, size caps, rate limit, daily ceiling, graceful failures).
+- **End to end (9, Playwright with Chromium's fake camera):** add a person with their yes and hear their whisper; edit, check the database holds ciphertext, delete everything; sample people recognised while the never-added face stays "No match" (distances logged); works offline after the first visit; consent by link round trip; default mode never calls the server; Enhanced mode sends only short text that appears in the ledger; no request to any other origin (landing page and app); the strict security headers.
+- **Evidence:** [`docs/shots/`](docs/shots/): every screen in four variants ([phone light](docs/shots/contact-sheet-phone-light.png), [phone dark](docs/shots/contact-sheet-phone-dark.png), [desktop light](docs/shots/contact-sheet-desktop-light.png), [desktop dark](docs/shots/contact-sheet-desktop-dark.png)), the [app walkthrough](docs/shots/walkthrough.mp4) (headless, no sound) with stills and a timeline in [`docs/shots/walkthrough/`](docs/shots/walkthrough/), and the [landing scroll](docs/shots/landing-scroll.mp4).
+- **Accuracy:** [`docs/accuracy.md`](docs/accuracy.md) and [`eval/accuracy-synthetic.json`](eval/accuracy-synthetic.json). On the synthetic set, same person 0.05 to 0.21 and different people 0.70 or more; this says nothing yet about real people in real rooms.
+- **Device test:** [`docs/device-test.md`](docs/device-test.md) lists what to check on a real phone.
+
+## Deploying
+
+The build is a static site with a strict CSP that works at the domain root. `wrangler.jsonc` serves `dist/` as Workers static assets (single-page fallback, `/api/*` to the optional Worker). Steps are in [`worker/README.md`](worker/README.md). Nothing is deployed from this repository.
 
 ## How it works
 
 ```
-camera frame ──► TinyFaceDetector ──► 68-point landmarks ──► FaceRecognitionNet ──► 128-number fingerprint
-                     (face-api, TensorFlow.js on WebGL, WebAssembly or CPU, all in the browser)
-fingerprint ──► nearest enrolled person (Euclidean distance < 0.45, margin 0.04)
-            ──► steady 3 of 4 frames? ──► soft ring + caption + browser speech (Web Speech API)
-            └─► no match ──► "Not someone you've added", fingerprint dropped
+camera frame -> TinyFaceDetector -> 68-point landmarks -> FaceRecognitionNet -> 128-number fingerprint
+                (face-api with TensorFlow.js on WebGL, then WebAssembly, then CPU, all in the browser)
+fingerprint -> nearest person on your list (distance and lead over the runner-up)
+            -> FaceTracker: one track per face, three states over time
+               confident -> halo, caption, whisper (stored clip, the phone's voice, a buzz or a caption)
+               maybe     -> dotted ring, "Could be ...?", silent
+               no match  -> faint outline; the fingerprint is dropped
 ```
 
-- **Stack:** TypeScript, React 19, Vite 7, [@vladmandic/face-api](https://github.com/vladmandic/face-api) (TinyFaceDetector, tiny landmarks, FaceRecognitionNet), [idb](https://github.com/jakearchibald/idb), Web Crypto, Web Speech API, [Atkinson Hyperlegible Next](https://www.brailleinstitute.org/freefont/) (a typeface designed for low-vision readers), lucide icons.
-- **Measured on the synthetic faces:** same person 0.08 to 0.33, the stranger 0.78 to 0.82 from everyone. Detection takes about 0.1 s a frame with WebAssembly on a 2-core ARM server; phones with WebGL are faster.
-- Key files: [`src/lib/faceEngine.ts`](src/lib/faceEngine.ts), [`src/lib/matcher.ts`](src/lib/matcher.ts), [`src/lib/vault.ts`](src/lib/vault.ts), [`src/lib/whisper.ts`](src/lib/whisper.ts), [`src/screens/WhisperMode.tsx`](src/screens/WhisperMode.tsx), [`src/screens/Enrol.tsx`](src/screens/Enrol.tsx).
+- **Stack:** TypeScript, React 19, Vite 7 (a multi-page static site: `/`, `/app/`, `/consent/`), [@vladmandic/face-api](https://github.com/vladmandic/face-api), [idb](https://github.com/jakearchibald/idb), Web Crypto, Web Speech API, Web Audio, lucide icons, self-hosted fonts.
+- **Key files:** [`src/lib/faceEngine.ts`](src/lib/faceEngine.ts), [`src/lib/matcher.ts`](src/lib/matcher.ts), [`src/lib/vault.ts`](src/lib/vault.ts), [`src/lib/whisper.ts`](src/lib/whisper.ts), [`src/lib/say.ts`](src/lib/say.ts), [`src/lib/consentLink.ts`](src/lib/consentLink.ts), [`src/lib/enhanced.ts`](src/lib/enhanced.ts), [`src/screens/WhisperMode.tsx`](src/screens/WhisperMode.tsx), [`src/screens/Enrol.tsx`](src/screens/Enrol.tsx), [`worker/index.ts`](worker/index.ts).
+- **The name** lives in one place, [`brand.config.json`](brand.config.json): the pages, manifest, app and scripts read it from there.
 
-## Run it
+## How it was made
 
-Needs Node 20+ (and ffmpeg for the fake-camera clips).
+Built for Devpost's [Build With AI: Basics](https://learn-ai-basics.devpost.com/) with the [Devpost Learn skill pack](https://github.com/challengepost/learn-ai-basics) (`npx skills add challengepost/learn-ai-basics --all -y`), run in an AI coding agent. The idea, the users' problem, the privacy rules, the name and the product decisions are Harsh's; the agent wrote the planning documents and the code from his written brief, and each slice was verified with tests before it was committed.
 
-```bash
-./run.sh                      # install (first run), build, serve on http://localhost:4173
-```
+- `1-start`: a learner profile, kept out of the repository as the skill intends.
+- `2-scope`: [`scope.md`](scope.md), the kernel, who it's for, what was cut.
+- `3-prd`: [`prd.md`](prd.md), the journey, screens and behaviour.
+- `4-spec`: [`spec.md`](spec.md), stack, components, data model, failure modes.
+- `5-build`: [`devpost/checklist.md`](devpost/checklist.md), nine verified slices and the revisions the build forced.
+- `6-ship`: [`docs/submission-checklist.md`](docs/submission-checklist.md); the description, the video and the form answers are Harsh's own.
 
-Open http://localhost:4173. The camera works on `localhost`; for a phone, open the app through an HTTPS tunnel to that port (the camera needs a secure page).
+`scope.md`, `prd.md` and `spec.md` are the single source and describe the app as it is now; `devpost/` links to them.
 
-| Command | What it does |
-|---|---|
-| `./run.sh` | Build and serve the app |
-| `./run.sh fake-camera` | Also open Chromium with a fake camera playing "Sam", an AI-generated face (`fake-camera street` adds a stranger). Needs a display; on a server use `xvfb-run` |
-| `./run.sh record` | Record the full walkthrough headless: `docs/shots/walkthrough.webm` / `.mp4`, 20 screenshots and `timeline.json` |
-| `./run.sh test` | Unit tests (Vitest) and end-to-end tests (Playwright with the fake camera) |
+## Design
 
-No camera or friend handy? Tap **Try with sample people**, then **Open the demo camera**.
-
-### Tests
-
-- Unit (25): the whisper writer (including the demo lines), the matcher and tracker, the encrypted vault (ciphertext, delete, wipe).
-- End to end (5, Playwright + Chromium fake camera): enrol and recognise; edit, check the database holds ciphertext, delete everything; sample people recognised while the stranger stays unknown (with distances logged); works offline after the first visit; the recorded walkthrough.
-
-## How it was built: the Devpost Learn skills
-
-This project was started from an empty folder for the [Build With AI: Basics](https://learn-ai-basics.devpost.com/) hackathon, using the [Devpost Learn skill pack](https://github.com/challengepost/learn-ai-basics) (`npx skills add challengepost/learn-ai-basics --all -y`) in an AI coding agent.
-
-- `1-start` → learner profile (kept out of the repo, as the skill intends).
-- `2-scope` → [`devpost/scope.md`](devpost/scope.md): the kernel, who it's for, the proof-of-concept boundary.
-- `3-prd` → [`devpost/prd.md`](devpost/prd.md): the core journey, screens, behaviours and acceptance criteria.
-- `4-spec` → [`devpost/spec.md`](devpost/spec.md): stack, components, data model, failure modes.
-- `5-build` → [`devpost/checklist.md`](devpost/checklist.md): four verified slices, each committed, with the plan revisions the build forced (for example the WebAssembly fallback).
-
-The idea, the users' problem and the privacy rules are Harsh's. The planning interviews were answered from his written brief, the coding agent wrote the code under that plan, and every slice was verified with tests before it was committed. `scope.md`, `prd.md` and `spec.md` are also linked at the repository root.
+Designed with the [Hallmark](https://github.com/Nutlope/hallmark) design skill, installed in this project only: its Ribbon theme (a warm dawn paper, a blue-black night, Instrument Sans over Atkinson Hyperlegible Next, machined controls lit from above) with one amber accent, the halo. Every screen was swept with Hallmark's `sloplint` (static and rendered) to zero failures, and the landing page went through two fresh-context reviews. The system, the decisions and the record of the sweeps: [`docs/design.md`](docs/design.md).
 
 ## Project layout
 
 ```
-src/lib/        face engine, matcher, encrypted vault, whisper writer, voice, dictation, demo mode
-src/screens/    Welcome, Home, Enrol, WhisperMode, Person, Settings, Privacy
-src/components/ small UI kit (bottom bar, sheets, switches, toasts)
-public/         sample faces (AI-generated) + credits, service worker, icon, manifest
-scripts/        model copier, fake-camera clip builder
-tests/          unit tests and Playwright end-to-end tests
-devpost/        scope, PRD, spec and build checklist from the Devpost Learn skills
-docs/shots/     screenshots and the recorded walkthrough
+index.html, landing/   the landing page
+app/, src/             the app: screens, face engine, tracker, vault, voice, consent, Enhanced client
+consent/               the page the person being added opens from a link
+worker/                the optional Enhanced mode Worker (source only)
+public/                sample faces (AI-generated) and credits, service worker, icons, _headers, robots.txt
+scripts/               model copier, fake-camera clips, the header-aware server, external-request check, icons, contact sheets
+tests/                 unit tests and Playwright tests and recordings
+docs/                  accuracy, design, device test, submission checklist, screenshots and videos
+scope.md, prd.md, spec.md, devpost/   the Devpost Learn planning documents and build checklist
 ```
 
-## License
+## Credits and licence
 
-MIT, see [LICENSE](LICENSE). Sample faces are public-domain AI-generated images, see [credits](public/demo/faces/CREDITS.md).
+MIT, see [LICENSE](LICENSE). Third-party code, models, fonts, faces and the design skill are listed in [CREDITS.md](CREDITS.md).
