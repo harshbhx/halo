@@ -19,6 +19,7 @@ import { takePendingCard } from '../lib/cardLink';
 import { BRAND } from '../brand';
 import { spokenLine, STYLE_LABELS, type WhisperStyle } from '../lib/whisperStyle';
 import { parseIntro } from '../lib/intro';
+import { useT } from '../lib/i18n';
 import { DictateButton } from '../components/Dictate';
 
 export const MIN_SHOTS = 3;
@@ -411,6 +412,7 @@ const CUE_FIELDS: Array<{ key: keyof Cues; label: string; placeholder: string }>
 /* ---------- The flow ---------- */
 
 export function Enrol() {
+  const t = useT();
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
   const [consentMethod, setConsentMethod] = useState<Person['consentMethod'] | null>(null);
@@ -655,12 +657,12 @@ export function Enrol() {
             <>
               <div className="stack">
                 <h1 tabIndex={-1} id="step-title">
-                  Who are you adding?
+                  {t('enrol.0.title')}
                 </h1>
-                <p className="lead">Someone you meet often. Next, you’ll hand them the phone so they can say yes themselves.</p>
+                <p className="lead">{t('enrol.0.lead')}</p>
               </div>
               <label className="field">
-                <span className="field__label">Their name</span>
+                <span className="field__label">{t('enrol.name')}</span>
                 <input
                   className="input"
                   name="name"
@@ -705,9 +707,9 @@ export function Enrol() {
 
           {step === 2 && (
             <div className="handoff">
-              <p className="handoff__note">Hand the phone to {cleanName}</p>
+              <p className="handoff__note">{t('enrol.hand', { name: cleanName })}</p>
               <h1 tabIndex={-1} id="step-title">
-                Hi {cleanName}.
+                {t('enrol.hi', { name: cleanName })}
               </h1>
               <p className="lead">
                 The person holding this phone finds faces hard to recognise, even friends’. With your OK, this phone learns your face and quietly
@@ -738,7 +740,7 @@ export function Enrol() {
                 </span>
               </label>
               <button type="button" className="btn btn--primary btn--block" disabled={!consentTick} onClick={() => agree('in-person')}>
-                I agree
+                {t('enrol.agree')}
               </button>
               <div className="row">
                 <button type="button" className="btn btn--quiet" onClick={() => navigate('/')}>
@@ -827,7 +829,7 @@ export function Enrol() {
         {step !== 2 && (
         <div className="flow-foot">
           <button type="submit" className="btn btn--primary btn--block" disabled={!canContinue || saving} aria-busy={saving}>
-            {step === TOTAL - 1 ? (saving ? 'Saving…' : `Save ${cleanName}`) : 'Continue'}
+            {step === TOTAL - 1 ? (saving ? 'Saving…' : `Save ${cleanName}`) : t('enrol.continue')}
           </button>
           {step === 3 && (
             <p className="field__hint" style={{ textAlign: 'center' }}>

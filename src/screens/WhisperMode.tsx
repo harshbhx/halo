@@ -16,6 +16,7 @@ import { haptic, stopSpeaking, unlockAudio } from '../lib/voice';
 import { captionLine, sayPerson } from '../lib/say';
 import { recentWhispers, remember, type RecentWhisper } from '../lib/recent';
 import { addReport } from '../lib/reports';
+import { useT } from '../lib/i18n';
 import { cueItems } from '../lib/whisperStyle';
 import { BUZZ, inQuietHours, searchList } from '../lib/rules';
 
@@ -105,6 +106,7 @@ const COACH_STEPS = [
 ];
 
 export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: boolean }) {
+  const t = useT();
   const settings = useSettings();
   const { loaded, people } = usePeople();
   const { list: today } = useToday();
@@ -695,14 +697,16 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
   }
 
   const statusText = paused
-    ? 'Paused'
+    ? t('whisper.paused')
     : faceCount.known > 0
-      ? `${faceCount.known === 1 ? 'Someone' : `${faceCount.known} people`} you know`
+      ? faceCount.known === 1
+        ? t('whisper.known.one')
+        : t('whisper.known.many', { n: faceCount.known })
       : faceCount.maybe > 0
-        ? 'Could be someone you know'
+        ? t('whisper.maybe')
         : faceCount.unknown > 0
-          ? 'No match'
-          : 'Looking for faces';
+          ? t('whisper.none')
+          : t('whisper.looking');
 
   return (
     <main className="night" aria-label="Whisper mode">
@@ -710,7 +714,7 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
       <canvas ref={canvasRef} aria-hidden="true" />
 
       <div className="night__top">
-        <button type="button" className="night-btn" onClick={() => (stopSpeaking(), navigate('/'))} aria-label="Close Whisper mode">
+        <button type="button" className="night-btn" onClick={() => (stopSpeaking(), navigate('/'))} aria-label={t('whisper.close')}>
           <X size={24} aria-hidden="true" />
         </button>
         <span className="spacer" />
@@ -763,7 +767,7 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
         <div className="night__notes">
           {!guided && !settings.speakAllowed && settings.outputMode === 'voice' && (
             <button type="button" className="silent-chip" onClick={() => navigate('/settings')}>
-              Silent until you check your earbud
+              {t('whisper.silent')}
             </button>
           )}
           {quietNow && <p className="night-note">Quiet hours: a buzz and the caption, nothing aloud</p>}
@@ -864,11 +868,11 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
       {phase === 'starting' && (hasPeople || demo) && (
         <div className="night__panel">
           <div>
-            <h2>{guided && preparingSamples ? 'Preparing three sample people…' : 'Getting ready on your phone…'}</h2>
+            <h2>{guided && preparingSamples ? 'Preparing three sample people…' : t('whisper.ready')}</h2>
             <div className="loader" aria-hidden="true">
               <span style={{ transform: `scaleX(${Math.max(0.06, progress)})` }} />
             </div>
-            <p>The face reader runs here, on this device. Nothing is uploaded.</p>
+            <p>{t('whisper.readyBody')}</p>
             <p>One earbud in, phone held at chest height.</p>
           </div>
         </div>
@@ -924,13 +928,13 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
             <span className="caption__who">
               {caption.thumb && <img className="caption__avatar" src={caption.thumb} alt="" width={44} height={44} />}
               <span className="caption__name">{caption.name}</span>
-              {onToday && <span className="tag tag--sample">On today’s list</span>}
-              {caption.quiet && <span className="tag tag--sample">Never whispered</span>}
+              {onToday && <span className="tag tag--sample">{t('whisper.onToday')}</span>}
+              {caption.quiet && <span className="tag tag--sample">{t('whisper.never')}</span>}
             </span>
             <span className="caption__text">{captionLine(caption)}</span>
             {caption.met && (
               <span className="caption__met">
-                Where you met: <b>{caption.met}</b>
+                {t('whisper.met')} <b>{caption.met}</b>
               </span>
             )}
             {cueItems(caption.cues).length > 0 && (
@@ -942,18 +946,18 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
                 ))}
               </ul>
             )}
-            <span className="caption__hint">Tap to hear it again</span>
+            <span className="caption__hint">{t('whisper.again')}</span>
           </button>
         )}
         {caption && phase === 'running' && captionKind === 'confident' && (
           <button type="button" className="caption__wrong" onClick={() => void reportWrong(caption)}>
-            Wrong person? It wasn’t {caption.name}
+            {t('whisper.wrong', { name: caption.name })}
           </button>
         )}
         {caption && phase === 'running' && captionKind === 'maybe' && (
           <button type="button" className="caption caption--maybe" key={`maybe-${caption.id}`} onClick={repeatCaption}>
             <span className="caption__who">
-              <span className="caption__name">Could be {caption.name}?</span>
+              <span className="caption__name">{t('whisper.couldBe', { name: caption.name })}</span>
             </span>
             <span className="caption__check">
               {cueItems(caption.cues)[0] ? (
@@ -1012,7 +1016,7 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
                 <Smartphone size={24} aria-hidden="true" />
               </button>
             </div>
-            <p className="limits">Silence doesn’t mean a stranger. A hint, not proof: never use it to decide who to trust.</p>
+            <p className="limits">{t('whisper.limits')}</p>
           </>
         )}
       </div>

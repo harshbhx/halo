@@ -8,6 +8,7 @@ import { addOrUpdatePerson, usePeople } from '../lib/people';
 import { clearReports, suggest, useReports } from '../lib/reports';
 import { navigate } from '../lib/router';
 import { updateSettings, useSettings } from '../lib/settings';
+import { LANGUAGES, useT, type Lang } from '../lib/i18n';
 
 const AUTO_LOCK = [
   { value: 1, label: 'After 1 minute' },
@@ -188,6 +189,23 @@ export function WrongMatchSection() {
   );
 }
 
+export function LanguageRow() {
+  const settings = useSettings();
+  const t = useT();
+  return (
+    <div className="panel__row panel__row--stack">
+      <span className="panel__title">{t('settings.language')}</span>
+      <Segmented<Lang>
+        label={t('settings.language')}
+        value={settings.language ?? 'en'}
+        options={LANGUAGES.map((l) => ({ value: l.code, label: l.name }))}
+        onChange={(language) => updateSettings({ language })}
+      />
+      <span className="panel__hint">{t('settings.language.hint')}</span>
+    </div>
+  );
+}
+
 export function BatteryRow() {
   const settings = useSettings();
   return (
@@ -230,7 +248,7 @@ export function DocumentRows() {
         <span className="panel__text">
           <span className="panel__title">The full documents</span>
           <span className="panel__hint">
-            <a href="../privacy/">Privacy</a> · <a href="../terms/">Terms</a> · <a href="../safety/">Safety</a>
+            <a href="../privacy/">Privacy</a>, <a href="../terms/">Terms</a> and <a href="../safety/">Safety</a>, in plain words
           </span>
         </span>
       </div>

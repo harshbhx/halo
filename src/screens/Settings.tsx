@@ -14,7 +14,7 @@ import { shareLink } from '../lib/consentLink';
 import { spokenLine, STYLE_LABELS, type WhisperStyle } from '../lib/whisperStyle';
 import { WHISPER_LANGUAGES } from '../lib/enhanced';
 import { BRAND } from '../brand';
-import { BatteryRow, DataLinkRow, DocumentRows, LockSection, WrongMatchSection } from './SettingsMore';
+import { BatteryRow, DataLinkRow, DocumentRows, LanguageRow, LockSection, WrongMatchSection } from './SettingsMore';
 
 const SAMPLE = { name: 'Raj', whisper: 'Raj, your neighbour. Knee surgery last month.', cues: { clothes: 'Green parka', glasses: 'Round glasses' } };
 
@@ -360,6 +360,7 @@ export function Settings() {
       <section className="section" aria-labelledby="reading-title">
         <h2 id="reading-title">Reading</h2>
         <div className="panel">
+          <LanguageRow />
           <div className="panel__row">
             <span className="panel__text">
               <span className="panel__title">Bigger text</span>

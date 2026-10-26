@@ -27,26 +27,26 @@
 
       <h2>What is kept, where, and for how long</h2>
       <dl class="rows">
-        <div><dt>The people you add</dt><dd>Name, your note, the line it whispers, cue notes, where you met, whether they're a child or "never whisper", when and how they agreed, 3 to 8 face fingerprints (128 numbers each, from the photos you take) and one small picture (160 by 160 pixels). In this browser's IndexedDB on your phone, encrypted with AES-GCM using a key the browser creates and won't let any code read out. Kept until you delete that person or everything; nothing is deleted on a timer. After a year, Halo reminds you to ask them again.</dd></div>
-        <div><dt>Today's list, practice, the privacy ledger, wrong-match reports</dt><dd>In the same encrypted store, until you clear them or delete everything.</dd></div>
-        <div><dt>Settings</dt><dd>Voice, volume, theme, quiet hours and similar, in the browser's local storage. No names, notes or faces. If you set a passcode, only a salted hash of it is kept, never the code.</dd></div>
+        <div><dt>The people you add</dt><dd>Name, your note, the line it whispers, cue notes, where you met, whether they’re a child or “never whisper”, when and how they agreed, 3 to 8 face fingerprints (128 numbers each, from the photos you take) and one small picture (160 by 160 pixels). In this browser’s IndexedDB on your phone, encrypted with AES-GCM using a key the browser creates and won’t let any code read out. Kept until you delete that person or everything; nothing is deleted on a timer. After a year, Halo reminds you to ask them again.</dd></div>
+        <div><dt>Today’s list, practice, the privacy ledger, wrong-match reports</dt><dd>In the same encrypted store, until you clear them or delete everything.</dd></div>
+        <div><dt>Settings</dt><dd>Voice, volume, theme, quiet hours and similar, in the browser’s local storage. No names, notes or faces. If you set a passcode, only a salted hash of it is kept, never the code.</dd></div>
         <div><dt>The app itself</dt><dd>Code, fonts, face models and WebAssembly, cached by a service worker so Halo works offline. No personal data is in that cache.</dd></div>
-        <div><dt>In memory only</dt><dd>Camera frames and the fingerprints of faces in view are compared with your list and dropped straight away; they're never written down. "Who was that?" keeps the last five whispers until you close Halo.</dd></div>
+        <div><dt>In memory only</dt><dd>Camera frames and the fingerprints of faces in view are compared with your list and dropped straight away; they’re never written down. “Who was that?” keeps the last five whispers until you close Halo.</dd></div>
         <div><dt>Photos</dt><dd>Not kept. A photo is turned into a fingerprint and thrown away; only the small picture for your list remains.</dd></div>
       </dl>
 
       <h2>What leaves your phone</h2>
-      <p><b>By default, nothing about your people.</b> The page's Content Security Policy allows connections only to its own address (<code>connect-src 'self'</code>), and the only requests are for the app's own files.</p>
-      <p><b>Enhanced mode</b> is off unless you turn it on, and asks first. Then, and only while you're online, Halo sends these requests to its own server at the same address, and lists each one under "What has left this phone" in the app:</p>
+      <p><b>By default, nothing about your people.</b> The page’s Content Security Policy allows connections only to its own address (<code>connect-src 'self'</code>), and the only requests are for the app’s own files.</p>
+      <p><b>Enhanced mode</b> is off unless you turn it on, and asks first. Then, and only while you’re online, Halo sends these requests to its own server at the same address, and lists each one under “What has left this phone” in the app:</p>
       <ul data-enhanced-routes>
         <li data-route="/api/session"><code>/api/session</code>: nothing personal; it starts a one-hour session.</li>
         <li data-route="/api/voice"><code>/api/voice</code>: the exact line Halo will whisper (up to 200 characters) and its language, to make a natural voice, once per person.</li>
         <li data-route="/api/translate"><code>/api/translate</code>: the line (up to 300 characters) and the language you chose, to translate it.</li>
         <li data-route="/api/write"><code>/api/write</code>: a name and the note you typed (up to 60 and 500 characters), only if you turn on the cloud writer.</li>
       </ul>
-      <p>The server runs Cloudflare Workers AI models, keeps nothing, and logs no request content. Its code also has a <code>/api/transcribe</code> route for short voice notes, which this version of the app doesn't call.</p>
-      <p><b>Dictation</b> is optional. If you tap the microphone, your browser's own speech recognition may send the audio to the browser maker (Google, in Chrome) to turn it into text. Typing stays on the phone.</p>
-      <p><b>Links you choose to send</b>, a consent question, an answer, or a helper's card, carry text inside the link after the <code>#</code>, which browsers never send to a server. Whatever app you send the link with can read that text. Links never contain photos or face fingerprints.</p>
+      <p>The server runs Cloudflare Workers AI models, keeps nothing, and logs no request content. Its code also has a <code>/api/transcribe</code> route for short voice notes, which this version of the app doesn’t call.</p>
+      <p><b>Dictation</b> is optional. If you tap the microphone, your browser’s own speech recognition may send the audio to the browser maker (Google, in Chrome) to turn it into text. Typing stays on the phone.</p>
+      <p><b>Links you choose to send</b>, a consent question, an answer, or a helper’s card, carry text inside the link after the <code>#</code>, which browsers never send to a server. Whatever app you send the link with can read that text. Links never contain photos or face fingerprints.</p>
       <p><b>Backups</b> are a file locked with a passphrase you choose. Where you keep it is up to you.</p>
       <p><b>The website host</b> sees ordinary request logs, as for any website: your IP address, the time, and which file was asked for. Never your people.</p>
 
@@ -54,26 +54,26 @@
       <ul>
         <li>Faces, camera frames or photos.</li>
         <li>Face fingerprints or the small pictures.</li>
-        <li>Your list of people, today's list, practice or reports.</li>
+        <li>Your list of people, today’s list, practice or reports.</li>
         <li>Anything to advertisers or analytics: there are none.</li>
       </ul>
 
       <h2>Whose consent it is</h2>
-      <p>The consent belongs to the person you add. Halo asks them to read the exact line it will whisper and agree on your phone, or answer by link on theirs. It records when and how they agreed, but it can't check that it was really them. They can change their mind at any time: remove them in one tap, and their fingerprints, note and picture are gone from your phone. If you add a child, ask a parent or carer first; Halo will only ever suggest "Could be" for a child.</p>
+      <p>The consent belongs to the person you add. Halo asks them to read the exact line it will whisper and agree on your phone, or answer by link on theirs. It records when and how they agreed, but it can’t check that it was really them. They can change their mind at any time: remove them in one tap, and their fingerprints, note and picture are gone from your phone. If you add a child, ask a parent or carer first; Halo will only ever suggest “Could be” for a child.</p>
 
       <h2>Deleting</h2>
       <ul>
         <li><b>One person:</b> open them, then Remove.</li>
         <li><b>Everything:</b> Settings, then Your data, then Delete everything. The data and the key go together.</li>
         <li><b>Wipe now:</b> one button in Your data clears the store, the offline cache, the service worker and settings at once, and closes Halo.</li>
-        <li>Clearing this site's data in your browser does the same.</li>
+        <li>Clearing this site’s data in your browser does the same.</li>
       </ul>
 
       <h2>Locking</h2>
-      <p>You can lock Halo with a passcode or your phone's own screen lock (fingerprint or face, through the browser). The lock stops someone who picks up your unlocked phone from opening Halo. It doesn't add a second layer of encryption: your data is already encrypted with the browser's key, and a person with full access to your unlocked phone and its developer tools could still reach the browser's storage.</p>
+      <p>You can lock Halo with a passcode or your phone’s own screen lock (fingerprint or face, through the browser). The lock stops someone who picks up your unlocked phone from opening Halo. It doesn’t add a second layer of encryption: your data is already encrypted with the browser’s key, and a person with full access to your unlocked phone and its developer tools could still reach the browser’s storage.</p>
 
       <p class="doc-note">This page describes the app as it is in this repository. If the code changes what leaves the phone, a test (<code>tests/unit/privacy-drift.test.ts</code>) fails until this page is changed too.</p>
     </main>
-    <footer class="doc-foot">%BRAND_NAME% · <a href="../privacy/">Privacy</a> · <a href="../terms/">Terms</a> · <a href="../safety/">Safety</a> · A prototype, tested so far mainly on AI-generated faces.</footer>
+    <footer class="doc-foot"><ul class="doc-foot__links"><li><a href="../privacy/">Privacy</a></li><li><a href="../terms/">Terms</a></li><li><a href="../safety/">Safety</a></li></ul><p>%BRAND_NAME%: a prototype, tested so far mainly on AI-generated faces.</p></footer>
   </body>
 </html>

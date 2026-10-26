@@ -94,12 +94,12 @@ export function LockScreen() {
             </label>
             <button type="submit" className="btn btn--primary btn--block" disabled={busy || waiting || !code} aria-busy={busy}>
               <LockKeyhole size={20} aria-hidden="true" />
-              {waiting ? `Try again in ${Math.ceil((waitUntil - now) / 1000)}s` : 'Unlock'}
+              {waiting ? `Try again in ${Math.ceil((waitUntil - now) / 1000)}s` : `Open ${BRAND.name}`}
             </button>
           </form>
         ) : (
           <button type="button" className="btn btn--primary btn--block" onClick={tryDevice} disabled={busy} aria-busy={busy}>
-            <Fingerprint size={20} aria-hidden="true" /> Unlock with this phone
+            <Fingerprint size={20} aria-hidden="true" /> Open with this phone’s lock
           </button>
         )}
         <p className="notice lock__error" id="lock-error" role="alert" hidden={!error}>

@@ -3,6 +3,7 @@ import { CalendarHeart, ChevronLeft, Ear, Lock, Settings as SettingsIcon, Shuffl
 import { navigate, type Route } from '../lib/router';
 import { unlockAudio } from '../lib/voice';
 import { BRAND } from '../brand';
+import { useT, type Key } from '../lib/i18n';
 
 /** The brand mark: a face-shaped ring with a whisper beside it. */
 export function HaloMark({ size = 24 }: { size?: number }) {
@@ -32,15 +33,16 @@ export function BackButton({ to = '/', label = 'Back' }: { to?: string; label?: 
   );
 }
 
-const TABS: Array<{ name: Route['name']; path: string; label: string; icon: typeof UsersRound; also?: Route['name'][] }> = [
-  { name: 'home', path: '/', label: 'People', icon: UsersRound, also: ['person'] },
-  { name: 'today', path: '/today', label: 'Today', icon: CalendarHeart },
-  { name: 'whisper', path: '/whisper', label: 'Whisper', icon: Ear },
-  { name: 'practice', path: '/practice', label: 'Practice', icon: Shuffle },
-  { name: 'settings', path: '/settings', label: 'Settings', icon: SettingsIcon, also: ['privacy', 'backup'] },
+const TABS: Array<{ name: Route['name']; path: string; label: Key; icon: typeof UsersRound; also?: Route['name'][] }> = [
+  { name: 'home', path: '/', label: 'tab.people', icon: UsersRound, also: ['person'] },
+  { name: 'today', path: '/today', label: 'tab.today', icon: CalendarHeart },
+  { name: 'whisper', path: '/whisper', label: 'tab.whisper', icon: Ear },
+  { name: 'practice', path: '/practice', label: 'tab.practice', icon: Shuffle },
+  { name: 'settings', path: '/settings', label: 'tab.settings', icon: SettingsIcon, also: ['privacy', 'backup', 'data', 'help'] },
 ];
 
 export function TabBar({ route }: { route: Route }) {
+  const tr = useT();
   return (
     <nav className="tabbar" aria-label="Main">
       {TABS.map((t) => {
@@ -56,7 +58,7 @@ export function TabBar({ route }: { route: Route }) {
                 unlockAudio();
                 navigate(t.path);
               }}
-              aria-label="Start Whisper mode"
+              aria-label={tr('tab.whisper')}
             >
               <span className="tab__lamp">
                 <Icon size={26} strokeWidth={2.2} aria-hidden="true" />
@@ -73,7 +75,7 @@ export function TabBar({ route }: { route: Route }) {
             onClick={() => navigate(t.path)}
           >
             <Icon size={24} aria-hidden="true" />
-            {t.label}
+            {tr(t.label)}
           </button>
         );
       })}
@@ -82,10 +84,11 @@ export function TabBar({ route }: { route: Route }) {
 }
 
 export function LocalBadge() {
+  const t = useT();
   return (
     <span className="badge-local" role="status">
       <Lock size={16} strokeWidth={2.6} aria-hidden="true" />
-      Recognised on this phone only
+      {t('whisper.local')}
     </span>
   );
 }

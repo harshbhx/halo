@@ -87,10 +87,10 @@ test('passcode lock: only a hash is kept, the wrong code is refused, the right o
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Halo is locked' })).toBeVisible();
   await page.getByLabel('Passcode').fill('1111');
-  await page.getByRole('button', { name: 'Unlock' }).click();
+  await page.getByRole('button', { name: 'Open Halo' }).click();
   await expect(page.getByRole('alert')).toContainText('That’s not it');
   await page.getByLabel('Passcode').fill('2468');
-  await page.getByRole('button', { name: 'Unlock' }).click();
+  await page.getByRole('button', { name: 'Open Halo' }).click();
   await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();
 
   await page.getByRole('button', { name: 'Lock now' }).click();
@@ -111,7 +111,7 @@ test('phone lock: a WebAuthn credential on a virtual authenticator unlocks Halo'
   await expect.poll(() => page.evaluate(() => localStorage.getItem('fw.settings') ?? '')).toContain('"kind":"device"');
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Halo is locked' })).toBeVisible();
-  await page.getByRole('button', { name: 'Unlock with this phone' }).click();
+  await page.getByRole('button', { name: 'Open with this phone’s lock' }).click();
   await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();
 });
 
@@ -129,4 +129,19 @@ test('a wrong match is reported on the phone and turns into a suggestion', async
   await expect(page.getByText(`Add new photos of ${name}`)).toBeVisible();
   await page.goto(`${APP}#/data`);
   await expect(page.locator('.data-rows')).toContainText(/Wrong-match reports\s*1/);
+});
+
+test('the main flow reads in Hindi or Gujarati when chosen', async ({ page }) => {
+  await page.addInitScript((s) => {
+    if (!localStorage.getItem('fw.settings')) localStorage.setItem('fw.settings', s);
+  }, seen());
+  await page.goto(`${APP}#/settings`);
+  await page.getByRole('radio', { name: 'हिन्दी' }).click();
+  await page.getByRole('button', { name: 'लोग', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'आपके लोग' })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.lang)).toBe('hi');
+  await page.getByRole('button', { name: 'सेटिंग्स', exact: true }).click();
+  await page.getByRole('radio', { name: 'ગુજરાતી' }).click();
+  await page.getByRole('button', { name: 'લોકો', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'તમારા લોકો' })).toBeVisible();
 });

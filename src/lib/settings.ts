@@ -156,4 +156,5 @@ export function applyDocumentSettings(s: Settings): void {
   else root.setAttribute('data-mode', s.theme);
   root.toggleAttribute('data-big-text', s.bigText);
   root.toggleAttribute('data-high-contrast', s.highContrast);
+  root.lang = s.language ?? 'en';
 }
