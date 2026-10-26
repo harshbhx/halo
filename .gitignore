@@ -1,0 +1,26 @@
+# Personal learning context stays out of commits (Devpost Learn 1-start)
+/devpost/learner-profile.md
+
+# Local credentials never get committed
+.env
+.env.*
+!.env.example
+
+# Build output and dependencies
+node_modules/
+dist/
+coverage/
+test-results/
+playwright-report/
+*.log
+.DS_Store
+
+# Generated fake-camera clips (rebuilt by scripts/make-fake-camera.sh)
+demo/fake-camera/*.y4m
+demo/fake-camera/*.wav
+
+# Model weights are copied from node_modules at install time
+public/models/
+
+# Symlink folder created by the skills installer for another harness
+/agent/
