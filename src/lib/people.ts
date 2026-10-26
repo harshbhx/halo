@@ -2,6 +2,7 @@
 import { useSyncExternalStore } from 'react';
 import type { Person } from './types';
 import * as vault from './vault';
+import { resetStores } from './stores';
 
 interface PeopleState {
   loaded: boolean;
@@ -40,7 +41,21 @@ export async function removePerson(id: string): Promise<void> {
 
 export async function removeEveryone(): Promise<void> {
   await vault.wipeVault();
+  resetStores();
   set({ loaded: true, people: [], error: null });
+}
+
+/** Add people from a backup, keeping anyone already here with the same id. */
+export async function restorePeople(people: Person[]): Promise<number> {
+  const existing = new Set(state.people.map((p) => p.id));
+  let added = 0;
+  for (const person of people) {
+    if (existing.has(person.id)) continue;
+    await vault.savePerson(person);
+    added += 1;
+  }
+  await refreshPeople();
+  return added;
 }
 
 function subscribe(listener: () => void): () => void {
