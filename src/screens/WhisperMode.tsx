@@ -417,7 +417,7 @@ export function WhisperMode({ demo }: { demo: boolean }) {
         : "Looking for people you've added";
 
   return (
-    <div className="whisper" role="application" aria-label="Whisper mode">
+    <main className="whisper" aria-label="Whisper mode">
       <video
         ref={videoRef}
         className={`whisper__video${mirror ? ' whisper__video--mirror' : ''}`}
@@ -471,6 +471,9 @@ export function WhisperMode({ demo }: { demo: boolean }) {
               <span style={{ width: `${Math.max(6, Math.round(progress * 100))}%` }} />
             </div>
             <p className="panel__body">The face reader runs here, on this device. Nothing is uploaded.</p>
+            <p className="panel__body" style={{ fontSize: 16 }}>
+              Tip: one earbud in, phone held at chest height.
+            </p>
           </div>
         </div>
       )}
@@ -561,6 +564,6 @@ export function WhisperMode({ demo }: { demo: boolean }) {
           </>
         )}
       </div>
-    </div>
+    </main>
   );
 }
