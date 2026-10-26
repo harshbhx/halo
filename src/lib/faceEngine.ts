@@ -12,6 +12,19 @@ export interface DetectedFace {
   box: { x: number; y: number; width: number; height: number };
   score: number;
   descriptor: Float32Array;
+  /** Nose tip and eye centres, for the "turned away" hint. */
+  marks: { nose: Point; leftEye: Point; rightEye: Point };
+}
+
+interface Point {
+  x: number;
+  y: number;
+}
+
+function centre(points: Point[]): Point {
+  const x = points.reduce((s, p) => s + p.x, 0) / points.length;
+  const y = points.reduce((s, p) => s + p.y, 0) / points.length;
+  return { x, y };
 }
 
 export type DescribeResult =
@@ -44,7 +57,7 @@ export function loadEngine(onProgress?: (fraction: number) => void): Promise<Fac
       setWasmPaths?(prefix: string): void;
     };
     // Fastest first: the GPU (WebGL), then WebAssembly, then plain JavaScript.
-    tf.setWasmPaths?.(new URL('wasm/', document.baseURI).href);
+    tf.setWasmPaths?.(new URL('../wasm/', document.baseURI).href);
     for (const backend of ['webgl', 'wasm', 'cpu']) {
       try {
         if ((await tf.setBackend(backend)) && tf.getBackend() === backend) {
@@ -58,7 +71,7 @@ export function loadEngine(onProgress?: (fraction: number) => void): Promise<Fac
     backendName = tf.getBackend();
     onProgress?.(0.4);
 
-    const base = new URL('models/', document.baseURI).href;
+    const base = new URL('../models/', document.baseURI).href;
     let done = 0;
     const step = () => {
       done += 1;
@@ -97,11 +110,15 @@ export async function detectAll(input: Input, inputSize = 320): Promise<Detected
     .detectAllFaces(input, new faceapi.TinyFaceDetectorOptions({ inputSize, scoreThreshold: 0.5 }))
     .withFaceLandmarks(true)
     .withFaceDescriptors();
-  return results.map((r) => ({
-    box: { x: r.detection.box.x, y: r.detection.box.y, width: r.detection.box.width, height: r.detection.box.height },
-    score: r.detection.score,
-    descriptor: r.descriptor,
-  }));
+  return results.map((r) => {
+    const pts = r.landmarks.positions;
+    return {
+      box: { x: r.detection.box.x, y: r.detection.box.y, width: r.detection.box.width, height: r.detection.box.height },
+      score: r.detection.score,
+      descriptor: r.descriptor,
+      marks: { nose: pts[30], leftEye: centre(pts.slice(36, 42)), rightEye: centre(pts.slice(42, 48)) },
+    };
+  });
 }
 
 function sourceSize(input: Input): { width: number; height: number } {
@@ -157,9 +174,31 @@ export function grabFrame(video: HTMLVideoElement): HTMLCanvasElement {
   return canvas;
 }
 
+let sampler: CanvasRenderingContext2D | null = null;
+
+/** Average brightness of a small copy of the frame, 0 to 255. */
+export function frameBrightness(input: Input): number {
+  if (!sampler) {
+    const c = document.createElement('canvas');
+    c.width = 32;
+    c.height = 32;
+    sampler = c.getContext('2d', { willReadFrequently: true });
+  }
+  if (!sampler) return 128;
+  sampler.drawImage(input, 0, 0, 32, 32);
+  const data = sampler.getImageData(0, 0, 32, 32).data;
+  let sum = 0;
+  for (let i = 0; i < data.length; i += 4) sum += 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
+  return sum / (data.length / 4);
+}
+
+export function sourceWidth(input: Input): number {
+  return sourceSize(input).width;
+}
+
 export const DESCRIBE_MESSAGES: Record<Exclude<DescribeResult, { ok: true }>['reason'], string> = {
-  'no-face': "We couldn't see a face. Try more light, or move a little closer.",
-  'many-faces': 'More than one face is in view. Frame just the person you are adding.',
-  'too-small': 'Their face is a bit far away. Move a little closer.',
-  unclear: 'That shot was unclear. Hold steady and try again.',
+  'no-face': 'No face in that photo. More light, or a step closer, usually fixes it.',
+  'many-faces': 'Two or more faces were in view. Frame only the person you\u2019re adding.',
+  'too-small': 'Their face is a bit small in the frame. Step a little closer.',
+  unclear: 'That photo was unclear. Hold the phone still and try again.',
 };

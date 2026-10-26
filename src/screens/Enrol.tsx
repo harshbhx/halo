@@ -1,43 +1,45 @@
-import { Check, ChevronLeft, Mic, Play, RefreshCw, SwitchCamera, X } from 'lucide-react';
+import { ChevronLeft, Ear, Mic, Play, RefreshCw, SwitchCamera, UserPlus, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { toast } from '../components/ui';
+import { Avatar, Segmented, toast } from '../components/ui';
 import { CAMERA_MESSAGES, CameraError, openCamera, stopStream, type CameraProblem } from '../lib/camera';
 import { dictationSupported, startDictation, type DictationSession } from '../lib/dictation';
-import { DESCRIBE_MESSAGES, describe, grabFrame, loadEngine } from '../lib/faceEngine';
+import { DESCRIBE_MESSAGES, describe, frameBrightness, grabFrame, loadEngine } from '../lib/faceEngine';
+import { DARK_BELOW, HINT_TEXT } from '../lib/hints';
+import { euclidean } from '../lib/matcher';
 import { onDeviceModelAvailable, whisperWithModel } from '../lib/onDeviceModel';
 import { addOrUpdatePerson, newId } from '../lib/people';
 import { navigate } from '../lib/router';
 import { getSettings, updateSettings, useSettings } from '../lib/settings';
-import type { Cues, WhisperSource } from '../lib/types';
+import type { Cues, Person, WhisperSource } from '../lib/types';
 import { speak, unlockAudio } from '../lib/voice';
 import { makeWhisper } from '../lib/whisper';
-import { euclidean } from '../lib/matcher';
-
-/** Shots of one person sit close together; a far-off shot is probably someone else. */
-const SAME_PERSON_LIMIT = 0.55;
+import { spokenLine, STYLE_LABELS, type WhisperStyle } from '../lib/whisperStyle';
 
 export const MIN_SHOTS = 3;
 const MAX_SHOTS = 5;
-const TIPS = ['Look straight at the camera', 'Now turn a little to one side', 'And a little to the other side', 'Maybe one with a smile', 'One more, any angle'];
+/** Shots of one person sit close together; a far-off shot is probably someone else. */
+const SAME_PERSON_LIMIT = 0.55;
+const TIPS = ['Look straight at the camera', 'Now turn a little to one side', 'And a little to the other', 'One with a smile, if you like', 'One more, any angle'];
 
 export interface Shot {
   descriptor: number[];
   thumb: string;
 }
 
-function Progress({ step }: { step: number }) {
+function StepBar({ step, total }: { step: number; total: number }) {
   return (
-    <div className="progress" role="progressbar" aria-valuemin={1} aria-valuemax={4} aria-valuenow={step + 1} aria-label="Progress">
-      {[0, 1, 2, 3].map((i) => (
-        <span key={i} className="progress__seg" data-state={i < step ? 'done' : i === step ? 'current' : 'todo'}>
-          <span />
-        </span>
-      ))}
+    <div className="steps">
+      <div className="steps__bar" role="progressbar" aria-valuemin={1} aria-valuemax={total} aria-valuenow={step + 1} aria-label="Progress">
+        <div className="steps__fill" style={{ transform: `scaleX(${(step + 1) / total})` }} />
+      </div>
+      <span className="steps__text">
+        Step {step + 1} of {total}
+      </span>
     </div>
   );
 }
 
-/* ---------- Step 2: photos ---------- */
+/* ---------- Photos ---------- */
 
 export function PhotoStep({
   name,
@@ -59,6 +61,7 @@ export function PhotoStep({
   const [busy, setBusy] = useState(false);
   const [flash, setFlash] = useState(0);
   const [attempt, setAttempt] = useState(0);
+  const [dark, setDark] = useState(false);
   const facing = settings.facing;
 
   useEffect(() => {
@@ -93,79 +96,87 @@ export function PhotoStep({
     };
   }, [facing, attempt]);
 
+  // A light check every second: is it too dark for a good photo?
+  useEffect(() => {
+    if (!cameraOn) return;
+    const timer = setInterval(() => {
+      const v = videoRef.current;
+      if (v && v.videoWidth) setDark(frameBrightness(v) < DARK_BELOW);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cameraOn]);
+
   async function capture() {
     const video = videoRef.current;
     if (!video || busy || shots.length >= MAX_SHOTS || video.videoWidth === 0) return;
     setBusy(true);
     setFlash((f) => f + 1);
     try {
-      const frame = grabFrame(video);
-      const result = await describe(frame);
+      const result = await describe(grabFrame(video));
       if (result.ok && shots.length > 0 && Math.min(...shots.map((s) => euclidean(s.descriptor, result.descriptor))) > SAME_PERSON_LIMIT) {
-        toast('That looks like someone else. Keep the same person in view.', 4000);
+        toast('That looks like someone else. Keep the same person in view.');
       } else if (result.ok) {
-        const next = [...shots, { descriptor: result.descriptor, thumb: result.thumb }];
-        setShots(next);
-        if (next.length === MIN_SHOTS) toast('Three good photos. Add more or continue.', 2000);
+        setShots([...shots, { descriptor: result.descriptor, thumb: result.thumb }]);
       } else {
-        toast(DESCRIBE_MESSAGES[result.reason], 4000);
+        toast(DESCRIBE_MESSAGES[result.reason]);
       }
     } catch {
-      toast('That photo could not be read. Try again.');
+      toast('That photo couldn’t be read. Try again.');
     } finally {
       setBusy(false);
     }
   }
 
   const ready = cameraOn && engine === 'ready';
-  const tip = shots.length >= MAX_SHOTS ? 'All set' : TIPS[shots.length];
+  const tip = dark ? HINT_TEXT.dark : shots.length >= MAX_SHOTS ? 'That’s plenty' : TIPS[shots.length];
 
   return (
     <>
       {heading && (
-        <div>
-          <h1 className="title title--md" tabIndex={-1} id="step-title">
-            Take {MIN_SHOTS} photos of {name}
+        <div className="stack">
+          <h1 tabIndex={-1} id="step-title">
+            Three photos of {name}
           </h1>
-          <p className="lede">Straight on, then turned a little each way. Good light helps.</p>
+          <p className="lead">Straight on, then turned a little each way. Good light helps.</p>
         </div>
       )}
 
-      <div className={`camera camera--capture${facing === 'user' ? ' camera--mirror' : ''}`}>
+      <div className={`camera${facing === 'user' ? ' camera--mirror' : ''}`}>
         <video ref={videoRef} muted playsInline autoPlay aria-label="Camera preview" />
         <svg className="camera__guide" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
           <defs>
             <mask id="oval-mask">
               <rect width="300" height="400" fill="white" />
-              <ellipse cx="150" cy="190" rx="92" ry="122" fill="black" />
+              <ellipse cx="150" cy="185" rx="92" ry="120" fill="black" />
             </mask>
           </defs>
-          <rect width="300" height="400" fill="rgb(5 8 10 / 0.45)" mask="url(#oval-mask)" />
-          <ellipse cx="150" cy="190" rx="92" ry="122" fill="none" stroke="var(--ring)" strokeWidth="3" strokeDasharray={ready ? '0' : '6 8'} opacity="0.9" />
+          <rect className="camera__shade" width="300" height="400" mask="url(#oval-mask)" />
+          <ellipse cx="150" cy="185" rx="92" ry="120" fill="none" strokeWidth="3" strokeDasharray={ready ? '0' : '6 8'} />
         </svg>
         {ready && <div className="camera__tip">{tip}</div>}
         <div className="camera__flash" data-on={flash % 2 === 1 ? 'true' : 'false'} key={flash} />
         {!problem && !ready && (
           <div className="camera__state">
             <div className="loader" aria-hidden="true">
-              <span style={{ width: `${Math.round(progress * 100)}%` }} />
+              <span style={{ transform: `scaleX(${Math.max(0.04, progress)})` }} />
             </div>
-            <p>{engine === 'failed' ? "The face reader couldn't start on this device." : 'Getting ready on your phone…'}</p>
+            <p>{engine === 'failed' ? 'The face reader couldn’t start in this browser.' : 'Getting ready on your phone…'}</p>
           </div>
         )}
         {problem && (
           <div className="camera__state" role="alert">
-            <p style={{ fontSize: 22, fontWeight: 800 }}>{CAMERA_MESSAGES[problem].title}</p>
-            <p style={{ opacity: 0.85 }}>{CAMERA_MESSAGES[problem].body}</p>
-            <button type="button" className="btn btn--secondary" onClick={() => setAttempt((a) => a + 1)}>
-              <RefreshCw size={20} aria-hidden="true" /> Try again
+            <p>
+              <b>{CAMERA_MESSAGES[problem].title}</b>
+            </p>
+            <p>{CAMERA_MESSAGES[problem].body}</p>
+            <button type="button" className="btn" onClick={() => setAttempt((a) => a + 1)}>
+              <RefreshCw size={18} aria-hidden="true" /> Try the camera again
             </button>
           </div>
         )}
         <button
           type="button"
-          className="round glass"
-          style={{ position: 'absolute', right: 12, bottom: 12, width: 48, height: 48 }}
+          className="night-btn camera__flip"
           onClick={() => updateSettings({ facing: facing === 'user' ? 'environment' : 'user' })}
           aria-label="Switch camera"
         >
@@ -173,18 +184,11 @@ export function PhotoStep({
         </button>
       </div>
 
-      <div className="capture-bar">
+      <div className="capture">
         <div className="shots" aria-label={`${shots.length} photos taken`}>
           {shots.map((s, i) => (
-            <button
-              type="button"
-              key={i}
-              className="shot"
-              onClick={() => setShots(shots.filter((_, j) => j !== i))}
-              aria-label={`Remove photo ${i + 1}`}
-              style={{ padding: 0, border: 0 }}
-            >
-              <img src={s.thumb} alt="" />
+            <button type="button" key={i} className="shot" onClick={() => setShots(shots.filter((_, j) => j !== i))} aria-label={`Remove photo ${i + 1}`}>
+              <img src={s.thumb} alt="" width={48} height={48} />
             </button>
           ))}
           {shots.length < MIN_SHOTS &&
@@ -195,7 +199,7 @@ export function PhotoStep({
           className="shutter"
           onClick={capture}
           disabled={!ready || busy || shots.length >= MAX_SHOTS}
-          data-busy={busy}
+          aria-busy={busy}
           aria-label={busy ? 'Reading photo' : `Take photo ${shots.length + 1}`}
         />
         <p className="shot-count" aria-live="polite">
@@ -206,7 +210,7 @@ export function PhotoStep({
   );
 }
 
-/* ---------- Step 3: note and whisper ---------- */
+/* ---------- Note and whisper ---------- */
 
 function NoteStep({
   name,
@@ -228,12 +232,13 @@ function NoteStep({
   const settings = useSettings();
   const [listening, setListening] = useState(false);
   const [micError, setMicError] = useState('');
+  const [style, setStyle] = useState<WhisperStyle>(settings.whisperStyle);
   const sessionRef = useRef<DictationSession | null>(null);
   const canDictate = dictationSupported();
   const sourceRef = useRef(source);
   sourceRef.current = source;
 
-  // Rules write the whisper instantly; an on-device model (if the browser has one) may refine it.
+  // Rules write the whisper at once; an on-device model, if the browser has one, may refine it.
   useEffect(() => {
     if (sourceRef.current === 'edited') return;
     setWhisper(makeWhisper(name, note));
@@ -278,21 +283,21 @@ function NoteStep({
   }
 
   const sourceLabel =
-    source === 'edited' ? 'Edited by you' : source === 'on-device-model' ? "Written by your browser's on-device model" : 'Written on this phone by built-in rules';
+    source === 'edited' ? 'You edited this line' : source === 'on-device-model' ? 'Written by your browser’s on-device model' : 'Written on this phone by built-in rules';
 
   return (
     <>
-      <div>
-        <h1 className="title title--md" tabIndex={-1} id="step-title">
+      <div className="stack">
+        <h1 tabIndex={-1} id="step-title">
           What should we whisper?
         </h1>
-        <p className="lede">Say or type who {name} is and how you know them. We'll turn it into one short line.</p>
+        <p className="lead">Say or type who {name} is and how you know them.</p>
       </div>
 
       {canDictate && (
-        <button type="button" className="mic" aria-pressed={listening} onClick={toggleMic}>
-          {listening ? <span className="mic__dot" aria-hidden="true" /> : <Mic size={24} aria-hidden="true" />}
-          {listening ? 'Listening… tap to stop' : 'Tap and say it'}
+        <button type="button" className="btn btn--block mic" aria-pressed={listening} onClick={toggleMic}>
+          <Mic size={20} aria-hidden="true" />
+          {listening ? 'Listening, tap to stop' : 'Tap and say it'}
         </button>
       )}
       {micError && (
@@ -313,29 +318,35 @@ function NoteStep({
         <span className="field__hint">Only you will ever see or hear this.</span>
       </label>
 
-      <div className="whisper-card">
-        <label className="whisper-card__label" htmlFor="whisper-text">
+      <div className="panel whisper-panel">
+        <label className="field__label" htmlFor="whisper-text">
           Whisper preview
         </label>
         <textarea
           id="whisper-text"
-          className="whisper-card__text"
+          className="whisper-panel__text"
           value={whisper}
-          rows={Math.max(2, Math.ceil(whisper.length / 24))}
+          rows={Math.max(2, Math.ceil(whisper.length / 22))}
           onChange={(e) => {
             setWhisper(e.target.value);
             setSource('edited');
           }}
         />
-        <div className="whisper-card__foot">
-          <span>{sourceLabel}</span>
+        <Segmented<WhisperStyle>
+          label="How it sounds"
+          value={style}
+          options={(Object.keys(STYLE_LABELS) as WhisperStyle[]).map((k) => ({ value: k, label: STYLE_LABELS[k].name }))}
+          onChange={setStyle}
+        />
+        <div className="whisper-panel__foot">
+          <span className="label">{sourceLabel}</span>
           <button
             type="button"
-            className="btn btn--quiet"
+            className="btn"
             onClick={() => {
               unlockAudio();
               const s = getSettings();
-              void speak(whisper, { voiceName: s.voiceName, volume: s.volume, rate: s.rate, chime: false });
+              void speak(spokenLine({ name, whisper, cues: {} }, style), { voiceName: s.voiceName, volume: s.volume, rate: s.rate, chimeSound: s.chimeSound });
             }}
             disabled={!whisper.trim()}
           >
@@ -347,11 +358,11 @@ function NoteStep({
   );
 }
 
-/* ---------- Step 4: cues ---------- */
+/* ---------- Cues ---------- */
 
 const CUE_FIELDS: Array<{ key: keyof Cues; label: string; placeholder: string }> = [
   { key: 'clothes', label: 'Usual clothes', placeholder: 'Green parka, running shoes' },
-  { key: 'hair', label: 'Hair', placeholder: 'Short grey hair, beard' },
+  { key: 'hair', label: 'Hair', placeholder: 'Short grey hair, a beard' },
   { key: 'glasses', label: 'Glasses or accessories', placeholder: 'Round glasses, silver earrings' },
   { key: 'other', label: 'Voice or anything else', placeholder: 'Deep voice, walks a beagle' },
 ];
@@ -368,13 +379,14 @@ export function Enrol() {
   const [source, setSource] = useState<WhisperSource>('rules');
   const [cues, setCues] = useState<Cues>({});
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState<Person | null>(null);
   const consentAt = useRef<string>('');
 
   useEffect(() => {
     document.getElementById('step-title')?.focus({ preventScroll: true });
     window.scrollTo({ top: 0 });
-    document.querySelector('.app')?.scrollTo({ top: 0 });
-  }, [step]);
+    document.querySelector('.shell')?.scrollTo({ top: 0 });
+  }, [step, saved]);
 
   const cleanName = name.trim();
   const canContinue = [cleanName.length > 0 && consent, shots.length >= MIN_SHOTS, whisper.trim().length > 0, true][step];
@@ -382,26 +394,39 @@ export function Enrol() {
   async function save() {
     setSaving(true);
     const now = new Date().toISOString();
+    const person: Person = {
+      id: newId(),
+      name: cleanName,
+      note: note.trim(),
+      whisper: whisper.trim(),
+      whisperSource: source,
+      cues: Object.fromEntries(Object.entries(cues).filter(([, v]) => v && v.trim())) as Cues,
+      descriptors: shots.map((s) => s.descriptor),
+      thumb: shots[0]?.thumb ?? '',
+      consentAt: consentAt.current || now,
+      createdAt: now,
+      updatedAt: now,
+    };
     try {
-      await addOrUpdatePerson({
-        id: newId(),
-        name: cleanName,
-        note: note.trim(),
-        whisper: whisper.trim(),
-        whisperSource: source,
-        cues: Object.fromEntries(Object.entries(cues).filter(([, v]) => v && v.trim())) as Cues,
-        descriptors: shots.map((s) => s.descriptor),
-        thumb: shots[0]?.thumb ?? '',
-        consentAt: consentAt.current || now,
-        createdAt: now,
-        updatedAt: now,
-      });
-      toast(`${cleanName} added. Open Whisper to try it.`);
-      navigate('/', true);
+      await addOrUpdatePerson(person);
+      setSaved(person);
     } catch {
-      toast("Couldn't save. Is storage blocked in this browser?");
+      toast('Nothing was saved: this browser is blocking storage.');
+    } finally {
       setSaving(false);
     }
+  }
+
+  function reset() {
+    setSaved(null);
+    setStep(0);
+    setName('');
+    setConsent(false);
+    setShots([]);
+    setNote('');
+    setWhisper('');
+    setSource('rules');
+    setCues({});
   }
 
   function next() {
@@ -409,6 +434,42 @@ export function Enrol() {
     if (step === 0) consentAt.current = new Date().toISOString();
     if (step < 3) setStep(step + 1);
     else void save();
+  }
+
+  if (saved) {
+    return (
+      <main className="screen screen--flow" aria-labelledby="step-title">
+        <div className="saved">
+          <Avatar src={saved.thumb} name={saved.name} large />
+          <h1 id="step-title" tabIndex={-1}>
+            {saved.name} is added.
+          </h1>
+          <p className="lead">Your phone will whisper “{saved.whisper}” when {saved.name} is in view.</p>
+        </div>
+        <div className="flow-foot" style={{ marginTop: 'auto' }}>
+          <button
+            type="button"
+            className="btn btn--primary btn--block"
+            onClick={() => {
+              unlockAudio();
+              navigate('/whisper', true);
+            }}
+          >
+            <Ear size={20} aria-hidden="true" />
+            Try Whisper mode
+          </button>
+          <div className="row">
+            <button type="button" className="btn btn--quiet" onClick={reset}>
+              <UserPlus size={18} aria-hidden="true" /> Add another
+            </button>
+            <span className="spacer" />
+            <button type="button" className="btn btn--quiet" onClick={() => navigate('/', true)}>
+              Done
+            </button>
+          </div>
+        </div>
+      </main>
+    );
   }
 
   return (
@@ -420,10 +481,9 @@ export function Enrol() {
           onClick={() => (step === 0 ? navigate('/') : setStep(step - 1))}
           aria-label={step === 0 ? 'Cancel adding' : 'Back'}
         >
-          {step === 0 ? <X size={24} aria-hidden="true" /> : <ChevronLeft size={26} aria-hidden="true" />}
+          {step === 0 ? <X size={22} aria-hidden="true" /> : <ChevronLeft size={24} aria-hidden="true" />}
         </button>
-        <Progress step={step} />
-        <span className="step-count">Step {step + 1} of 4</span>
+        <StepBar step={step} total={4} />
       </div>
 
       <form
@@ -433,66 +493,53 @@ export function Enrol() {
           next();
         }}
       >
-        <div className="step-anim" key={step}>
-        {step === 0 && (
-          <>
-            <div>
-              <h1 className="title title--md" tabIndex={-1} id="step-title">
-                Who are you adding?
-              </h1>
-              <p className="lede">Only add people who have said yes. Their face stays on this phone.</p>
-            </div>
-            <label className="field">
-              <span className="field__label">Their name</span>
-              <input
-                className="input"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                autoComplete="off"
-                autoCapitalize="words"
-                enterKeyHint="next"
-                placeholder="For example, Raj"
-                maxLength={60}
-              />
-            </label>
-            <label className="consent">
-              <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
-              <span className="consent__box" aria-hidden="true">
-                <Check size={22} strokeWidth={3} />
-              </span>
-              <span>
-                <span className="consent__title">{cleanName || 'They'} agreed to be added</span>
-                <span className="consent__body" style={{ display: 'block' }}>
-                  I asked, and they're happy for my phone to recognise them. I can delete them any time.
+        <div className="step" key={step}>
+          {step === 0 && (
+            <>
+              <div className="stack">
+                <h1 tabIndex={-1} id="step-title">
+                  Who are you adding?
+                </h1>
+                <p className="lead">Only people who said yes. Their face stays on this phone.</p>
+              </div>
+              <label className="field">
+                <span className="field__label">Their name</span>
+                <input
+                  className="input"
+                  name="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  autoComplete="off"
+                  autoCapitalize="words"
+                  enterKeyHint="next"
+                  placeholder="For example, Raj"
+                  maxLength={60}
+                />
+              </label>
+              <label className="consent">
+                <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
+                <span>
+                  <span className="consent__title">{cleanName || 'They'} agreed to be added</span>
+                  <span className="consent__body">I asked, and they’re happy for my phone to recognise them. I can delete them any time.</span>
                 </span>
-              </span>
-            </label>
-          </>
-        )}
+              </label>
+            </>
+          )}
 
-        {step === 1 && <PhotoStep name={cleanName} shots={shots} setShots={setShots} />}
+          {step === 1 && <PhotoStep name={cleanName} shots={shots} setShots={setShots} />}
 
-        {step === 2 && (
-          <NoteStep
-            name={cleanName}
-            note={note}
-            setNote={setNote}
-            whisper={whisper}
-            setWhisper={setWhisper}
-            source={source}
-            setSource={setSource}
-          />
-        )}
+          {step === 2 && (
+            <NoteStep name={cleanName} note={note} setNote={setNote} whisper={whisper} setWhisper={setWhisper} source={source} setSource={setSource} />
+          )}
 
-        {step === 3 && (
-          <>
-            <div>
-              <h1 className="title title--md" tabIndex={-1} id="step-title">
-                How can you spot {cleanName}?
-              </h1>
-              <p className="lede">Optional. Clothes, hair, glasses or a voice often help more than a face. These show under the whisper.</p>
-            </div>
-            <div className="cue-grid">
+          {step === 3 && (
+            <>
+              <div className="stack">
+                <h1 tabIndex={-1} id="step-title">
+                  How can you spot {cleanName}?
+                </h1>
+                <p className="lead">Optional. Clothes, hair or a voice often help more than a face. They show under the whisper.</p>
+              </div>
               {CUE_FIELDS.map((f) => (
                 <label className="field" key={f.key}>
                   <span className="field__label">{f.label}</span>
@@ -506,20 +553,18 @@ export function Enrol() {
                   />
                 </label>
               ))}
-            </div>
-          </>
-        )}
-
+            </>
+          )}
         </div>
 
         <div className="flow-foot">
-          <button type="submit" className="btn btn--primary btn--block btn--lg" disabled={!canContinue || saving}>
+          <button type="submit" className="btn btn--primary btn--block" disabled={!canContinue || saving} aria-busy={saving}>
             {step === 3 ? (saving ? 'Saving…' : `Save ${cleanName}`) : 'Continue'}
           </button>
           {step === 1 && (
             <p className="field__hint" style={{ textAlign: 'center' }}>
               {shots.length < MIN_SHOTS
-                ? `${MIN_SHOTS - shots.length} more ${MIN_SHOTS - shots.length === 1 ? 'photo' : 'photos'} to go. Only face fingerprints and one small picture are kept.`
+                ? `${MIN_SHOTS - shots.length} more ${MIN_SHOTS - shots.length === 1 ? 'photo' : 'photos'} to go. Only fingerprints and one small picture are kept.`
                 : 'Only face fingerprints and one small picture are kept.'}
             </p>
           )}
