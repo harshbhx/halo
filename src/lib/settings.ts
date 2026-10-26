@@ -32,6 +32,11 @@ export interface Settings {
   practiceKind: PracticeKind;
   /** Whispers are spoken only once the user has checked their earbud (or chosen the speaker). */
   speakAllowed: boolean;
+  /** Optional Enhanced mode: text only, off by default. */
+  enhanced: boolean;
+  naturalVoice: boolean;
+  whisperLang: string;
+  cloudWriter: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -53,6 +58,10 @@ export const DEFAULT_SETTINGS: Settings = {
   highContrast: false,
   practiceKind: 'cues',
   speakAllowed: false,
+  enhanced: false,
+  naturalVoice: true,
+  whisperLang: 'en',
+  cloudWriter: false,
 };
 
 const KEY = 'fw.settings';

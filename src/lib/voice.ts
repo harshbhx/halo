@@ -121,8 +121,37 @@ export function haptic(pattern: number | number[] = 25): void {
   }
 }
 
+let clip: HTMLAudioElement | null = null;
+
 export function stopSpeaking(): void {
   if (speechSupported()) window.speechSynthesis.cancel();
+  clip?.pause();
+}
+
+/** Plays a stored natural-voice clip (base64 MP3) from memory: no network involved. */
+export async function playClip(base64: string, volume: number): Promise<boolean> {
+  try {
+    const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+    const url = URL.createObjectURL(new Blob([bytes], { type: 'audio/mpeg' }));
+    clip = new Audio(url);
+    clip.volume = Math.min(Math.max(volume, 0), 1);
+    await clip.play();
+    await new Promise<void>((resolve) => {
+      clip!.onended = () => resolve();
+      clip!.onerror = () => resolve();
+      setTimeout(resolve, 15000);
+    });
+    URL.revokeObjectURL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Is there a voice on this device for a language (e.g. "hi")? */
+export function voiceFor(lang: string): SpeechSynthesisVoice | undefined {
+  if (!speechSupported()) return undefined;
+  return window.speechSynthesis.getVoices().find((v) => v.lang.toLowerCase().startsWith(lang.toLowerCase()));
 }
 
 /** Speaks a line. Resolves when finished (or straight away if speech is unavailable). */
