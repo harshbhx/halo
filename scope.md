@@ -49,6 +49,7 @@ Someone opens Halo on a phone, reads a short tour and the promise, adds a friend
 - Where you met, per person; adding someone by saying one sentence; quiet hours and "never whisper".
 - A helper: a trusted person prepares a card as text and sends it as a link; photos are still taken in person.
 - Halo in 60 seconds: a guided minute with the sample people, before the tour, with no camera.
+- A real product's basics: privacy, terms and safety written out and tested against the code; a data screen with Wipe now; an optional lock; wrong-match reports; Help; Hindi and Gujarati for the main flow; a battery saver; update prompts. What could go wrong is in `docs/threat-model.md`.
 - People, Today's list, Practice from cues or photos, Settings (voice, volume, speed, output mode, strictness, bigger text, higher contrast, theme), backups locked with a passphrase, Delete everything.
 - Privacy and limits screen with the six honest limits and a ledger of anything that left the phone.
 - Optional Enhanced mode, off by default and text only: a natural voice, whispers in other languages, a cloud whisper writer.

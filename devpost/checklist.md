@@ -129,6 +129,16 @@ Build mode: fast. The slices were built and mechanically verified by the AI codi
   Learner check: Look at the before and after contact sheets in `docs/shots/recolour/` and the app on your phone in both modes.
   Commit: `Recolour Halo with an Ajrakh palette kept in one file`
 
+- [x] **13. A real product: privacy written out, data controls, a lock**
+  Becomes usable: Privacy, terms and safety pages; Your data with Wipe now; a passcode or phone lock; wrong-match reports and suggestions; Help; Hindi and Gujarati for the main flow; battery saver; update prompts; a threat model.
+  Why now: Harsh asked for an app people could really use, with all privacy written out.
+  PRD ref: `prd.md > Features and Behavior > A real product: privacy written out, control, a lock`
+  Spec ref: `spec.md > Privacy pages, data controls and the lock`
+  Build: `privacy/`, `terms/`, `safety/`, `DataControls`, `wipe.ts`, `lock.ts`, `LockScreen`, `reports.ts`, `Help`, `i18n.ts`, the service worker update flow, `perf.record.ts`, `docs/threat-model.md`.
+  Verify (mechanical): The privacy drift test; Playwright: Wipe now leaves nothing, the passcode and virtual WebAuthn locks, wrong-match suggestions, languages; axe on every new page; Hallmark 0 FAIL and 0 WARN; `npm run perf` numbers.
+  Learner check: Read the privacy page and ask: is anything here surprising? Set a passcode, then try Wipe now on a spare browser.
+  Commit: `Your data, Wipe now, an app lock, wrong-match reports, Help and update prompts`
+
 ## Hands-on Checkpoints
 
 - [ ] Early usable behavior explored: **Harsh**, on his own phone, adding a real friend who agrees.
@@ -171,5 +181,6 @@ Activity mode: pending
 - Optional Enhanced mode added at Harsh's decision: text only, off by default, with a ledger.
 - Second feature round at Harsh's request: pocket mode, event mode, where you met, spoken enrolment, a helper, quiet hours and never whisper, Halo in 60 seconds, an accessibility pass.
 - Helper cards are text only, not "photos and a note" as first asked: photos or face fingerprints in a link would leave the phone through the messaging app, which breaks the core promise. Photos are taken in person on the user's phone.
+- Helper cards and the lock are worded honestly: the lock is a lock screen, not extra encryption; the Hindi and Gujarati are machine-translated and flagged.
 - Recoloured from Ribbon's amber and blue-black to an Ajrakh palette (undyed cotton, iron black, indigo, madder) at Harsh's request; the halo became the resist white with a dark edge so it shows on any background, and the three states still differ by line and label.
 - The accessibility pass found focus staying on "Next" between tour parts (fixed: focus moves to each part's heading) and the tour footer overflowing a 375px screen (fixed).

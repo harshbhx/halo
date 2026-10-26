@@ -77,6 +77,15 @@ Handoff in `src/screens/Enrol.tsx`; links in `src/lib/consentLink.ts`, `consent/
 ### Pocket mode and the 60-second try
 Both live in `src/screens/WhisperMode.tsx`. Pocket mode: the `pocketMode` setting, a `.pocket` overlay with a live status line, `navigator.wakeLock.request('screen')` re-requested when the page becomes visible, focus moved to **Wake the screen**. The try: route `#/try` (allowed before the tour in `src/App.tsx`), sample people prepared on first use, a coach that counts confident people and a no-match face, a summary after both or 75 seconds, voice only after the user turns it on.
 
+### Privacy pages, data controls and the lock
+- `privacy/`, `terms/`, `safety/`: static pages built by Vite, sharing `privacy/legal.css`. `tests/unit/privacy-drift.test.ts` reads `public/_headers`, every file that ships to the browser, `src/lib/enhanced.ts` and `worker/index.ts`, and fails if `connect-src`, the network callers, the Enhanced routes or the Worker's limits differ from the privacy page.
+- `src/screens/DataControls.tsx` (`#/data`) counts what is stored (people, fingerprints, pictures, lists, practice, ledger, reports, settings, offline cache, storage estimate). `src/lib/wipe.ts` deletes the vault and every IndexedDB database, every cache, every service worker registration, settings and session storage, then shows `#/wiped`.
+- `src/lib/lock.ts`: PBKDF2-SHA-256 (150,000 rounds, 16-byte salt) for a passcode, kept as a hash in settings; WebAuthn with a platform authenticator and `userVerification: 'required'` for the phone lock (no server, so the browser's user verification is the check); `startAutoLock` locks after idle or time away, never while Whisper mode is open. `src/screens/LockScreen.tsx` replaces the whole app while locked, so the camera is off.
+- `src/lib/reports.ts`: encrypted wrong-match reports and the pure `suggest()`.
+- `src/lib/i18n.ts`: `t(key)` over English, Hindi and Gujarati dictionaries for the main flow.
+- Service worker: the first install takes over at once; an update waits for the app's Reload button (`halo-apply-update`, then `skip-waiting`).
+- Whisper mode reads at most every 150 ms (500 ms with Battery saver) and nothing while `document.hidden`; `npm run perf` measures it.
+
 ### Spoken enrolment and helper cards
 `src/lib/intro.ts` (`parseIntro`: name, note, cues, where you met, by rules) with the "Or say it all at once" button in `Enrol.tsx`; `src/components/Dictate.tsx` for single fields. Helper cards: `src/lib/cardLink.ts` (text-only card in the URL fragment, trimmed and validated), the helper page in `helper/`, and `src/screens/CardReceived.tsx`, which hands a pending card to `Enrol`.
 
@@ -100,12 +109,13 @@ type Person = {
   child?: boolean; sample?: boolean;
   met?: string;                // where you met or last saw them, typed or dictated
   quiet?: boolean;             // never whisper: captions only
+  hold?: boolean;              // held at "Could be" after wrong matches
   voiceClip?: { text; audio };          // Enhanced mode, base64 MP3
   translated?: { lang; text };          // Enhanced mode, editable
   createdAt; updatedAt;
 };
 ```
-IndexedDB `face-whisper` (internal name kept from the first build): `people` and `meta` hold AES-GCM ciphertext; `keys` holds one non-extractable key. `meta` keeps today's list (with `only` for event mode), practice cards, practice days and the ledger. `localStorage` keeps settings only, including `quietHours: { on, from, to }` and `pocketMode`.
+IndexedDB `face-whisper` (internal name kept from the first build): `people` and `meta` hold AES-GCM ciphertext; `keys` holds one non-extractable key. `meta` keeps today's list (with `only` for event mode), practice cards, practice days and the ledger. `localStorage` keeps settings only, including `quietHours: { on, from, to }`, `pocketMode`, `batterySaver`, `language` and `lock` (kind, the passcode hash and salt, or the WebAuthn credential id, and the auto-lock minutes). `meta` also keeps `wrongMatches`.
 
 ## External Services and Dependencies
 - **Default mode: none.** No network request carries user data; the CSP sets `connect-src 'self'` and `npm run build` fails if the build loads anything from another origin.
@@ -120,6 +130,8 @@ IndexedDB `face-whisper` (internal name kept from the first build): `people` and
 - **No or online-only voice** → captions and a buzz; Settings points to an offline voice.
 - **Enhanced mode down** → the phone's voice, the rules and English, as if it were off.
 - **No vibration (iPhone browsers) or no wake lock** → pocket mode says so; captions and the earbud still work.
+- **Forgotten passcode** → no recovery by design (nothing is held elsewhere); the lock screen offers to wipe and start again.
+- **No WebAuthn platform authenticator** → the "Phone lock" option isn't offered.
 - **A spoken intro the rules can't split** → the whole sentence becomes the note, nothing is guessed, and the user checks every field.
 
 ## What Was Simplified and Why

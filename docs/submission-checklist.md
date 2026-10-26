@@ -62,6 +62,7 @@ Stage one is pass or fail: the project fits the theme and was built with the Ski
 - [ ] `scope.md`, `prd.md`, `spec.md` still match the app (they were rewritten for the final build; re-read after any late change).
 - [ ] The hands-on checkpoints, final review and learning wrap-up in `devpost/checklist.md` are done and ticked by Harsh (they are left open until then).
 - [ ] Harsh's own notes added where the planning docs say "Harsh's own notes (to fill in)".
+- [ ] The privacy, terms and safety pages are live on the deployed site and match `privacy/index.html` (the drift test passes).
 - [ ] The description mentions the no-account path: **Halo in 60 seconds** (`/app/#/try`), or **Try with sample people** and the demo camera.
 - [ ] Video link opens in a private window without signing in.
 - [ ] Repository link opens in a private window.

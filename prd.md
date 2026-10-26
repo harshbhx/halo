@@ -82,6 +82,19 @@ Develops `scope.md > What "Working" Looks Like`.
 - A guided minute with the sample people and the demo camera, before the tour and with no camera: two people recognised, one face never added, then a summary. Aloud only if the user turns it on.
   - [x] The try finishes with two people recognised and the never-added face seen.
 
+### A real product: privacy written out, control, a lock
+- **Privacy, terms and safety pages** in plain words, linked from the landing page and Settings, matching the code; a test fails if connections or routes drift from the privacy page.
+  - [x] The privacy page's routes and `connect-src 'self'` match the code and the headers.
+- **Your data:** everything stored, with counts; remove one person; export; delete everything; **Wipe now** in two taps.
+  - [x] After Wipe now there is no database, cache, service worker or stored setting left.
+- **Lock:** a passcode (salted hash only) or the phone's own lock through WebAuthn, auto-lock after idle or time away, never during Whisper mode. Worded as a lock screen, not extra encryption.
+  - [x] The wrong passcode is refused and the right one opens Halo; the phone lock works with a virtual authenticator.
+- **Wrong person?** reports stay on the phone and become suggestions: Careful, hold at "Could be", new photos.
+- **Help:** camera and microphone recovery, light, distance, glasses and masks; camera and dictation errors link to it.
+- **Languages:** Hindi and Gujarati for the main flow, flagged as machine-translated.
+- **Battery:** about six reads a second, two with Battery saver, none while hidden.
+- **Updates** wait for a Reload tap.
+
 ### Accessibility
 - Screen readers, keyboard and reduced motion are supported throughout; details in `docs/design.md`.
   - [x] axe-core finds no serious or critical problems on any page or screen, light and dark.
@@ -125,6 +138,8 @@ Everything above: tour, consent-first enrolment (typed or spoken), three-state W
 - Per-person thresholds and photo refresh reminders.
 - Smart-glasses camera and audio.
 - Search by place or cue, and an automatic "last seen" (Halo only keeps where you met as you typed it).
+- A reviewed translation of every screen, and more languages.
+- A real-world measurement of battery drain on phones.
 
 ## Possible Later Enhancements
 - A "Show this" card explaining face blindness to someone.
