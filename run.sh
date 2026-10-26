@@ -84,6 +84,11 @@ case "${1:-start}" in
     trap 'kill $SERVER 2>/dev/null || true' EXIT
     for _ in $(seq 1 40); do curl -sf "$URL" >/dev/null && break; sleep 0.25; done
     say "Opening Chromium with the '${CLIP}' fake camera (AI-generated face, not a real person)."
+    EXTRA=()
+    # Ubuntu 23.10+ blocks the Chromium sandbox for browsers outside a snap/package (AppArmor).
+    if [ "$(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns 2>/dev/null || echo 0)" = 1 ] || [ "$(id -u)" = 0 ]; then
+      EXTRA+=(--no-sandbox --test-type)
+    fi
     say "The browser profile lives in .demo-profile/ so people you enrol survive a restart; delete that folder to start fresh."
     "$CHROME" \
       --user-data-dir="$PWD/.demo-profile" \
@@ -91,8 +96,9 @@ case "${1:-start}" in
       --use-fake-ui-for-media-stream \
       --use-file-for-fake-video-capture="$PWD/demo/fake-camera/${CLIP}.y4m" \
       --autoplay-policy=no-user-gesture-required \
-      --no-first-run --no-default-browser-check \
+      --no-first-run --no-default-browser-check --disable-background-networking --disable-sync \
       --window-size=430,932 \
+      "${EXTRA[@]}" \
       --app="$URL" || true
     ;;
 
