@@ -45,7 +45,7 @@
     "fake-indexeddb": "^6.2.6",
     "puppeteer-core": "^25.16.0",
     "typescript": "~5.9.3",
-    "vite": "^7.3.7",
+    "vite": "^8.3.5",
     "vitest": "^3.2.7"
   },
   "author": "Harsh Bhanushali"
