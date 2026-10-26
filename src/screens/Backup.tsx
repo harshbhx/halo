@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import { BackButton } from '../components/ui';
 import { BACKUP_MESSAGES, BackupError, backupFileName, makeBackup, MIN_PASSPHRASE, parseBackup, readBackup, type BackupFile } from '../lib/backup';
 import { restorePeople, usePeople } from '../lib/people';
+import { BRAND } from '../brand';
 
 type Status = { tone: 'calm' | 'error'; text: string } | null;
 
@@ -99,7 +100,7 @@ export function Backup() {
           <label className="field">
             <span className="field__label">Passphrase</span>
             <input className="input" type="password" name="new-password" autoComplete="new-password" value={pass} onChange={(e) => setPass(e.target.value)} />
-            <span className="field__hint">At least {MIN_PASSPHRASE} characters. Face Whisper can’t recover it for you.</span>
+            <span className="field__hint">At least {MIN_PASSPHRASE} characters. {BRAND.name} can’t recover it for you.</span>
           </label>
           <label className="field">
             <span className="field__label">Passphrase again</span>
@@ -131,7 +132,7 @@ export function Backup() {
 
       <section className="section stack--lg" aria-labelledby="restore-title">
         <h2 id="restore-title">Restore from a backup</h2>
-        <input ref={fileInput} type="file" accept=".fwbackup,application/json" className="visually-hidden" aria-label="Backup file" onChange={(e) => void choose(e.target.files?.[0])} />
+        <input ref={fileInput} type="file" accept=".json,.fwbackup,application/json" className="visually-hidden" aria-label="Backup file" onChange={(e) => void choose(e.target.files?.[0])} />
         <button type="button" className="btn btn--block" onClick={() => fileInput.current?.click()}>
           <Upload size={18} aria-hidden="true" />
           {file ? `Chosen: a backup of ${file.people} ${file.people === 1 ? 'person' : 'people'}` : 'Choose a backup file'}

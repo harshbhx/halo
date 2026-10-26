@@ -4,6 +4,7 @@ import { drawLamps } from '../lib/lights';
 import { HaloMark } from '../components/ui';
 import { navigate } from '../lib/router';
 import { updateSettings } from '../lib/settings';
+import { BRAND } from '../brand';
 
 /**
  * First run: a three-part tour. Who it's for, how it works, and the promise,
@@ -31,7 +32,7 @@ export function Welcome() {
       <div className="welcome__night">
         <canvas ref={lamps} className="welcome__lamps" aria-hidden="true" />
         <span className="wordmark">
-          <HaloMark /> Face Whisper
+          <HaloMark /> {BRAND.name}
         </span>
       </div>
 

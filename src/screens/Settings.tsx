@@ -9,6 +9,7 @@ import { navigate } from '../lib/router';
 import { resetSettings, updateSettings, useSettings, type ChimeSound, type OutputMode, type Theme } from '../lib/settings';
 import { deliver, loadVoices, pickDefaultVoice, playChime, speechSupported, unlockAudio } from '../lib/voice';
 import { spokenLine, STYLE_LABELS, type WhisperStyle } from '../lib/whisperStyle';
+import { BRAND } from '../brand';
 
 const SAMPLE = { name: 'Raj', whisper: 'Raj, your neighbour. Knee surgery last month.', cues: { clothes: 'Green parka', glasses: 'Round glasses' } };
 
@@ -294,7 +295,7 @@ export function Settings() {
           <h2 id="demo-title">Sample people</h2>
           <div className="panel">
             <div className="panel__row panel__row--stack">
-              <span className="panel__hint">Three AI-generated faces of people who don’t exist, so you can try Face Whisper alone.</span>
+              <span className="panel__hint">Three AI-generated faces of people who don’t exist, so you can try {BRAND.name} alone.</span>
               <button type="button" className="btn btn--block" onClick={toggleSamples} disabled={busySamples} aria-busy={busySamples}>
                 <Sparkles size={18} aria-hidden="true" />
                 {busySamples ? 'Working…' : hasSamples ? 'Remove sample people' : 'Add sample people'}
@@ -349,7 +350,7 @@ export function Settings() {
               <span className="panel__title">Put it on your home screen</span>
               {canInstall ? (
                 <button type="button" className="btn btn--block" onClick={install}>
-                  <Smartphone size={18} aria-hidden="true" /> Install Face Whisper
+                  <Smartphone size={18} aria-hidden="true" /> Install {BRAND.name}
                 </button>
               ) : (
                 <span className="panel__hint">

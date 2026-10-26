@@ -6,6 +6,7 @@
  * The vault's own key can never leave the browser, so the backup has its own:
  * PBKDF2 (SHA-256) turns the passphrase into an AES-GCM key.
  */
+import { BRAND } from '../brand';
 import type { Person } from './types';
 
 export const BACKUP_FORMAT = 'face-whisper-backup';
@@ -99,11 +100,11 @@ export async function readBackup(file: BackupFile, passphrase: string): Promise<
 
 export function backupFileName(now = new Date()): string {
   const d = now.toISOString().slice(0, 10);
-  return `face-whisper-backup-${d}.fwbackup`;
+  return `${BRAND.slug}-backup-${d}.json`;
 }
 
 export const BACKUP_MESSAGES: Record<BackupError['reason'], string> = {
-  'not-a-backup': "That file isn't a Face Whisper backup. Choose the .fwbackup file you saved.",
+  'not-a-backup': `That file isn\u2019t a ${BRAND.name} backup. Choose the backup file you saved.`,
   'wrong-passphrase': "That passphrase doesn't open this backup. Check it and try again.",
   'short-passphrase': `Use a passphrase of at least ${MIN_PASSPHRASE} characters.`,
 };

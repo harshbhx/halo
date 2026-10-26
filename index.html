@@ -3,21 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Face Whisper, for people with face blindness</title>
-    <meta name="description" content="Point your phone at someone you've added and an earbud quietly tells you who they are. For people with face blindness. Faces never leave the phone." />
+    <title>%BRAND_NAME%, for people with face blindness</title>
+    <meta name="description" content="%BRAND_DESCRIPTION%" />
+    <meta name="theme-color" content="#0b0f17" />
     <link rel="icon" type="image/svg+xml" href="./icon.svg" />
     <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
     <link rel="manifest" href="./manifest.webmanifest" />
-    <script type="module" src="/landing/landing.ts"></script>
+    <link rel="stylesheet" href="./landing/fonts.css" />
+    <link rel="stylesheet" href="./landing/landing.css" />
+    <script type="module" src="./landing/landing.ts"></script>
   </head>
   <body>
     <a class="skip" href="#main">Skip to the page</a>
     <header class="masthead" data-masthead>
       <p class="banner">Runs in your browser. Faces never leave your phone.</p>
       <nav class="bar container" aria-label="Main">
-        <a class="wordmark" href="./" aria-label="Face Whisper, home">
+        <a class="wordmark" href="./" aria-label="%BRAND_NAME%, home">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-linecap="round" aria-hidden="true"><ellipse cx="9.5" cy="12" rx="5.6" ry="7" stroke="currentColor" stroke-width="2" /><path d="M17.2 8.6c1 .9 1.6 2.1 1.6 3.4s-.6 2.5-1.6 3.4" stroke="currentColor" stroke-width="1.8" /><path d="M20 6.2c1.6 1.5 2.5 3.5 2.5 5.8s-.9 4.3-2.5 5.8" stroke="currentColor" stroke-width="1.6" opacity="0.55" /></svg>
-          Face Whisper
+          %BRAND_NAME%
         </a>
         <ul class="bar__links">
           <li><a href="#how">How it works</a></li>
@@ -84,7 +87,7 @@
           <li class="stage stage--try">
             <div class="stage__text">
               <h2>Three photos, one note.</h2>
-              <p>Type how you know them. The phone turns it into one line, with no key and no internet.</p>
+              <p>Type how you know them. The phone turns it into one line, offline.</p>
             </div>
             <form class="note panel" data-note>
               <label class="note__label" for="note-input">Your note</label>
@@ -106,7 +109,7 @@
           <li class="stage stage--shot">
             <div class="stage__text">
               <h2>Strangers stay strangers.</h2>
-              <p>Anyone you didn’t add gets a faint outline and nothing else. Never stored, never named.</p>
+              <p>Anyone you didn’t add gets a faint outline. Never stored, never named.</p>
             </div>
             <figure class="shot" data-slot="stranger" data-kind="product" data-alt="Whisper mode with a face that was never added">
               <img src="./landing/shots/whisper-stranger.png" width="780" height="1688" alt="Whisper mode: a dashed outline and the label “Not someone you’ve added”" loading="lazy" />
@@ -140,41 +143,33 @@
 
       <section class="evening" aria-labelledby="evening-title">
         <div class="container">
-          <h2 id="evening-title">Before you walk in</h2>
-          <div class="switcher" data-switch>
-            <div class="seg seg--tabs" role="tablist" aria-label="Before you walk in" hidden>
-              <button type="button" role="tab" id="tab-today" aria-controls="panel-today" aria-selected="true">Today’s list</button>
-              <button type="button" role="tab" id="tab-practice" aria-controls="panel-practice" aria-selected="false" tabindex="-1">Practice</button>
-              <button type="button" role="tab" id="tab-text" aria-controls="panel-text" aria-selected="false" tabindex="-1">Bigger text</button>
-            </div>
-            <div class="switcher__panel" role="tabpanel" id="panel-today" aria-labelledby="tab-today">
+          <div class="evening__head">
+            <h2 id="evening-title">Before you walk in</h2>
+            <p class="lead">Three quiet helpers for the day itself.</p>
+          </div>
+          <ul class="trio">
+            <li>
               <figure class="shot" data-slot="today" data-kind="product" data-alt="Today’s list">
                 <img src="./landing/shots/today.png" width="780" height="1688" alt="Today’s list for a dinner: three people with their lines and what to look for" loading="lazy" />
               </figure>
-              <div class="switcher__text">
-                <h3>Today’s list</h3>
-                <p>Pick who’ll be at dinner and hear their lines on the way.</p>
-              </div>
-            </div>
-            <div class="switcher__panel" role="tabpanel" id="panel-practice" aria-labelledby="tab-practice">
+              <h3>Today’s list</h3>
+              <p>Pick who’ll be at dinner and hear their lines on the way.</p>
+            </li>
+            <li>
               <figure class="shot" data-slot="practice" data-kind="product" data-alt="A practice card">
                 <img src="./landing/shots/practice.png" width="780" height="1688" alt="Practice: cue notes for someone and three names to choose from" loading="lazy" />
               </figure>
-              <div class="switcher__text">
-                <h3>Practice</h3>
-                <p>Name people from the cues you really use. No streak to break.</p>
-              </div>
-            </div>
-            <div class="switcher__panel" role="tabpanel" id="panel-text" aria-labelledby="tab-text">
+              <h3>Practice</h3>
+              <p>Name people from the cues you really use. No streak to break.</p>
+            </li>
+            <li>
               <figure class="shot" data-slot="bigtext" data-kind="product" data-alt="The app with bigger text in the night theme">
                 <img src="./landing/shots/bigtext-night.png" width="780" height="1688" alt="The people list with bigger text and the night theme" loading="lazy" />
               </figure>
-              <div class="switcher__text">
-                <h3>Bigger text, higher contrast</h3>
-                <p>Every screen a size larger, in day or night colours.</p>
-              </div>
-            </div>
-          </div>
+              <h3>Bigger text, night colours</h3>
+              <p>Every screen a size larger, in day or night.</p>
+            </li>
+          </ul>
         </div>
       </section>
 
@@ -182,51 +177,25 @@
         <div class="container promise__grid">
           <h2 id="promise-title">Nothing leaves your phone.</h2>
           <dl class="promise__rows">
-            <div><dt>Recognised on the phone</dt><dd>Face matching runs in the browser. No server, account or key.</dd></div>
-            <div><dt>Only people who agreed</dt><dd>You confirm consent for everyone you add.</dd></div>
-            <div><dt>Strangers stay strangers</dt><dd>Unknown faces are compared, then dropped.</dd></div>
-            <div><dt>Encrypted at rest</dt><dd>People are stored with a key the browser won’t export.</dd></div>
-            <div><dt>Works offline</dt><dd>After the first visit, no connection needed.</dd></div>
-            <div><dt>Delete everything</dt><dd>One button removes every person and the key.</dd></div>
-          </dl>
-        </div>
-      </section>
-
-      <section class="needs" aria-labelledby="needs-title">
-        <div class="container needs__grid">
-          <div>
-            <h2 id="needs-title">What it needs, and its limits</h2>
-          </div>
-          <dl class="needs__list">
-            <div><dt>A phone with a camera</dt><dd>Chrome, Safari or Firefox, recent versions.</dd></div>
-            <div><dt>Earbuds</dt><dd>Optional. A chime, buzz or caption works too.</dd></div>
-            <div><dt>Light and a clear view</dt><dd>Dim rooms and side-on faces stop a match.</dd></div>
-            <div><dt>Not for safety</dt><dd>It can be wrong. Never use it to decide who to trust.</dd></div>
+            <div><dt>Recognised on the phone</dt><dd>In the browser. No server, account or key.</dd></div>
+            <div><dt>Only people who agreed</dt><dd>You confirm consent for everyone.</dd></div>
+            <div><dt>Strangers stay strangers</dt><dd>Compared, then dropped.</dd></div>
+            <div><dt>Encrypted at rest</dt><dd>With a key the browser won’t export.</dd></div>
+            <div><dt>Works offline</dt><dd>After the first visit.</dd></div>
+            <div><dt>Delete everything</dt><dd>One button, every person and the key.</dd></div>
           </dl>
         </div>
       </section>
 
       <section class="faq" id="questions" aria-labelledby="faq-title">
-        <div class="container faq__grid">
-          <h2 id="faq-title">Questions</h2>
-          <div class="faq__list">
-            <details>
-              <summary>Does it upload photos?</summary>
-              <p>No. Photos become face fingerprints on the phone and the photos are discarded.</p>
-            </details>
-            <details>
-              <summary>Can it name a stranger?</summary>
-              <p>No. It only knows people you added with their agreement.</p>
-            </details>
-            <details>
-              <summary>What if I get a new phone?</summary>
-              <p>Save a backup file locked with your passphrase, then restore it there.</p>
-            </details>
-            <details>
-              <summary>Does it cost anything?</summary>
-              <p>No. It’s an open-source web app with no account and no ads.</p>
-            </details>
-          </div>
+        <div class="container">
+          <h2 id="faq-title">Questions and honest limits</h2>
+          <dl class="faq__rows">
+            <div><dt>Isn’t there an app for this?</dt><dd>NameVault (iOS) teaches names with a photo grid and a quiz. %BRAND_NAME% recognises people live, on the phone, and whispers who they are while you look at them.</dd></div>
+            <div><dt>Does it upload photos?</dt><dd>No. Only fingerprints stay, on the phone.</dd></div>
+            <div><dt>Can it name a stranger?</dt><dd>No. Only people you added, with their agreement.</dd></div>
+            <div><dt>When is it wrong?</dt><dd>In dim light or side-on. Never use it for safety.</dd></div>
+          </dl>
         </div>
       </section>
 
@@ -234,7 +203,7 @@
         <div class="container close__grid">
           <div class="close__text">
             <h2 id="close-title">Try it with sample people first.</h2>
-            <p class="lead">No friend nearby? The demo camera recognises three AI-generated faces.</p>
+            <p class="lead">Three AI-generated faces, recognised live.</p>
             <a class="btn btn--primary" href="./app/">Open the app</a>
           </div>
           <figure class="shot" data-slot="close" data-kind="product" data-alt="The people list with sample people">
@@ -246,7 +215,8 @@
 
     <footer class="mast">
       <div class="container">
-        <p class="mast__word">Face Whisper</p>
+        <p class="mast__word">%BRAND_NAME%</p>
+        <p class="mast__tag">%BRAND_TAGLINE%</p>
         <ul class="mast__links">
           <li><a href="./app/">Open the app</a></li>
           <li><a href="./app/#/privacy">Privacy and limits</a></li>
@@ -254,7 +224,5 @@
         <p class="mast__credits" data-credits>Every face on this page is AI-generated and belongs to no one (public domain, Wikimedia Commons). Built for Devpost’s Build With AI: Basics. MIT licence.</p>
       </div>
     </footer>
-    <script>window.hallmarkSlots = (m) => { for (const [k, v] of Object.entries(m)) { const s = document.querySelector(`[data-slot="${k}"]`); if (!s) continue; const im = new Image(); im.src = typeof v === 'string' ? v : v.src; im.alt = (typeof v === 'object' && v.alt) || s.dataset.alt || ''; s.querySelectorAll(':scope > img').forEach((o) => o.remove()); s.prepend(im); } };
-document.querySelectorAll('[data-slot] img').forEach((i) => { if (i.complete && !i.naturalWidth) i.remove(); else i.addEventListener('error', () => i.remove(), { once: true }); });</script>
   </body>
 </html>

@@ -2,6 +2,7 @@ import { useEffect, useRef, useSyncExternalStore, type ReactNode } from 'react';
 import { CalendarHeart, ChevronLeft, Ear, Lock, Settings as SettingsIcon, Shuffle, UsersRound } from 'lucide-react';
 import { navigate, type Route } from '../lib/router';
 import { unlockAudio } from '../lib/voice';
+import { BRAND } from '../brand';
 
 /** The brand mark: a face-shaped ring with a whisper beside it. */
 export function HaloMark({ size = 24 }: { size?: number }) {
@@ -18,7 +19,7 @@ export function Wordmark() {
   return (
     <span className="wordmark">
       <HaloMark />
-      Face Whisper
+      {BRAND.name}
     </span>
   );
 }

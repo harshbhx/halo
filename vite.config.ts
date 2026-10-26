@@ -35,9 +35,55 @@ function precacheList(): Plugin {
 }
 
 const root = dirname(fileURLToPath(import.meta.url));
+const brand = JSON.parse(readFileSync(resolve(root, 'brand.config.json'), 'utf8')) as Record<string, string>;
+
+/** The name lives in brand.config.json: HTML tokens like %BRAND_NAME% and the web manifest come from it. */
+function brandPlugin(): Plugin {
+  const manifest = () =>
+    JSON.stringify(
+      {
+        name: brand.name,
+        short_name: brand.name,
+        description: brand.description,
+        start_url: './app/',
+        scope: './',
+        display: 'standalone',
+        orientation: 'portrait',
+        background_color: '#0b0f17',
+        theme_color: '#0b0f17',
+        icons: [
+          { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
+          { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'icons/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
+      },
+      null,
+      2,
+    );
+  return {
+    name: 'brand',
+    transformIndexHtml(html) {
+      return html
+        .replaceAll('%BRAND_NAME%', brand.name)
+        .replaceAll('%BRAND_TAGLINE%', brand.tagline)
+        .replaceAll('%BRAND_DESCRIPTION%', brand.description)
+        .replaceAll('%BRAND_URL%', brand.url);
+    },
+    configureServer(server) {
+      server.middlewares.use('/manifest.webmanifest', (_req, res) => {
+        res.setHeader('Content-Type', 'application/manifest+json');
+        res.end(manifest());
+      });
+    },
+    generateBundle() {
+      this.emitFile({ type: 'asset', fileName: 'manifest.webmanifest', source: manifest() });
+    },
+  };
+}
 
 export default defineConfig({
-  plugins: [react(), precacheList()],
+  plugins: [react(), brandPlugin(), precacheList()],
   // Relative asset paths so the built app works from any folder or sub-path.
   base: './',
   build: {

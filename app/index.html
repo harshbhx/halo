@@ -3,29 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Face Whisper</title>
-    <meta name="description" content="Face Whisper quietly tells people with face blindness who they are looking at. Faces never leave the phone." />
+    <title>%BRAND_NAME%</title>
+    <meta name="description" content="%BRAND_DESCRIPTION%" />
     <meta name="theme-color" content="#f8f6f1" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0b0f17" media="(prefers-color-scheme: dark)" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="Face Whisper" />
+    <meta name="apple-mobile-web-app-title" content="%BRAND_NAME%" />
     <link rel="icon" type="image/svg+xml" href="../icon.svg" />
     <link rel="apple-touch-icon" href="../icons/apple-touch-icon.png" />
     <link rel="manifest" href="../manifest.webmanifest" />
-    <script>
-      // Reading settings before first paint, so the theme and text size never flash.
-      try {
-        var s = JSON.parse(localStorage.getItem('fw.settings') || '{}');
-        var r = document.documentElement;
-        if (s.theme === 'light' || s.theme === 'dark') r.setAttribute('data-mode', s.theme);
-        if (s.bigText) r.setAttribute('data-big-text', '');
-        if (s.highContrast) r.setAttribute('data-high-contrast', '');
-      } catch (e) {}
-    </script>
+    <script src="../prefs.js"></script>
   </head>
   <body>
     <div id="root"></div>
-    <noscript>Face Whisper runs on your phone and needs JavaScript to do it.</noscript>
+    <noscript>%BRAND_NAME% runs on your phone and needs JavaScript to do it.</noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

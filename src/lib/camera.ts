@@ -1,3 +1,5 @@
+import { BRAND } from '../brand';
+
 /** Camera access. The stream is only ever drawn and analysed on this device. */
 
 export type CameraProblem = 'blocked' | 'missing' | 'insecure' | 'busy' | 'unknown';
@@ -37,7 +39,7 @@ export const CAMERA_MESSAGES: Record<CameraProblem, { title: string; body: strin
   missing: { title: 'No camera found', body: 'This device has no camera we can use. You can still try the demo camera.' },
   insecure: {
     title: 'Camera needs a secure page',
-    body: 'Browsers only allow the camera on https or localhost. Open Face Whisper from a secure address.',
+    body: `Browsers only allow the camera on https or localhost. Open ${BRAND.name} from a secure address.`,
   },
   busy: { title: 'Camera is busy', body: 'Another app may be using the camera. Close it and try again.' },
   unknown: { title: "Camera didn't start", body: 'Something stopped the camera from starting. Try again.' },

@@ -1,5 +1,6 @@
 import { BackButton } from '../components/ui';
 import { useSettings } from '../lib/settings';
+import { BRAND } from '../brand';
 
 export function Privacy() {
   const { welcomeSeen } = useSettings();
@@ -40,7 +41,7 @@ export function Privacy() {
 
         <h2>Voice notes</h2>
         <p>
-          Dictation uses your browser’s speech recognition. Where the browser can do it on the phone, Face Whisper asks it to. Some browsers
+          Dictation uses your browser’s speech recognition. Where the browser can do it on the phone, {BRAND.name} asks it to. Some browsers
           (Chrome on many phones, for example) send the audio of your note to the browser maker’s speech service instead. Typing keeps even
           that on the phone.
         </p>

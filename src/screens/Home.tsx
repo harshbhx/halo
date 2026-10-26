@@ -8,6 +8,7 @@ import { getSettings, updateSettings, useSettings } from '../lib/settings';
 import { speak, unlockAudio } from '../lib/voice';
 import { spokenLine } from '../lib/whisperStyle';
 import type { Person } from '../lib/types';
+import { BRAND } from '../brand';
 
 /** "Remind me how I know them": the whisper, on demand, from the list. */
 function remind(person: Person) {
@@ -68,7 +69,7 @@ export function Home() {
 
       {error && (
         <p className="notice" role="alert" style={{ marginBottom: 'var(--space-lg)' }}>
-          This browser window can’t save people (private browsing often blocks storage). Open Face Whisper in a normal window.
+          This browser window can’t save people (private browsing often blocks storage). Open {BRAND.name} in a normal window.
         </p>
       )}
 
