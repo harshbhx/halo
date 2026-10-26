@@ -119,13 +119,19 @@ ready(() => {
     listen.addEventListener('click', () => say(line?.textContent ?? ''));
   }
 
-  /* The hour drawn as light: a string of lamps across a terrace at night. Drawn once, still. */
-  const canvas = document.querySelector<HTMLCanvasElement>('[data-hour]');
-  const drawHour = () => canvas && drawLamps(canvas);
+  /* The hour drawn as light: a far horizon in the hero, the same stars over the promise. Drawn once, still. */
+  const canvases = document.querySelectorAll<HTMLCanvasElement>('[data-hour]');
+  const drawHour = () =>
+    canvases.forEach((c) => drawLamps(c, c.dataset.hour === 'stars' ? { low: 1.25, town: false } : {}));
   drawHour();
-  let resizeTimer: ReturnType<typeof setTimeout> | undefined;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(drawHour, 150);
-  });
+  // Redraw whenever a canvas changes size, so the stars are never stretched.
+  let queued = 0;
+  const redraw = () => {
+    cancelAnimationFrame(queued);
+    queued = requestAnimationFrame(drawHour);
+  };
+  if (typeof ResizeObserver === 'function') {
+    const watch = new ResizeObserver(redraw);
+    canvases.forEach((c) => watch.observe(c));
+  } else addEventListener('resize', redraw);
 });

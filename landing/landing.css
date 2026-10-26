@@ -26,9 +26,6 @@ h1, h2, h3 { color: inherit; }
 .btn--primary { border-color: var(--color-accent-press); background: var(--color-accent); box-shadow: var(--edge-light), inset 0 -2px 0 var(--color-accent-press), var(--shadow-part); color: var(--color-accent-ink); }
 .btn--primary:hover { border-color: var(--color-accent-strong); }
 .btn--small { min-height: 44px; padding: 0 var(--space-md); }
-.btn--night { border-color: var(--night-muted); background: transparent; box-shadow: none; color: var(--night-ink); }
-.btn--night:hover { border-color: var(--night-muted); }
-.btn--night:focus-visible { outline-color: var(--halo); }
 .btn[aria-pressed="true"] { border-color: var(--halo); }
 
 .seg { display: inline-grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: var(--space-2xs); margin: 0; padding: var(--space-2xs); border: 0; border-radius: var(--radius-pill); background: var(--color-paper-3); box-shadow: var(--shadow-bed); }
@@ -39,11 +36,12 @@ h1, h2, h3 { color: inherit; }
 .seg input:focus-visible + label, .seg button:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 1px; }
 .seg button:active, .seg label:active { transform: translateY(1px); }
 
-.fader { --level: 50%; width: 100%; height: 44px; appearance: none; background: transparent; cursor: pointer; }
-.fader::-webkit-slider-runnable-track { height: 10px; border-radius: var(--radius-pill); background: linear-gradient(90deg, var(--color-accent) var(--level), var(--color-paper-3) var(--level)); box-shadow: var(--shadow-bed); }
-.fader::-moz-range-track { height: 10px; border-radius: var(--radius-pill); background: linear-gradient(90deg, var(--color-accent) var(--level), var(--color-paper-3) var(--level)); box-shadow: var(--shadow-bed); }
-.fader::-webkit-slider-thumb { appearance: none; width: 34px; height: 34px; margin-top: calc(var(--space-sm) * -1); border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-part); background: linear-gradient(90deg, transparent 47%, var(--metal-index) 47%, var(--metal-index) 53%, transparent 53%), linear-gradient(var(--metal-hi), var(--metal-lo)); box-shadow: var(--edge-light), var(--shadow-part); }
-.fader::-moz-range-thumb { width: 34px; height: 34px; border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-part); background: linear-gradient(90deg, transparent 47%, var(--metal-index) 47%, var(--metal-index) 53%, transparent 53%), linear-gradient(var(--metal-hi), var(--metal-lo)); box-shadow: var(--edge-light), var(--shadow-part); }
+.fader { --level: 50%; --tick: linear-gradient(var(--color-field-edge), var(--color-field-edge)); --ticks: repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), var(--color-field-edge) calc(10% - 1px) 10%); position: relative; width: 100%; height: 52px; appearance: none; cursor: pointer; background: var(--tick) 17px 3px / 1px 8px no-repeat, var(--ticks) 17px 3px / calc(100% - 34px) 8px no-repeat, var(--tick) 17px calc(100% - 3px) / 1px 8px no-repeat, var(--ticks) 17px calc(100% - 3px) / calc(100% - 34px) 8px no-repeat; }
+.fader::-webkit-slider-runnable-track { height: 12px; border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-pill); background: linear-gradient(90deg, var(--color-accent-strong), var(--color-accent)) 0 0 / var(--level) 100% no-repeat, var(--color-paper-3); box-shadow: var(--shadow-bed); }
+.fader::-moz-range-track { height: 12px; border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-pill); background: var(--color-paper-3); box-shadow: var(--shadow-bed); }
+.fader::-moz-range-progress { height: 12px; border-radius: var(--radius-pill); background: linear-gradient(90deg, var(--color-accent-strong), var(--color-accent)); }
+.fader::-webkit-slider-thumb { appearance: none; width: 30px; height: 36px; margin-top: calc(var(--space-sm) * -1); border: var(--rule-hair) solid var(--color-field-edge); border-radius: var(--radius-part); background: linear-gradient(90deg, transparent calc(50% - 1px), var(--metal-index) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)), repeating-linear-gradient(transparent 0 3px, var(--color-rule) 3px 4px) center / 70% 70% no-repeat, linear-gradient(var(--metal-hi), var(--metal-lo)); box-shadow: var(--edge-light), var(--shadow-part); }
+.fader::-moz-range-thumb { width: 30px; height: 36px; border: var(--rule-hair) solid var(--color-field-edge); border-radius: var(--radius-part); background: linear-gradient(90deg, transparent calc(50% - 1px), var(--metal-index) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)), repeating-linear-gradient(transparent 0 3px, var(--color-rule) 3px 4px) center / 70% 70% no-repeat, linear-gradient(var(--metal-hi), var(--metal-lo)); box-shadow: var(--edge-light), var(--shadow-part); }
 .fader:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; border-radius: var(--radius-part); }
 .fader:active::-webkit-slider-thumb { transform: translateY(1px); }
 
@@ -65,12 +63,16 @@ h1, h2, h3 { color: inherit; }
 .bar .btn:hover { border-color: var(--night-muted); }
 .bar .btn:focus-visible, .wordmark:focus-visible, .bar__links a:focus-visible { outline-color: var(--halo); }
 @media (max-width: 60rem) { .bar__links { display: none; } .bar .btn { margin-left: auto; } }
+/* The hero's second action: outlined on the night, never a second fill. */
+.btn--night { border-color: var(--night-muted); background: transparent; box-shadow: none; color: var(--night-ink); }
+.btn--night:hover { border-color: var(--night-muted); }
+.btn--night:focus-visible { outline-color: var(--halo); }
 
 /* ---------- Hero: the night, and the action beside the real screen ---------- */
 
 .hero { position: relative; overflow: hidden; background: linear-gradient(var(--night-paper) 0%, var(--night-paper-2) 70%, var(--night-paper-3) 90%, var(--night-paper) 100%); color: var(--night-ink); }
 .hero__light { position: absolute; inset: 0; width: 100%; height: 100%; }
-.hero__grid { position: relative; z-index: var(--z-raised); display: grid; grid-template-columns: minmax(0, 720px) minmax(0, max-content); justify-content: center; gap: var(--space-2xl); align-items: center; min-height: calc(100dvh - 110px); padding-block: var(--space-2xl); }
+.hero__grid { position: relative; z-index: var(--z-raised); display: grid; grid-template-columns: minmax(0, 720px) minmax(0, max-content); justify-content: center; gap: var(--space-2xl); align-items: center; min-height: calc(100dvh - 132px); padding-block: var(--space-2xl); }
 .hero__text { display: grid; gap: var(--space-lg); justify-items: start; }
 .hero h1 { font-size: var(--text-display); max-width: none; }
 .hero__line { font-size: var(--text-lead); color: var(--night-muted); max-width: 30ch; }
@@ -110,13 +112,13 @@ h1, h2, h3 { color: inherit; }
 
 /* ---------- The four stages ---------- */
 
-.stages { padding-block: var(--section-gap-s) var(--section-gap); background: var(--color-paper-2); }
+.stages { padding-block: var(--section-gap-s); background: var(--color-paper-2); }
 .stages__list { margin: 0 auto; list-style: none; counter-reset: stage; }
 .stage { counter-increment: stage; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--gap-columns); align-items: center; padding-block: var(--space-3xl); border-top: var(--rule-hair) solid var(--color-rule); }
 .stage:first-child { border-top: 0; padding-top: 0; }
 .stage__text { display: grid; gap: var(--space-md); align-content: center; }
 .stage h2 { font-size: var(--text-section); max-width: 14ch; }
-.stage h2::before { content: counter(stage) ". "; color: var(--color-accent-strong); font-variant-numeric: tabular-nums; }
+.stage h2::before { content: counter(stage) ". "; color: var(--color-muted); font-variant-numeric: tabular-nums; }
 .stage p { color: var(--color-muted); font-size: var(--text-lead); max-width: 34ch; }
 .stage--wide { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
 .stage--wide .stage__text { order: 2; }
@@ -155,7 +157,7 @@ h1, h2, h3 { color: inherit; }
 
 /* ---------- Before you walk in: three screens across ---------- */
 
-.evening { padding-block: var(--section-gap-s) var(--section-gap); background: var(--color-paper-2); }
+.evening { padding-block: var(--section-gap) var(--section-gap); background: var(--color-paper); }
 .evening__head { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--gap-columns); align-items: end; margin-bottom: var(--space-2xl); }
 .evening h2 { font-size: var(--text-section); }
 .trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap-columns); margin: 0; padding: 0; list-style: none; }
@@ -167,7 +169,9 @@ h1, h2, h3 { color: inherit; }
 
 /* ---------- The promise, on the night ---------- */
 
-.promise { padding-block: var(--section-gap); background: var(--color-band); color: var(--color-band-ink); }
+.promise { position: relative; overflow: hidden; padding-block: var(--section-gap); background: var(--color-band); color: var(--color-band-ink); }
+.promise__light { position: absolute; inset: 0; width: 100%; height: 100%; }
+.promise__grid { position: relative; z-index: var(--z-raised); }
 .promise__grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: var(--gap-columns); align-items: start; }
 .promise h2 { font-size: var(--text-section); max-width: 12ch; }
 .promise__head { display: grid; gap: var(--space-xl); align-content: start; }
@@ -187,7 +191,7 @@ h1, h2, h3 { color: inherit; }
 .limits h2 { font-size: var(--text-section); margin-bottom: var(--space-2xl); }
 .limits__list { margin: 0; padding: 0; list-style: none; counter-reset: limit; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-xl) var(--gap-columns); }
 .limits__list li { counter-increment: limit; display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: var(--space-md); padding-top: var(--space-md); border-top: var(--rule-hair) solid var(--color-rule); font: 400 var(--text-title)/1.35 var(--font-display); letter-spacing: -0.01em; }
-.limits__list li::before { content: counter(limit); color: var(--color-accent-strong); font-variant-numeric: tabular-nums; }
+.limits__list li::before { content: counter(limit); color: var(--color-muted); font-variant-numeric: tabular-nums; }
 @media (max-width: 60rem) { .limits__list { grid-template-columns: minmax(0, 1fr); } }
 
 /* ---------- Questions and limits: rows across the page ---------- */

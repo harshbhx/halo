@@ -269,7 +269,8 @@ export function WhisperMode({ demo }: { demo: boolean }) {
                 shown: old ? old.shown : { ...f.box },
                 state: f.state,
                 personId: f.personId,
-                confidentAt: confident ? (old?.state === 'confident' ? old.confidentAt : now) : 0,
+                // The halo blooms once per person on a track; a frame or two of doubt doesn't replay it.
+                confidentAt: old && old.personId === f.personId && old.confidentAt ? old.confidentAt : confident ? now : 0,
                 seenAt: now,
               };
             });
@@ -444,6 +445,10 @@ export function WhisperMode({ demo }: { demo: boolean }) {
             ctx.fillStyle = palette.halo;
             roundRect(ctx, px, py, pw, ph, ph / 2);
             ctx.fill();
+            // A dark edge keeps the amber label readable over warm skin and lamplight.
+            ctx.strokeStyle = palette.scrim;
+            ctx.lineWidth = 2;
+            ctx.stroke();
             ctx.fillStyle = palette.haloInk;
             ctx.textBaseline = 'middle';
             ctx.fillText(person.name, px + 16, py + ph / 2 + 1);

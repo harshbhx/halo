@@ -104,7 +104,6 @@ async function flow(page: Page, dir: string, captureLanding: boolean) {
   await page.getByRole('button', { name: 'People', exact: true }).click();
   await settle(page, 700);
   await shot('13-people');
-  await forLanding('people');
 
   await page.getByRole('button', { name: 'Today', exact: true }).click();
   await settle(page);
@@ -192,9 +191,23 @@ test('bigger text in the night theme, for the landing page', async ({ page }) =>
   await page.goto(APP);
   await page.getByRole('button', { name: 'Try with sample people' }).click();
   await expect(page.getByRole('button', { name: /^Maya/ })).toBeVisible({ timeout: 120_000 });
+  await page.mouse.move(1, 1);
   await settle(page, 800);
   mkdirSync(LANDING, { recursive: true });
   await page.screenshot({ path: `${LANDING}/bigtext-night.png` });
   mkdirSync('docs/shots/phone-dark', { recursive: true });
   copyFileSync(`${LANDING}/bigtext-night.png`, 'docs/shots/phone-dark/27-bigger-text.png');
+});
+
+test('sample people only, as a first visit sees them, for the landing page', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('fw.settings', JSON.stringify({ welcomeSeen: true }));
+  });
+  await page.goto(APP);
+  await page.getByRole('button', { name: 'Try with sample people' }).click();
+  await expect(page.getByRole('button', { name: /^Maya/ })).toBeVisible({ timeout: 120_000 });
+  await page.mouse.move(1, 1);
+  await settle(page, 800);
+  mkdirSync(LANDING, { recursive: true });
+  await page.screenshot({ path: `${LANDING}/people.png` });
 });
