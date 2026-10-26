@@ -1,5 +1,6 @@
 import { expect, type Page } from '@playwright/test';
 
+export const APP = '/app/';
 export const SAM_NOTE = 'This is Sam, my teammate from the hackathon, loves climbing';
 export const SAM_WHISPER = 'Sam, your teammate from the hackathon. Loves climbing.';
 
@@ -10,6 +11,15 @@ export async function enableDebug(page: Page) {
   });
 }
 
+/** First run is a three-part tour ending in the privacy promise. */
+export async function passWelcome(page: Page) {
+  await expect(page.getByRole('heading', { name: 'Know who’s in front of you.' })).toBeVisible();
+  await page.getByRole('button', { name: 'Next' }).click();
+  await page.getByRole('button', { name: 'Next' }).click();
+  await page.getByRole('button', { name: /I understand/ }).click();
+  await expect(page.getByRole('heading', { name: 'Your people' })).toBeVisible();
+}
+
 /** Takes shots until `count` good photos exist (a frame can occasionally miss). */
 export async function takePhotos(page: Page, count: number) {
   const shutter = page.getByRole('button', { name: /^Take photo/ });
@@ -18,19 +28,14 @@ export async function takePhotos(page: Page, count: number) {
     const taken = await page.getByRole('button', { name: /^Remove photo/ }).count();
     if (taken >= count) return;
     await page.getByRole('button', { name: /^Take photo/ }).click();
-    await expect(page.getByRole('button', { name: /^Take photo/ })).toBeEnabled({ timeout: 60_000 });
-    await page.waitForTimeout(400);
+    await expect(page.getByRole('button', { name: /^Take photo|^Reading photo/ })).toBeVisible();
+    await page.waitForFunction(() => !document.querySelector('.shutter[aria-busy="true"]'), undefined, { timeout: 60_000 });
+    await page.waitForTimeout(300);
   }
   await expect(page.getByRole('button', { name: /^Remove photo/ })).toHaveCount(count);
 }
 
-/** First run shows the privacy promise; accept it. */
-export async function passWelcome(page: Page) {
-  await expect(page.getByRole('heading', { name: "Know who's in front of you." })).toBeVisible();
-  await page.getByRole('button', { name: "I understand, let's start" }).click();
-  await expect(page.getByRole('heading', { name: 'People you know' })).toBeVisible();
-}
-
+/** Adds Sam (an AI-generated face from the fake camera) and stops on the saved screen. */
 export async function enrolSam(page: Page) {
   await page.getByRole('button', { name: 'Add someone' }).first().click();
   await page.getByLabel('Their name').fill('Sam');
@@ -49,5 +54,11 @@ export async function enrolSam(page: Page) {
   await page.getByLabel('Usual clothes').fill('Green raincoat');
   await page.getByLabel('Hair').fill('Brown hair with a fringe');
   await page.getByRole('button', { name: 'Save Sam' }).click();
-  await expect(page.getByRole('button', { name: /Sam/ }).first()).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Sam is added.' })).toBeVisible();
+}
+
+export async function enrolSamAndGoHome(page: Page) {
+  await enrolSam(page);
+  await page.getByRole('button', { name: 'Done' }).click();
+  await expect(page.getByRole('button', { name: /^Sam/ }).first()).toBeVisible();
 }

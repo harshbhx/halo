@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { enableDebug, passWelcome } from './helpers';
+import { APP, enableDebug, passWelcome } from './helpers';
 
 interface FrameEntry {
   personId: string | null;
@@ -9,7 +9,7 @@ interface FrameEntry {
 
 test('sample people are recognised and the stranger stays unknown', async ({ page }) => {
   await enableDebug(page);
-  await page.goto('/');
+  await page.goto(APP);
   await passWelcome(page);
 
   await page.getByRole('button', { name: 'Try with sample people' }).click();
@@ -20,7 +20,7 @@ test('sample people are recognised and the stranger stays unknown', async ({ pag
   await expect(page.getByText('Arjun, your neighbour from flat 4. Knee surgery last month.')).toBeVisible();
 
   await page.getByRole('button', { name: 'Open the demo camera' }).click();
-  await expect(page.getByText('Demo camera')).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator('.night__status')).toContainText('Demo camera', { timeout: 60_000 });
 
   const seenCaptions = new Set<string>();
   const unknownDistances: number[] = [];
@@ -30,7 +30,7 @@ test('sample people are recognised and the stranger stays unknown', async ({ pag
   while (Date.now() < deadline && (seenCaptions.size < 3 || unknownDistances.length < 3)) {
     const caption = await page.locator('.caption__name').textContent({ timeout: 200 }).catch(() => null);
     if (caption) seenCaptions.add(caption.trim().toLowerCase());
-    const status = await page.locator('.whisper__status').textContent({ timeout: 200 }).catch(() => '');
+    const status = await page.locator('.night__status').textContent({ timeout: 200 }).catch(() => '');
     if (caption && status?.includes("No one you've added")) captionOverStranger += 1;
     const frame = (await page.evaluate(() => (window as unknown as { __fwLastFrame?: unknown }).__fwLastFrame)) as
       | FrameEntry[]
