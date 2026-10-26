@@ -15,8 +15,11 @@ import { speak, unlockAudio } from '../lib/voice';
 import { makeWhisper } from '../lib/whisper';
 import { enrich, writeInCloud } from '../lib/say';
 import { askLink, shareLink, takePendingConsent } from '../lib/consentLink';
+import { takePendingCard } from '../lib/cardLink';
 import { BRAND } from '../brand';
 import { spokenLine, STYLE_LABELS, type WhisperStyle } from '../lib/whisperStyle';
+import { parseIntro } from '../lib/intro';
+import { DictateButton } from '../components/Dictate';
 
 export const MIN_SHOTS = 3;
 /** A closed list, kept small on purpose: who you meet often, not a crowd. */
@@ -229,6 +232,8 @@ function NoteStep({
   setWhisper,
   source,
   setSource,
+  filledFromSpeech,
+  filledBy,
 }: {
   name: string;
   note: string;
@@ -237,6 +242,8 @@ function NoteStep({
   setWhisper: (v: string) => void;
   source: WhisperSource;
   setSource: (s: WhisperSource) => void;
+  filledFromSpeech?: boolean;
+  filledBy?: string | null;
 }) {
   const settings = useSettings();
   const [listening, setListening] = useState(false);
@@ -308,6 +315,16 @@ function NoteStep({
         </h1>
         <p className="lead">Say or type who {name} is and how you know them.</p>
       </div>
+      {filledBy && (
+        <p className="notice" role="status">
+          Prepared by {filledBy}. Check the note, the cues and where you met before you hand the phone to {name}.
+        </p>
+      )}
+      {filledFromSpeech && (
+        <p className="notice" role="status">
+          Filled in from what you said: the note here, and any cues and where you met on the last step. Check them before you go on.
+        </p>
+      )}
 
       <label className="field">
         <span className="field__label">Your note</span>
@@ -403,10 +420,28 @@ export function Enrol() {
   const [whisper, setWhisper] = useState('');
   const [source, setSource] = useState<WhisperSource>('rules');
   const [cues, setCues] = useState<Cues>({});
+  const [met, setMet] = useState('');
+  const [heard, setHeard] = useState('');
+  const [listening, setListening] = useState(false);
+  const [filledFromSpeech, setFilledFromSpeech] = useState(false);
+  const introSession = useRef<DictationSession | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState<Person | null>(null);
   const consentAt = useRef<string>('');
   const [linkStatus, setLinkStatus] = useState('');
+
+  // A card a helper prepared starts the flow at the note, filled in, for checking.
+  const [cardBy, setCardBy] = useState<string | null>(null);
+  useEffect(() => {
+    const card = takePendingCard();
+    if (!card) return;
+    setName(card.name);
+    setNote(card.note);
+    setCues(card.cues);
+    setMet(card.met);
+    setCardBy(card.by || 'someone you trust');
+    setStep(1);
+  }, []);
 
   // An answer that came back by link starts the flow at the photos.
   useEffect(() => {
@@ -457,6 +492,7 @@ export function Enrol() {
       whisper: whisper.trim(),
       whisperSource: source,
       cues: Object.fromEntries(Object.entries(cues).filter(([, v]) => v && v.trim())) as Cues,
+      met: met.trim() || undefined,
       descriptors: shots.map((s) => s.descriptor),
       thumb: shots[0]?.thumb ?? '',
       consentAt: consentAt.current || now,
@@ -489,6 +525,43 @@ export function Enrol() {
     setWhisper('');
     setSource('rules');
     setCues({});
+    setMet('');
+    setFilledFromSpeech(false);
+  }
+
+  /** Spoken enrolment: one sentence fills the name, the note, cues and where you met, for checking. */
+  async function sayItAll() {
+    if (listening) {
+      introSession.current?.stop();
+      return;
+    }
+    setHeard('');
+    let text = '';
+    const session = await startDictation({
+      onText: (t) => {
+        text = t;
+        setHeard(t);
+      },
+      onEnd: () => {
+        setListening(false);
+        if (!text.trim()) return;
+        const intro = parseIntro(text);
+        if (intro.name) setName(intro.name);
+        setNote(intro.note || text);
+        setCues((c) => ({ ...intro.cues, ...Object.fromEntries(Object.entries(c).filter(([, v]) => v)) }));
+        if (intro.met) setMet(intro.met);
+        setFilledFromSpeech(true);
+        if (intro.name || name.trim()) setStep(1);
+      },
+      onError: (message) => {
+        setListening(false);
+        toast(message);
+      },
+    });
+    if (session) {
+      introSession.current = session;
+      setListening(true);
+    }
   }
 
   function next() {
@@ -601,6 +674,19 @@ export function Enrol() {
                   <span className="consent__body">Children’s faces change fast, so Halo will only ever suggest “Could be {cleanName || 'them'}?”, never say it for sure.</span>
                 </span>
               </label>
+              {dictationSupported() && !capReached && (
+                <div className="stack">
+                  <button type="button" className="btn btn--block mic" aria-pressed={listening} onClick={sayItAll}>
+                    <Mic size={20} aria-hidden="true" />
+                    {listening ? 'Listening, tap when you’re done' : 'Or say it all at once'}
+                  </button>
+                  <span className="field__hint">
+                    {heard
+                      ? `“${heard}”`
+                      : 'For example: “This is Raj, my neighbour, had knee surgery, wears a green parka, we met at the climbing gym.” Your browser may send the audio to its maker; typing stays on the phone.'}
+                  </span>
+                </div>
+              )}
               {capReached && (
                 <p className="notice" role="status">
                   {real.length >= MAX_PEOPLE
@@ -671,7 +757,17 @@ export function Enrol() {
           {step === 3 && <PhotoStep name={cleanName} shots={shots} setShots={setShots} />}
 
           {step === 1 && (
-            <NoteStep name={cleanName} note={note} setNote={setNote} whisper={whisper} setWhisper={setWhisper} source={source} setSource={setSource} />
+            <NoteStep
+              name={cleanName}
+              note={note}
+              setNote={setNote}
+              whisper={whisper}
+              setWhisper={setWhisper}
+              source={source}
+              setSource={setSource}
+              filledFromSpeech={filledFromSpeech}
+              filledBy={cardBy}
+            />
           )}
 
           {step === 4 && (
@@ -701,6 +797,23 @@ export function Enrol() {
                   />
                 </label>
               ))}
+              <div className="field">
+                <label className="field__label" htmlFor="enrol-met">
+                  Where you met, or when you last saw them
+                </label>
+                <div className="field-row">
+                  <input
+                    id="enrol-met"
+                    className="input"
+                    value={met}
+                    onChange={(e) => setMet(e.target.value)}
+                    placeholder="At the climbing gym"
+                    autoComplete="off"
+                    maxLength={120}
+                  />
+                  <DictateButton label="Say where you met" onText={(t) => setMet(t.slice(0, 120))} />
+                </div>
+              </div>
             </>
           )}
         </div>

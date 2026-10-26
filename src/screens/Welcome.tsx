@@ -207,6 +207,11 @@ export function Welcome() {
                 Back
               </button>
             )}
+            {part === 0 && (
+              <button type="button" className="btn btn--quiet" onClick={() => (unlockAudio(), navigate('/try'))}>
+                See it in 60 seconds
+              </button>
+            )}
             <span className="spacer" />
             <button type="button" className="btn btn--quiet" onClick={() => navigate('/privacy')}>
               Privacy and limits

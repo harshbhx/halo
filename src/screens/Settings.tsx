@@ -7,7 +7,10 @@ import { onDeviceModelAvailable } from '../lib/onDeviceModel';
 import { removeEveryone, usePeople } from '../lib/people';
 import { navigate } from '../lib/router';
 import { resetSettings, updateSettings, useSettings, type ChimeSound, type OutputMode, type Theme } from '../lib/settings';
-import { activeVoice, deliver, isOnDeviceVoice, loadVoices, pickDefaultVoice, playChime, speechSupported, unlockAudio } from '../lib/voice';
+import { activeVoice, deliver, haptic, isOnDeviceVoice, loadVoices, pickDefaultVoice, playChime, speechSupported, unlockAudio } from '../lib/voice';
+import { BUZZ, BUZZ_LABELS, inQuietHours } from '../lib/rules';
+import { helperLink } from '../lib/cardLink';
+import { shareLink } from '../lib/consentLink';
 import { spokenLine, STYLE_LABELS, type WhisperStyle } from '../lib/whisperStyle';
 import { WHISPER_LANGUAGES } from '../lib/enhanced';
 import { BRAND } from '../brand';
@@ -266,6 +269,88 @@ export function Settings() {
               <span className="panel__hint">Whisper mode shows names quietly until you turn this off.</span>
             </span>
             <Switch checked={settings.whispersPaused} onChange={(whispersPaused) => updateSettings({ whispersPaused })} label="Pause whispers" />
+          </div>
+          <div className="panel__row">
+            <span className="panel__text">
+              <span className="panel__title" id="quiet-title">
+                Quiet hours
+              </span>
+              <span className="panel__hint">
+                {settings.quietHours.on
+                  ? `Nothing aloud from ${settings.quietHours.from} to ${settings.quietHours.to}: a buzz and the name on screen instead.${inQuietHours(settings.quietHours, new Date()) ? ' On now.' : ''}`
+                  : 'Nothing said aloud at set times, for example at night or at work.'}
+              </span>
+            </span>
+            <Switch checked={settings.quietHours.on} onChange={(on) => updateSettings({ quietHours: { ...settings.quietHours, on } })} label="Quiet hours" />
+          </div>
+          {settings.quietHours.on && (
+            <div className="panel__row time-row">
+              <label className="field">
+                <span className="field__label">From</span>
+                <input
+                  className="input"
+                  type="time"
+                  value={settings.quietHours.from}
+                  onChange={(e) => e.target.value && updateSettings({ quietHours: { ...settings.quietHours, from: e.target.value } })}
+                />
+              </label>
+              <label className="field">
+                <span className="field__label">To</span>
+                <input
+                  className="input"
+                  type="time"
+                  value={settings.quietHours.to}
+                  onChange={(e) => e.target.value && updateSettings({ quietHours: { ...settings.quietHours, to: e.target.value } })}
+                />
+              </label>
+            </div>
+          )}
+          <p className="panel__row panel__hint">To keep one person from ever being said aloud, open them in People and turn on “Never whisper”.</p>
+        </div>
+      </section>
+
+      <section className="section" aria-labelledby="pocket-title">
+        <h2 id="pocket-title">Pocket mode</h2>
+        <div className="panel">
+          <p className="panel__row panel__hint">
+            For when you’d rather not hold a phone up. Hang it at chest height on a lanyard or in a shirt pocket with the camera facing out, and turn on
+            pocket mode in Whisper mode: the screen goes black and stays awake, and whispers go to your earbud. Without an earbud, Halo buzzes a code:
+          </p>
+          <ul className="buzz-list">
+            {BUZZ_LABELS.map((b) => (
+              <li key={b.code}>
+                <span>{b.label}</span>
+                <button type="button" className="btn btn--quiet" onClick={() => haptic([...BUZZ[b.code]])} aria-label={`Feel it: ${b.label}`}>
+                  Feel it
+                </button>
+              </li>
+            ))}
+          </ul>
+          <p className="panel__row panel__hint" data-pocket-limits>
+            iPhone browsers can’t vibrate, so on an iPhone pocket mode needs an earbud. A locked screen stops the camera, so Halo asks the browser to keep the
+            screen awake.
+          </p>
+        </div>
+      </section>
+
+      <section className="section" aria-labelledby="helper-title">
+        <h2 id="helper-title">Someone to help</h2>
+        <div className="panel">
+          <p className="panel__row panel__hint">
+            A partner, parent or friend can prepare cards for people you’ll meet: who they are, how you know them, what to look for. They send each card
+            back as a link; you check it and add the person when you meet. Text only, nothing uploaded.
+          </p>
+          <div className="panel__row">
+            <button
+              type="button"
+              className="btn btn--block"
+              onClick={async () => {
+                const result = await shareLink(helperLink(location.origin), `${BRAND.name}: help me prepare cards`, `Could you help me prepare ${BRAND.name} cards?`);
+                toast(result === 'copied' ? 'Helper link copied.' : result === 'shared' ? 'Helper link sent.' : 'Couldn’t share the link from this browser.');
+              }}
+            >
+              Send a helper link
+            </button>
           </div>
         </div>
       </section>

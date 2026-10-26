@@ -144,6 +144,9 @@ export function Home() {
                 <ScanFace size={20} aria-hidden="true" />
                 Open the demo camera
               </button>
+              <button type="button" className="btn btn--quiet btn--block" onClick={() => (unlockAudio(), navigate('/try'))}>
+                Halo in 60 seconds, with a guide
+              </button>
             </section>
           )}
         </>

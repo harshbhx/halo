@@ -1,9 +1,9 @@
-import { History, Info, Pause, Play, RefreshCw, Sparkles, SwitchCamera, UserPlus, Volume2, VolumeX, X } from 'lucide-react';
+import { History, Info, Pause, Play, RefreshCw, Smartphone, Sparkles, SwitchCamera, UserPlus, Volume2, VolumeX, X } from 'lucide-react';
 import { BRAND } from '../brand';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { LocalBadge, toast } from '../components/ui';
 import { CAMERA_MESSAGES, CameraError, openCamera, stopStream, type CameraProblem } from '../lib/camera';
-import { createDemoStream, loadSamplePeople, SAMPLE_AVAILABLE } from '../lib/demo';
+import { createDemoStream, loadSamplePeople, removeSamplePeople, SAMPLE_AVAILABLE } from '../lib/demo';
 import { detectAll, engineBackend, frameBrightness, loadEngine } from '../lib/faceEngine';
 import { HINT_TEXT, HintSmoother, pickHint, yawFrom, type Hint } from '../lib/hints';
 import { FaceTracker, nearest, STATE_LIMITS, type FaceState, type Observation } from '../lib/matcher';
@@ -16,6 +16,7 @@ import { haptic, stopSpeaking, unlockAudio } from '../lib/voice';
 import { captionLine, sayPerson } from '../lib/say';
 import { recentWhispers, remember, type RecentWhisper } from '../lib/recent';
 import { cueItems } from '../lib/whisperStyle';
+import { BUZZ, inQuietHours, searchList } from '../lib/rules';
 
 interface Box {
   x: number;
@@ -88,7 +89,21 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
   ctx.closePath();
 }
 
-export function WhisperMode({ demo }: { demo: boolean }) {
+/** What the 60-second try has shown so far. */
+interface Coach {
+  known: string[];
+  noMatch: boolean;
+  startedAt: number;
+  done: boolean;
+}
+
+const COACH_STEPS = [
+  'Watch for the amber halo: Halo is sure it’s someone you added.',
+  'A second person, a second line. Each whisper says how you know them.',
+  'Now a face that was never added: “No match”, nothing said, nothing kept.',
+];
+
+export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: boolean }) {
   const settings = useSettings();
   const { loaded, people } = usePeople();
   const { list: today } = useToday();
@@ -96,6 +111,10 @@ export function WhisperMode({ demo }: { demo: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const facesRef = useRef<DrawnFace[]>([]);
   const peopleRef = useRef<Person[]>(people);
+  const todayRef = useRef(today);
+  todayRef.current = today;
+  const pocketRef = useRef(settings.pocketMode);
+  pocketRef.current = settings.pocketMode;
   const pausedRef = useRef(false);
   const mutedRef = useRef(false);
   const speakingRef = useRef(false);
@@ -118,6 +137,15 @@ export function WhisperMode({ demo }: { demo: boolean }) {
   const [hint, setHint] = useState<Hint | null>(null);
   const [preparingSamples, setPreparingSamples] = useState(false);
   const [recent, setRecent] = useState<RecentWhisper[] | null>(null);
+  const [coach, setCoach] = useState<Coach>(() => ({ known: [], noMatch: false, startedAt: Date.now(), done: false }));
+  const coachRef = useRef(coach);
+  coachRef.current = coach;
+  const [aloud, setAloud] = useState(false);
+  const [tryClosed, setTryClosed] = useState(false);
+  const aloudRef = useRef(aloud);
+  aloudRef.current = aloud;
+  const [elapsed, setElapsed] = useState(0);
+  const [wakeLock, setWakeLock] = useState<'on' | 'unsupported' | 'off'>('off');
   const recentRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -174,12 +202,61 @@ export function WhisperMode({ demo }: { demo: boolean }) {
     remember({ personId: person.id, name: person.name, line: captionLine(person), at: Date.now() });
     try {
       // Spoken only after the earbud check (or when the user chose the speaker); otherwise a buzz and the caption.
-      await sayPerson(person);
+      await sayPerson(person, { onToday: !!todayRef.current?.ids.includes(person.id), ...(guided && aloudRef.current ? { mode: 'voice' as const } : {}) });
     } finally {
       speakingRef.current = false;
       void pumpSpeech();
     }
-  }, []);
+  }, [guided]);
+
+  // The 60-second try: sample people are prepared on this phone, then the demo camera runs.
+  useEffect(() => {
+    if (!guided || !loaded || people.some((p) => p.sample)) return;
+    setPreparingSamples(true);
+    loadSamplePeople()
+      .catch(() => toast('The sample people didn’t load. Try again.'))
+      .finally(() => setPreparingSamples(false));
+  }, [guided, loaded]); // once per visit to the try
+
+  useEffect(() => {
+    if (!guided || coach.done) return;
+    const timer = setInterval(() => {
+      const secs = Math.round((Date.now() - coachRef.current.startedAt) / 1000);
+      setElapsed(secs);
+      if (secs >= 75) setCoach((c) => ({ ...c, done: true }));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [guided, coach.done]);
+
+  // Pocket mode: keep the screen awake (a locked phone stops the camera), black and still.
+  const pocket = settings.pocketMode && phase === 'running';
+  useEffect(() => {
+    if (!pocket) return;
+    let lock: WakeLockSentinel | null = null;
+    let cancelled = false;
+    const request = async () => {
+      if (!('wakeLock' in navigator)) {
+        setWakeLock('unsupported');
+        return;
+      }
+      try {
+        lock = await navigator.wakeLock.request('screen');
+        if (cancelled) void lock.release().catch(() => undefined);
+        else setWakeLock('on');
+      } catch {
+        setWakeLock('unsupported');
+      }
+    };
+    void request();
+    const onVisible = () => document.visibilityState === 'visible' && void request();
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      cancelled = true;
+      document.removeEventListener('visibilitychange', onVisible);
+      void lock?.release().catch(() => undefined);
+      setWakeLock('off');
+    };
+  }, [pocket]);
 
   // Camera (or the demo camera) and the face engine, then the detection loop.
   useEffect(() => {
@@ -235,7 +312,8 @@ export function WhisperMode({ demo }: { demo: boolean }) {
             if (cancelled) return;
             frames += 1;
             const people = peopleRef.current;
-            const enrolled = people.map((p) => ({ id: p.id, descriptors: p.descriptors }));
+            // Event mode: only the people on today's list are compared; everyone else is "No match".
+            const enrolled = searchList(people, todayRef.current).map((p) => ({ id: p.id, descriptors: p.descriptors }));
             const observations: Observation[] = detected.map((d) => {
               const m = nearest(d.descriptor, enrolled);
               return {
@@ -296,11 +374,20 @@ export function WhisperMode({ demo }: { demo: boolean }) {
             for (const f of maybe) {
               if (!maybeTapRef.current.has(f.trackId)) {
                 maybeTapRef.current.add(f.trackId);
-                if (getSettings().haptics && !mutedRef.current) haptic(12);
+                if (getSettings().haptics && !mutedRef.current) haptic(pocketRef.current ? [...BUZZ.maybe] : 12);
               }
             }
 
             setFaceCount({ known: confident.length, maybe: maybe.length, unknown: unsure.length });
+            if (guided && !coachRef.current.done) {
+              const c = coachRef.current;
+              const names = confident.map((f) => peopleRef.current.find((p) => p.id === f.personId)?.name).filter((n): n is string => !!n);
+              const known = [...new Set([...c.known, ...names])];
+              const noMatch = c.noMatch || (known.length > 0 && unsure.length > 0 && confident.length === 0);
+              if (known.length !== c.known.length || noMatch !== c.noMatch) {
+                setCoach({ ...c, known, noMatch, done: known.length >= 2 && noMatch });
+              }
+            }
             setHint(
               smootherRef.current.push(
                 confident.length || maybe.length
@@ -539,6 +626,17 @@ export function WhisperMode({ demo }: { demo: boolean }) {
     }
   }
 
+  const eventOnly = !!today?.only && today.ids.length > 0;
+  const quietNow = inQuietHours(settings.quietHours, new Date());
+  const coachStep = !coach.known.length ? 0 : coach.known.length < 2 ? 1 : 2;
+
+  async function finishTry(action: 'enrol' | 'remove' | 'stay') {
+    if (action === 'stay') return setTryClosed(true);
+    if (action === 'remove') await removeSamplePeople();
+    if (!getSettings().welcomeSeen) navigate('/welcome', true);
+    else navigate(action === 'enrol' ? '/enrol' : '/', true);
+  }
+
   const statusText = paused
     ? 'Paused'
     : faceCount.known > 0
@@ -604,10 +702,86 @@ export function WhisperMode({ demo }: { demo: boolean }) {
         </div>
       )}
 
-      {phase === 'running' && !settings.speakAllowed && settings.outputMode === 'voice' && (
-        <button type="button" className="silent-chip" onClick={() => navigate('/settings')}>
-          Silent until you check your earbud
-        </button>
+      {phase === 'running' && !pocket && (
+        <div className="night__notes">
+          {!guided && !settings.speakAllowed && settings.outputMode === 'voice' && (
+            <button type="button" className="silent-chip" onClick={() => navigate('/settings')}>
+              Silent until you check your earbud
+            </button>
+          )}
+          {quietNow && <p className="night-note">Quiet hours: a buzz and the caption, nothing aloud</p>}
+          {eventOnly && (
+            <p className="night-note">
+              Event: {today?.title || 'today’s list'}. Only {today?.ids.length === 1 ? 'one person' : `these ${today?.ids.length} people`}
+            </p>
+          )}
+          {guided && !coach.done && (
+            <section className="coach" aria-label="Halo in 60 seconds">
+              <div className="coach__head">
+                <span>
+                  Step {coachStep + 1} of 3 · {elapsed}s
+                </span>
+                <span className="spacer" />
+                <button type="button" className="coach__toggle" aria-pressed={aloud} onClick={() => (unlockAudio(), setAloud((a) => !a))}>
+                  {aloud ? 'Whispers aloud' : 'Play whispers aloud'}
+                </button>
+              </div>
+              <p className="coach__step" aria-live="polite">
+                {COACH_STEPS[coachStep]}
+              </p>
+              <div className="coach__dots" aria-hidden="true">
+                <span data-done={coach.known.length > 0} />
+                <span data-done={coach.known.length > 1} />
+                <span data-done={coach.noMatch} />
+              </div>
+            </section>
+          )}
+        </div>
+      )}
+
+      {guided && coach.done && !tryClosed && phase === 'running' && (
+        <div className="night__panel night__panel--scrim" role="dialog" aria-modal="false" aria-labelledby="try-done">
+          <div>
+            <h2 id="try-done">That’s Halo.</h2>
+            <p>
+              {coach.known.length > 0 ? `Recognised: ${coach.known.join(', ')}. ` : ''}
+              {coach.noMatch ? 'One face was never added: no match, nothing said, nothing kept. ' : ''}
+              All on this phone, with AI-generated faces.
+            </p>
+            <button type="button" className="btn btn--primary btn--block" onClick={() => void finishTry('enrol')}>
+              <UserPlus size={20} aria-hidden="true" /> {getSettings().welcomeSeen ? 'Add someone real' : 'Start with the short tour'}
+            </button>
+            <button type="button" className="btn btn--block" onClick={() => void finishTry('remove')}>
+              Remove the sample people
+            </button>
+            <button type="button" className="btn btn--quiet" onClick={() => void finishTry('stay')}>
+              Keep watching
+            </button>
+          </div>
+        </div>
+      )}
+
+      {pocket && (
+        <div className="pocket" role="dialog" aria-modal="true" aria-labelledby="pocket-title" onDoubleClick={() => updateSettings({ pocketMode: false })}>
+          <div>
+            <h2 id="pocket-title" className="pocket__title">
+              Pocket mode
+            </h2>
+            <p className="pocket__status" aria-live="polite">
+              {caption ? `${caption.name}${captionKind === 'maybe' ? '?' : ''}` : statusText}
+            </p>
+            <p>
+              {settings.speakAllowed && !quietNow
+                ? 'Whispers go to your earbud. Wear the phone at chest height, camera facing out.'
+                : 'Buzz codes only: two short for someone you added, three for today’s list, one long for “could be”.'}
+            </p>
+            {wakeLock === 'unsupported' && <p>This browser may let the screen lock, which stops the camera. Keep the screen on in your phone’s settings.</p>}
+            <button type="button" className="btn" onClick={() => updateSettings({ pocketMode: false })}>
+              Wake the screen
+            </button>
+            <p className="label">Or double-tap anywhere.</p>
+          </div>
+        </div>
       )}
 
       {loaded && !hasPeople && !demo && (
@@ -631,7 +805,7 @@ export function WhisperMode({ demo }: { demo: boolean }) {
       {phase === 'starting' && (hasPeople || demo) && (
         <div className="night__panel">
           <div>
-            <h2>Getting ready on your phone…</h2>
+            <h2>{guided && preparingSamples ? 'Preparing three sample people…' : 'Getting ready on your phone…'}</h2>
             <div className="loader" aria-hidden="true">
               <span style={{ transform: `scaleX(${Math.max(0.06, progress)})` }} />
             </div>
@@ -689,8 +863,14 @@ export function WhisperMode({ demo }: { demo: boolean }) {
               {caption.thumb && <img className="caption__avatar" src={caption.thumb} alt="" width={44} height={44} />}
               <span className="caption__name">{caption.name}</span>
               {onToday && <span className="tag tag--sample">On today’s list</span>}
+              {caption.quiet && <span className="tag tag--sample">Never whispered</span>}
             </span>
             <span className="caption__text">{captionLine(caption)}</span>
+            {caption.met && (
+              <span className="caption__met">
+                Where you met: <b>{caption.met}</b>
+              </span>
+            )}
             {cueItems(caption.cues).length > 0 && (
               <ul className="caption__cues">
                 {cueItems(caption.cues).map((c) => (
@@ -750,6 +930,18 @@ export function WhisperMode({ demo }: { demo: boolean }) {
               </button>
               <button type="button" className="night-btn" onClick={() => setRecent(recentWhispers())} aria-label="Who was that? The last five whispers">
                 <History size={24} aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className="night-btn"
+                aria-pressed={settings.pocketMode}
+                aria-label="Pocket mode: screen dark, phone at chest height"
+                onClick={() => {
+                  unlockAudio();
+                  updateSettings({ pocketMode: true, ...(demo ? {} : { facing: 'environment' as const }) });
+                }}
+              >
+                <Smartphone size={24} aria-hidden="true" />
               </button>
             </div>
             <p className="limits">Silence doesn’t mean a stranger. A hint, not proof: never use it to decide who to trust.</p>

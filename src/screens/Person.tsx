@@ -1,6 +1,7 @@
 import { Camera, Play, Trash2, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { Avatar, BackButton, ConfirmSheet, toast } from '../components/ui';
+import { Avatar, BackButton, ConfirmSheet, Switch, toast } from '../components/ui';
+import { DictateButton } from '../components/Dictate';
 import { addOrUpdatePerson, removePerson, usePeople } from '../lib/people';
 import { boxLabel } from '../lib/practice';
 import { navigate } from '../lib/router';
@@ -192,6 +193,35 @@ export function Person({ id }: { id: string }) {
             <input className="input" value={draft.cues[f.key] ?? ''} onChange={(e) => set({ cues: { ...draft.cues, [f.key]: e.target.value } })} maxLength={80} autoComplete="off" />
           </label>
         ))}
+
+        <div className="field">
+          <label className="field__label" htmlFor="person-met">
+            Where you met, or when you last saw them
+          </label>
+          <div className="field-row">
+            <input
+              id="person-met"
+              className="input"
+              value={draft.met ?? ''}
+              onChange={(e) => set({ met: e.target.value })}
+              placeholder="At the climbing gym; last saw him at Anu’s wedding"
+              maxLength={120}
+              autoComplete="off"
+            />
+            <DictateButton label="Say where you met" onText={(met) => set({ met: met.slice(0, 120) })} />
+          </div>
+          <span className="field__hint">Shown under the whisper and in today’s list.</span>
+        </div>
+
+        <div className="panel">
+          <div className="panel__row">
+            <span className="panel__text">
+              <span className="panel__title">Never whisper {original.name}</span>
+              <span className="panel__hint">Halo still shows who it is on screen, but says nothing and doesn’t buzz.</span>
+            </span>
+            <Switch checked={!!draft.quiet} onChange={(quiet) => set({ quiet: quiet || undefined })} label={`Never whisper ${original.name}`} />
+          </div>
+        </div>
 
         {dirty && (
           <div className="save-bar">

@@ -1,4 +1,4 @@
-/** Tiny hash router for the app at /app: #/, #/today, #/practice, #/enrol, #/whisper, #/person/<id>, #/settings, #/backup, #/privacy, #/welcome */
+/** Tiny hash router for the app at /app: #/, #/today, #/practice, #/enrol, #/whisper, #/person/<id>, #/settings, #/backup, #/privacy, #/welcome, #/try (Halo in 60 seconds), #/card?d= (a card a helper prepared) */
 import { useSyncExternalStore } from 'react';
 
 export type Route =
@@ -7,6 +7,8 @@ export type Route =
   | { name: 'practice' }
   | { name: 'enrol' }
   | { name: 'whisper'; demo: boolean }
+  | { name: 'try' }
+  | { name: 'card'; data: string }
   | { name: 'person'; id: string }
   | { name: 'settings' }
   | { name: 'backup' }
@@ -25,6 +27,10 @@ export function parseHash(hash: string): Route {
       return { name: 'practice' };
     case 'enrol':
       return { name: 'enrol' };
+    case 'try':
+      return { name: 'try' };
+    case 'card':
+      return { name: 'card', data: new URLSearchParams(query).get('d') ?? '' };
     case 'whisper':
       return { name: 'whisper', demo: new URLSearchParams(query).get('demo') === '1' };
     case 'person':
