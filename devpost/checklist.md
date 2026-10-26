@@ -5,79 +5,137 @@ status: approved
 
 # Build Checklist
 
-Build mode: fast (Harsh's brief asked the agent to build and verify autonomously overnight and report; hands-on checkpoints happen when he wakes)
+Build mode: fast. The slices were built and mechanically verified by the AI coding agent from Harsh's brief and decisions; the hands-on checkpoints, final review and learning wrap-up below are Harsh's to do and are left open on purpose.
 
 ## Slices
 
 - [x] **1. Enrol someone and hear their whisper**
   Becomes usable: Add a person with consent, photos from the camera and a typed note; open Whisper mode, point the camera at them, see the ring and caption and hear the whisper.
-  Why now: This is the kernel (on-device recognition turning into a spoken whisper with context) and the riskiest part (face-api under Vite, models in a headless browser with a fake camera). Bootstrapping lives inside it.
-  PRD ref: `prd.md > The Core Journey` (steps 3–7), `prd.md > Features and Behavior > Enrolling a person`, `prd.md > Features and Behavior > Turning a note into a whisper`, `prd.md > Features and Behavior > Whisper mode`
-  Spec ref: `spec.md > Face engine`, `spec.md > Matcher`, `spec.md > Vault (encrypted storage)`, `spec.md > Whisper writer`, `spec.md > Voice and dictation`, `spec.md > Enrol flow`, `spec.md > Whisper mode`, `spec.md > File Structure`
-  Build: Scaffold Vite + React + TypeScript, copy model weights, build faceEngine, matcher, vault, whisper, voice, dictation, the 4-step enrol flow and Whisper mode with overlay ring, caption and speech.
-  Verify (mechanical): Unit tests for whisper, matcher and vault pass; production build succeeds; Playwright with a synthetic-face fake camera enrols a person and Whisper mode shows their name and whisper.
-  Learner check: Open the app on a phone, enrol a friend who agreed, open Whisper mode and point at them: you should hear their whisper and see the ring.
+  Why now: The kernel and the riskiest part (face-api under Vite, models in a headless browser with a fake camera). Bootstrapping lives inside it.
+  PRD ref: `prd.md > The Core Journey`, `prd.md > Features and Behavior > Recognising, carefully`
+  Spec ref: `spec.md > Face engine`, `spec.md > Tracker and matcher`, `spec.md > Vault, stores and ledger`, `spec.md > Whisper writer and voice`
+  Build: Scaffold Vite, React and TypeScript, copy model weights, face engine, matcher, vault, whisper writer, voice, enrolment and Whisper mode.
+  Verify (mechanical): Unit tests pass; production build succeeds; Playwright with a synthetic-face fake camera enrols a person and Whisper mode shows their name and whisper.
+  Learner check: Open the app on a phone, add a friend who agreed, open Whisper mode and point at them: you should hear their whisper and see the ring.
   Commit: `Enrol people and whisper their name on recognition`
 
 - [x] **2. A calm, complete app around the kernel**
-  Becomes usable: Welcome with the privacy promise, people list with edit and delete, settings with voice, volume, rate, strictness, theme and Delete everything, the privacy and limits page, bottom navigation.
-  Why now: The judges' first 30 seconds depend on it, and Delete everything is a privacy promise that must be tested.
-  PRD ref: `prd.md > Screens and Layout`, `prd.md > Look and Feel`, `prd.md > Features and Behavior > Privacy and consent`, `prd.md > Features and Behavior > Managing people`, `prd.md > Features and Behavior > Settings`, `prd.md > States and Boundaries`
-  Spec ref: `spec.md > App shell and navigation`, `spec.md > Welcome and privacy`, `spec.md > People and person editing`, `spec.md > Settings`, `spec.md > Look and Feel`
-  Build: Shell and routes, Welcome, Home empty and filled states, Person edit, Settings, Privacy, design tokens, motion and accessibility pass.
-  Verify (mechanical): Unit tests and build pass; Playwright covers welcome, edit, delete person and delete everything returning to Welcome with an empty vault.
-  Learner check: Go through Welcome, edit a person's whisper, change the voice, then Delete everything and confirm the app starts fresh.
+  Becomes usable: Tour, people list with edit and delete, settings, privacy and limits, Delete everything.
+  Why now: The first 30 seconds depend on it, and Delete everything is a privacy promise that must be tested.
+  PRD ref: `prd.md > Screens and Layout`, `prd.md > States and Boundaries`
+  Spec ref: `spec.md > App shell and navigation`, `spec.md > Screens`
+  Build: Shell and routes, tour, people, person, settings, privacy.
+  Verify (mechanical): Playwright edits a person, checks the database holds ciphertext, deletes everything and returns to the tour with no database left.
+  Learner check: Go through the tour, edit a whisper, then Delete everything and confirm the app starts fresh.
   Commit: `Add welcome, people, settings and delete everything`
 
 - [x] **3. Try it alone with synthetic sample people**
-  Becomes usable: "Try with sample people" adds three AI-generated people who do not exist; the demo camera shows them plus one face that was not added, which stays "Not someone you've added".
-  Why now: Lets a judge see recognition without a second person, and proves the unknown-stays-unknown rule.
+  Becomes usable: Three AI-generated sample people and a demo camera with one face that was never added.
+  Why now: Lets anyone see recognition without a second person, and proves the no-match rule.
   PRD ref: `prd.md > Features and Behavior > Demo with sample people`
-  Spec ref: `spec.md > Demo mode`
-  Build: Sample faces with credits, on-device fingerprinting of the samples, canvas demo camera stream, Whisper mode source switch.
-  Verify (mechanical): Playwright loads sample people, starts the demo camera, sees each sample name and an unknown label for the extra face; distances logged.
-  Learner check: On a fresh install tap Try with sample people, open Whisper mode with the demo camera and watch the names and the unknown face.
+  Spec ref: `spec.md > Screens`
+  Build: Sample faces with credits, on-device fingerprints for them, a canvas demo camera.
+  Verify (mechanical): Playwright sees each sample name and "No match" for the extra face; distances logged.
+  Learner check: Tap Try with sample people, open the demo camera, watch the names and the no-match face.
   Commit: `Add demo mode with synthetic sample people`
 
 - [x] **4. Ready to demo and record**
-  Becomes usable: `./run.sh` starts the app; `./run.sh fake-camera` opens Chromium with a synthetic-face camera; `npm run demo:record` produces the walkthrough video and screenshots; works offline after first load; README and DEMO.md explain everything.
-  Why now: The submission needs a video, and the video agent gets only this folder.
-  PRD ref: `prd.md > What We're Building`, `prd.md > Features and Behavior > Privacy and consent` (offline)
-  Spec ref: `spec.md > Where It Runs and How Someone Tries It`, `spec.md > Offline cache`
-  Build: run.sh, fake-camera scripts, demo recording spec, service worker, README, DEMO.md, screenshots.
-  Verify (mechanical): Fresh `./run.sh` serves the built app; the recording run writes the video and screenshots; the offline test reloads with the network off.
-  Learner check: Run `./run.sh`, open the printed address and follow DEMO.md end to end.
-  Commit: `Add run script, fake camera and demo recording`
+  Becomes usable: `./run.sh`, a fake-camera browser, the recorded walkthrough, offline support.
+  Why now: The submission needs a video.
+  PRD ref: `prd.md > What We're Building`
+  Spec ref: `spec.md > Where It Runs and How Someone Tries It`
+  Build: Run script, fake-camera clips, recording script, service worker.
+  Verify (mechanical): The offline test reloads with the network off and still recognises; the recording run writes a video and screenshots.
+  Learner check: Run `./run.sh`, open the printed address, follow `DEMO.md`.
+  Commit: `Add run.sh: serve, fake-camera browser, recorded walkthrough and tests`
+
+- [x] **5. A designed product: Hallmark redesign and the landing page**
+  Becomes usable: Every screen rebuilt on the Ribbon theme with the amber halo; a landing page at `/` with the app at `/app/`.
+  Why now: Harsh judged the first version's design not good enough and asked for the Hallmark skill.
+  PRD ref: `prd.md > Look and Feel`
+  Spec ref: `spec.md > Look and Feel`, `spec.md > Landing page`
+  Build: Hallmark pre-flight and before record, theme deal, scaffolded tokens, app screens, landing page, sweeps and fresh-context reviews.
+  Verify (mechanical): `sloplint --render` reports 0 FAIL on the app (scope app) and the landing page; all end-to-end tests pass.
+  Learner check: Open the landing page and the app on a phone in light and dark; say what feels off.
+  Commit: `Rebuild the app's design system on Hallmark's Ribbon theme`
+
+- [x] **6. Today, Practice, backups and output modes**
+  Becomes usable: A briefing list before an event, practice from cues, passphrase backups with a review step, voice, chime, buzz or silent.
+  Why now: Preparation and cues are what people with face blindness already rely on.
+  PRD ref: `prd.md > Features and Behavior > Preparing and practising`, `prd.md > Features and Behavior > Backups`
+  Spec ref: `spec.md > Vault, stores and ledger`, `spec.md > Whisper writer and voice`
+  Build: Today and Practice screens, the spaced schedule, backup files, output settings.
+  Verify (mechanical): Unit tests for practice, backups and styles; screenshots of each screen.
+  Learner check: Make a list for tomorrow and practise once.
+  Commit: `Add today's list for briefing yourself before an event`
+
+- [x] **7. Halo, ready to deploy**
+  Becomes usable: The name Halo from one config file, a static build with a strict CSP and Cloudflare config.
+  Why now: Harsh chose the name and the deployment target.
+  PRD ref: `prd.md > Product Decisions`
+  Spec ref: `spec.md > Where It Runs and How Someone Tries It`
+  Build: `brand.config.json`, icons, `_headers`, `robots.txt`, `wrangler.jsonc`, a server that applies the headers, an external-request check.
+  Verify (mechanical): The build check finds no external request; Playwright runs every test under the CSP and asserts no request leaves the origin.
+  Learner check: `./run.sh` and read the page title, the manifest and the headers.
+  Commit: `Rename the product to Halo, with the name kept in one config file`
+
+- [x] **8. Careful recognition and real consent**
+  Becomes usable: Three states (confident, maybe, no match), the person's own yes on the phone or by link, child and look-alike handling, list limits, restore review, speaking only after an earbud check.
+  Why now: The risk review showed a wrong name is worse than silence.
+  PRD ref: `prd.md > Features and Behavior > Consent`, `prd.md > Features and Behavior > Recognising, carefully`
+  Spec ref: `spec.md > Tracker and matcher`, `spec.md > Consent`
+  Build: `FaceTracker`, the consent handoff and link, the honest-limits copy.
+  Verify (mechanical): Tracker unit tests; the demo test sees confident names only after a steady view and never over the no-match face; the consent-link test posts nothing.
+  Learner check: Add a friend with their own yes, then point at someone you didn't add.
+  Commit: `Follow each face and give it one of three states: confident, maybe or no match`
+
+- [x] **9. Optional Enhanced mode, text only**
+  Becomes usable: A natural voice and translated whispers, a cloud writer, the privacy ledger, and the Worker source.
+  Why now: Harsh allowed Cloudflare only as an opt-in that never touches faces.
+  PRD ref: `prd.md > Features and Behavior > Enhanced mode (optional)`
+  Spec ref: `spec.md > Enhanced mode`
+  Build: `enhanced.ts`, `say.ts`, `ledger.ts`, the settings consent sheet, `worker/index.ts`.
+  Verify (mechanical): Worker unit tests with Workers AI mocked; Playwright shows default mode makes no API call and Enhanced mode sends only short text that appears in the ledger.
+  Learner check: Read the consent sheet and the ledger, then decide whether you'd turn it on.
+  Commit: `Add the optional Enhanced mode Worker (source only) with guarded routes and tests`
 
 ## Hands-on Checkpoints
 
-- [ ] Early usable behavior explored — after slice 1 (pending: Harsh was asleep during the build; Playwright evidence in `docs/shots/` stands in until he tries it)
-- [ ] Final kick-the-tires exploration and feedback completed
+- [ ] Early usable behavior explored: **Harsh**, on his own phone, adding a real friend who agrees.
+- [ ] Final kick-the-tires exploration and feedback completed: **Harsh**.
 
 ## Final Review
 
-- [ ] Final review complete — feedback resolved and learner confirms ready to ship
+- [ ] Final review complete: feedback resolved and **Harsh** confirms it's ready to ship.
+
+What Harsh needs to do himself before submitting:
+1. Spend 20 to 30 minutes with the app on his phone (`DEMO.md`, device test in `docs/device-test.md`): add a friend who agrees, try Whisper mode with an earbud, try the demo camera, Today and Practice. Note what he noticed and what he'd change, here under **Revisions** and in the Harsh notes in `scope.md`, `prd.md` and `spec.md`.
+2. Decide on any changes from that session, then tick the two checkpoints and the final review only if they happened.
+3. Do the learning wrap-up below with `devpost/app-map.html` and tick only what he actually did.
+4. Make the repository public, record the video on a real phone and write the Devpost answers himself (`docs/submission-checklist.md`).
 
 ## Code Tour and App Map
 
-- [ ] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
-- [ ] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
-- [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
+- [ ] Learning activity complete: **Harsh** (guided route in `devpost/app-map.html`, or the focused alternative)
+- [ ] Optional edit and transfer reflection addressed: **Harsh**
+- [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse: generated by the agent from the final code; showing it and checking it with Harsh is still to do
 
-Activity and evidence: not started with Harsh yet (he was asleep during the build). `devpost/app-map.html` was generated from commit f9e2636 with a reference route and a practice note grounded in `tests/e2e/demo-mode.spec.ts`; it has not been shown to him, so the boxes above stay open.
-Route and stops: reference only — `src/screens/WhisperMode.tsx` (`const tick = async`), `src/lib/matcher.ts` (`export class Tracker`), `src/lib/voice.ts` (`export async function speak`)
+Activity and evidence: not started (Harsh's step)
+Route and stops: reference route in `devpost/app-map.html`, not yet toured
 Edit outcome: not applicable yet
 Reflection: not offered yet
 Activity mode: pending
 
 ## Revisions
 
-- Slice 1 also built the design tokens, bottom bar and people list — enrolment needed somewhere to land, and the look and feel was cheaper to set once than to retrofit.
-- Fake-camera clips are portrait 480x640 with the face at about arm's length — Chromium delivers the clip at its native size, and a landscape clip cropped to a phone screen made the face fill the whole view.
-- Added a WebAssembly fallback for the face engine — headless Chromium (and some phones) refuse a GPU context for TensorFlow.js, and plain-JavaScript detection took 2.3 s a frame, too slow for a steady match; WebAssembly brought it to about 0.1 s.
-- The caption now follows whoever was just recognised, even inside the repeat interval — the build showed the caption stuck on the previous person while the next one was in view.
-- Measured on the synthetic faces (answers the spec's open uncertainty): same person 0.08–0.28, the stranger 0.79–0.81 from everyone, so the 0.45 Careful threshold leaves a wide margin.
-- Fake and demo cameras are 9:16 portrait (432x768) — a 3:4 clip shown full-screen on a phone was cropped so hard that faces filled the screen; real phone cameras deliver 9:16 in portrait.
-- The caption now disappears the moment a face that isn't enrolled replaces its person — the recording showed Maya's caption lingering over the stranger, which could make someone think the stranger was Maya.
-- Enrolment rejects a shot that is far from the earlier shots (likely a different person), so one person's fingerprints can't be mixed with another's.
-- The service worker matches cached files ignoring `Vary` — the offline test found module scripts (requested with an Origin header) missing the cache and the page loading blank offline.
+- Slice 1 also built the design tokens, bottom bar and people list: enrolment needed somewhere to land.
+- Fake-camera clips are portrait 9:16 with the face at arm's length: Chromium delivers the clip at its native size, and a landscape clip cropped to a phone screen made the face fill the view.
+- Added a WebAssembly fallback for the face engine: headless Chromium (and some phones) refuse a GPU context for TensorFlow.js, and plain JavaScript took 2.3 s a frame; WebAssembly brought it to about 0.1 s.
+- The caption follows whoever was just recognised and disappears the moment a different face replaces them: the recording showed a name lingering over the wrong face.
+- Enrolment refuses a shot far from the earlier ones (likely someone else) and warns about look-alikes.
+- The service worker matches cached files ignoring `Vary`: the offline test found module scripts missing the cache.
+- The whole look was rebuilt with the Hallmark skill at Harsh's request; the product was renamed Halo; the app moved to `/app/` with a landing page at `/`.
+- Recognition moved from "3 of 4 frames per person" to one tracked face with three states, after a risk review: a short burst of frames let a look-alike through.
+- Consent moved from a box the owner ticks to the person's own yes after reading the exact line, or a yes by link.
+- Over-claims removed ("Know who's in front of you", "nothing like this ships"); prior art named; quotes replaced with verbatim wording Harsh checked; the six honest limits added.
+- Optional Enhanced mode added at Harsh's decision: text only, off by default, with a ledger.

@@ -3,189 +3,118 @@ doc: spec
 status: approved
 ---
 
-# Face Whisper — Technical Spec
+# Halo: Technical Spec
 
-> Process note: the stack and privacy constraints come from Harsh's brief (on-device face matching with face-api.js or a similar library, browser storage, browser speech, works with no key). Choices the brief left open are marked **Recommendation (accepted)**: the build agent proposed them and they were accepted under the brief's "work autonomously" instruction.
+> **How this was made.** Written by an AI coding agent running the Devpost Learn `4-spec` skill, from Harsh's brief (on-device face matching with face-api, browser storage, browser speech, works with no key) and his later decisions (the name, optional text-only Enhanced mode on Cloudflare, the Hallmark design skill). Choices the brief left open are marked **Agent recommendation**.
+>
+> **Harsh's own notes (to fill in):** _[the technical part you'd explain to a friend in your own words]_
 
 ## How This Works, In Plain Language
-Face Whisper is a single web page that runs on the phone. Nothing it learns about faces goes to a server, because there is no server: the page is static files.
+Halo is a website that runs on the phone. Everything that touches a face happens inside the browser.
 
-- **The face reader** is a small neural network that runs inside the browser. It finds faces in a camera frame and turns each one into a *face fingerprint*: a list of 128 numbers. Two photos of the same person give fingerprints that are close together; different people are further apart.
-- **Enrolling** someone means taking 3 to 5 photos, turning each into a fingerprint, and saving the fingerprints with the person's name, the note and the whisper. The photos themselves are not kept, only one small thumbnail for the people list.
-- **The vault** is the browser's own database on the phone (IndexedDB). Everything in it is encrypted with a key the browser creates and refuses to export. "Delete everything" wipes both the data and the key.
-- **The whisper writer** turns a note into one short line. It is a set of plain rules (swap "my" for "your", drop "This is", keep the facts), so it needs no internet and no key. If the browser offers a built-in on-device language model, it can be used instead.
-- **Whisper mode** reads the camera a few times a second, makes fingerprints of the faces it sees, and compares them with the saved ones. If one is close enough for several frames in a row, it draws a soft ring and speaks the whisper with the browser's own voice. Fingerprints of faces that match no one are thrown away straight after the comparison.
+- **The face reader** is a small neural network (face-api) that finds faces in a camera frame and turns each into a *face fingerprint*: 128 numbers. Two photos of the same person give fingerprints that are close together.
+- **Adding someone** means a note, their own "I agree", three to five photos turned into fingerprints, and optional cue notes. The photos are thrown away; one small picture is kept for the list.
+- **The vault** is the browser's database on the phone, encrypted with a key the browser makes and refuses to export. "Delete everything" removes the data and the key.
+- **The tracker** follows each face across frames and gives it one of three states: confident (spoken), maybe ("Could be Raj?", silent) or no match. A wrong name is worse than silence.
+- **The voice** is the browser's own speech, or a natural voice clip made once in Enhanced mode and kept with the person.
+- **Enhanced mode** (optional, off by default) is Halo's own server on the same address, which receives only text: the line to voice or translate, and a typed note if you ask it to write the line. It never receives faces.
 
-Why this shape: it is the smallest design that keeps the privacy promise. Every extra service (a server, an account, a cloud model) would be a new place a face could leak.
+Why this shape: it is the smallest design that keeps the privacy promise. There is no account and no face server to leak.
 
 ## The Core Journey Through the System
 PRD ref: `prd.md > The Core Journey`.
 
-1. The user opens the page → `App` checks the settings store for "welcome seen" → shows `Welcome`.
-2. Taps start → settings store saves the flag → `Home` loads people from the vault (decrypting each record) → empty state.
-3. **Add someone** → `Enrol` step 1 (`ConsentStep`) → name plus consent tick enable Continue.
-4. `PhotoStep` opens the camera through `camera.ts` → each shutter tap grabs a frame → `faceEngine.describe()` finds exactly one face, returns its fingerprint and a cropped thumbnail → kept in memory.
-5. `NoteStep` → dictation (`dictation.ts`, browser speech recognition) or typing → `whisper.ts` makes the preview line → editable.
-6. `CuesStep` → Save → `vault.savePerson()` encrypts the record and writes it to IndexedDB → back to `Home`.
-7. **Whisper** → `WhisperMode` starts the camera (or the demo camera) → a frame loop calls `faceEngine.detectAll()` → `matcher.ts` compares each fingerprint with the enrolled ones and keeps a short streak per person → when a streak is steady, `Overlay` draws the ring and `voice.ts` speaks the whisper, then a cool-down starts.
-8. **Delete everything** in `Settings` → `vault.wipe()` deletes the database and key, clears settings → `Welcome`.
+1. Open `/app/` → `App` reads settings from `localStorage` (no personal data) → `Welcome` tour → earbud check sets `speakAllowed`.
+2. **Add someone** → `Enrol`: name → note (`whisper.ts` rules, or an on-device model, or Enhanced mode's writer) → their yes (`consentMethod: 'in-person'`, or `consentLink.ts` for a link) → `PhotoStep` (`faceEngine.describe` per shot) → cues → `vault.savePerson` encrypts and stores → `say.enrich` adds a translation and a natural voice if Enhanced mode is on.
+3. **Whisper** → `WhisperMode` opens the camera (or `demo.createDemoStream`) → each frame `faceEngine.detectAll` → `matcher.nearest` per face → `FaceTracker.update` gives each track a state → confident: `say.sayPerson` (clip, phone voice, buzz or caption) and `recent.remember`; maybe: a dotted ring and a question; no match: a faint outline. Fingerprints of faces in view are dropped right after the comparison.
+4. **Delete everything** → `vault.wipeVault` deletes the database and key, settings reset, back to the tour.
 
 ## Stack
-- **TypeScript 5.9 + React 19 + Vite 7** — a static single-page app; React keeps seven screens and their state manageable. Docs: https://react.dev, https://vite.dev. **Recommendation (accepted).**
-- **@vladmandic/face-api 1.7** — maintained fork of face-api.js with TensorFlow.js bundled; TinyFaceDetector + 68-point tiny landmarks + FaceRecognitionNet (128-number descriptors). Model weights (about 6.5 MB) ship with the app and are cached after first load. Docs: https://github.com/vladmandic/face-api. Named in the brief.
-- **idb 8** — small promise wrapper for IndexedDB. Docs: https://github.com/jakearchibald/idb.
-- **Web Crypto (AES-GCM 256)** — built into browsers. Docs: https://developer.mozilla.org/docs/Web/API/SubtleCrypto.
-- **Web Speech API** — `speechSynthesis` for the whisper voice, `SpeechRecognition` for dictation where available. Docs: https://developer.mozilla.org/docs/Web/API/Web_Speech_API.
-- **Chrome built-in AI (optional)** — `LanguageModel` Prompt API if the browser exposes it and the model is already available; never required. Docs: https://developer.chrome.com/docs/ai/built-in.
-- **Atkinson Hyperlegible Next** via @fontsource, self-hosted. Docs: https://www.brailleinstitute.org/freefont/.
-- **lucide-react** icons. Docs: https://lucide.dev.
-- **Vitest 3 + fake-indexeddb** for unit tests; **Playwright 1.61** with Chromium's fake camera for the end-to-end flow, screenshots and demo video. Docs: https://vitest.dev, https://playwright.dev.
-
-Unverified at planning time, to check in slice 1: that the bundled face-api build runs under Vite 7 and loads the models in headless Chromium with a fake camera.
+- **TypeScript 5.9, React 19, Vite 7**: a static multi-page site (`/`, `/app/`, `/consent/`). Docs: https://react.dev, https://vite.dev. **Agent recommendation.**
+- **@vladmandic/face-api 1.7** (TinyFaceDetector, 68-point tiny landmarks, FaceRecognitionNet) with TensorFlow.js on WebGL, then WebAssembly, then CPU. Model weights and WebAssembly are served from the site itself. Note: the library was archived in February 2025; it still works, and a move is planned. Docs: https://github.com/vladmandic/face-api.
+- **idb 8** and **Web Crypto (AES-GCM, PBKDF2)**. Docs: https://github.com/jakearchibald/idb, https://developer.mozilla.org/docs/Web/API/SubtleCrypto.
+- **Web Speech API** for the voice and optional dictation. Docs: https://developer.mozilla.org/docs/Web/API/Web_Speech_API.
+- **Fonts:** Instrument Sans and Atkinson Hyperlegible Next, self-hosted through @fontsource. **Icons:** lucide-react.
+- **Design:** the Hallmark skill (project-level, `.claude/skills/hallmark`), Ribbon theme, swept with its `sloplint` (static and rendered) and two fresh-context reviews.
+- **Enhanced mode:** one Cloudflare Worker (`worker/index.ts`) with Workers AI: `@cf/myshell-ai/melotts`, `@cf/ai4bharat/indictrans2-en-indic-1B`, `@cf/meta/m2m100-1.2b`, `@cf/meta/llama-3.2-3b-instruct`, `@cf/openai/whisper-large-v3-turbo`. Docs: https://developers.cloudflare.com/workers-ai/.
+- **Tests:** Vitest (unit, including the Worker with Workers AI mocked) and Playwright with Chromium's fake camera playing an AI-generated face.
 
 ## Where It Runs and How Someone Tries It
-- Runtime: any modern phone or desktop browser. The camera needs a secure origin, so use `http://localhost` or HTTPS.
-- Requirements: Node 20+ and npm. No API keys. `.env.example` documents that none are needed.
-- Start: `./run.sh` (installs on first run, builds, serves on http://localhost:4173). Open it on the same machine, or tunnel it over HTTPS to try it on a phone.
-- Demo without a person: `./run.sh fake-camera` opens Chromium with a synthetic-face video as the camera (`scripts/make-fake-camera.sh` builds the clips with ffmpeg). In-app, **Try with sample people** plus the **demo camera** works in any browser.
-- Recording: `npm run demo:record` runs the whole click path in Playwright with the fake camera and writes a video and screenshots to `docs/shots/`.
-- Submission needs a short demo video and a public GitHub repository; Harsh makes the repository public himself. Deployment is optional and not planned for this build (Harsh asked to keep everything local for now).
+- Any modern phone or desktop browser; the camera needs `https` or `localhost`. No API keys.
+- **Run:** `./run.sh` builds and serves `dist/` with the production headers at http://localhost:4173 (landing) and http://localhost:4173/app/ (the app).
+- **Without a person:** **Try with sample people** and the demo camera in the app; `./run.sh fake-camera` opens Chromium with a synthetic-face camera.
+- **Evidence:** `npm run screens` (every screen, light and dark, phone and desktop), `npm run demo:record` (the walkthrough video), `npm run accuracy` (distances).
+- **Deploy (Harsh, later):** `npm run build`, then `npx wrangler deploy` with `wrangler.jsonc` (Workers static assets at the domain root, single-page fallback, `/api/*` to the Worker, Workers AI binding). Not deployed from this repo.
+- Submission needs a public repo and a video; both are Harsh's steps (`docs/submission-checklist.md`).
 
 ## Look and Feel
-From `prd.md > Look and Feel`.
-- Palette (light): paper `#F6F3EE` background, white cards, ink `#15191F` text, muted `#4B5563`, accent deep teal `#1E6B5C`, accent wash `#DDEFE9`, ring mint `#7BE3C6`, danger `#A12A1E`. Dark: background `#0D1115`, card `#161C22`, text `#F1EEE8`, muted `#A9B2BE`, accent `#7FD6BF`. All text pairs meet WCAG AA, body text aims for AAA.
-- Type: Atkinson Hyperlegible Next. Body 18–19px, line height 1.5; headings 28–34px, weight 700; captions in Whisper mode 22–26px.
-- Shape: 20px card radius, 999px pill buttons, 56px minimum touch targets, primary actions at the bottom of the screen.
-- Motion: 180–260ms ease-out fades and slides; the ring "breathes" in once and settles. `prefers-reduced-motion` turns motion off.
-- Copy: short, kind, second person. "Not someone you've added." "Getting ready on your phone…"
+From `prd.md > Look and Feel`, built as Hallmark's Ribbon theme: dawn paper `oklch(98.2% 0.008 82)`, ink `oklch(18% 0.006 80)`, the night `oklch(13.2% 0.022 258)` for Whisper mode and dark mode, one amber accent `oklch(80% 0.12 72)` (the halo). Instrument Sans 400/500 for heads and names, Atkinson Hyperlegible Next 400/700 for reading, root size 18px (21px with Bigger text), a 1.2 type ratio, the 4px-based spacing scale, machined pills and faders, 420ms ease-out at most. Full system: `docs/design.md`; tokens: `src/styles/tokens.css`.
 
 ## Components
 
 ### App shell and navigation
-Hash routes (`#/`, `#/enrol`, `#/whisper`, `#/person/:id`, `#/settings`, `#/privacy`), a bottom bar with People, Whisper and Settings, theme handling and toasts.
-PRD ref: `prd.md > Screens and Layout`.
-
-### Welcome and privacy
-`Welcome` (first run) and `Privacy` (always reachable) pages with the privacy promise and honest limits.
-PRD ref: `prd.md > Features and Behavior > Privacy and consent`, `prd.md > States and Boundaries`.
+Hash routes and a five-tab bar. `src/App.tsx`, `src/lib/router.ts`, `src/components/ui.tsx`. PRD ref: `prd.md > Screens and Layout`.
 
 ### Face engine
-`src/lib/faceEngine.ts`: loads models once (WebGL backend, CPU fallback), `describe(image)` for enrolment (exactly one face, returns descriptor and a thumbnail), `detectAll(video)` for Whisper mode (boxes plus descriptors).
-PRD ref: `prd.md > Features and Behavior > Enrolling a person`, `prd.md > Features and Behavior > Whisper mode`.
+`src/lib/faceEngine.ts`: loads the models once, `describe` for enrolment (one clear face), `detectAll` with landmarks for Whisper mode, `frameBrightness` on the face area. PRD ref: `prd.md > Features and Behavior > Recognising, carefully`.
 
-### Matcher
-`src/lib/matcher.ts`: nearest-person search by Euclidean distance with a threshold (Careful 0.45, Balanced 0.52) and an ambiguity margin; a `Tracker` that needs 3 matching frames out of the last 4 before confirming, and a per-person cool-down. Pure functions, unit tested.
-PRD ref: `prd.md > Features and Behavior > Whisper mode`.
+### Tracker and matcher
+`src/lib/matcher.ts`: `nearest`, `FaceTracker` (per-face tracks by overlap, three states, a track that disagrees for two frames starts again, repeat interval), `STATE_LIMITS`. Unit tested in `tests/unit/tracker.test.ts`. PRD ref: same.
 
-### Vault (encrypted storage)
-`src/lib/vault.ts`: IndexedDB stores `people` (encrypted blobs) and `keys` (one non-extractable AES-GCM key). `listPeople`, `savePerson`, `deletePerson`, `wipe`. Settings live in `localStorage` (no personal data).
-PRD ref: `prd.md > Features and Behavior > Privacy and consent`, `prd.md > Features and Behavior > Managing people`.
+### Vault, stores and ledger
+`src/lib/vault.ts` (encrypted people and meta records), `src/lib/stores.ts` (today's list, practice), `src/lib/ledger.ts` (what left the phone). PRD ref: `prd.md > Features and Behavior > Consent`, `> Backups`.
 
-### Whisper writer
-`src/lib/whisper.ts`: rule-based note-to-whisper rewrite; `src/lib/onDeviceModel.ts`: optional built-in model path. Unit tested.
-PRD ref: `prd.md > Features and Behavior > Turning a note into a whisper`.
+### Whisper writer and voice
+`src/lib/whisper.ts` (rules), `src/lib/whisperStyle.ts` (short, warm, full), `src/lib/say.ts` (one path for speaking, enrichment), `src/lib/voice.ts` (speech, chimes, haptics, clips, offline-voice check). PRD ref: `prd.md > Features and Behavior > Hearing it`.
 
-### Voice and dictation
-`src/lib/voice.ts` (speech synthesis with voice, volume, rate; optional soft chime) and `src/lib/dictation.ts` (speech recognition wrapper with on-device processing requested where supported).
-PRD ref: `prd.md > Features and Behavior > Whisper mode`, `prd.md > Features and Behavior > Enrolling a person`.
+### Consent
+Handoff in `src/screens/Enrol.tsx`; links in `src/lib/consentLink.ts`, `consent/` and `src/screens/ConsentReceived.tsx`. PRD ref: `prd.md > Features and Behavior > Consent`.
 
-### Enrol flow
-`src/screens/Enrol.tsx` with four steps and a progress bar.
-PRD ref: `prd.md > The Core Journey` steps 3–6.
+### Screens
+`src/screens/`: Welcome, Home, Enrol, WhisperMode, Person, Today, Practice, Settings, Backup, Privacy, ConsentReceived.
 
-### Whisper mode
-`src/screens/WhisperMode.tsx`: camera view, `Overlay` canvas for rings and labels, caption card, controls, privacy badge, models-loading and camera-blocked states.
-PRD ref: `prd.md > Features and Behavior > Whisper mode`.
+### Enhanced mode
+`src/lib/enhanced.ts` (the only client code that calls a server, only when on and online, every call to the ledger) and `worker/index.ts` (origin check, signed sessions, strict schemas, size caps, per-IP rate limit, daily ceiling, no logging). PRD ref: `prd.md > Features and Behavior > Enhanced mode (optional)`.
 
-### People and person editing
-`src/screens/Home.tsx`, `src/screens/Person.tsx`.
-PRD ref: `prd.md > Features and Behavior > Managing people`.
-
-### Settings
-`src/screens/Settings.tsx`.
-PRD ref: `prd.md > Features and Behavior > Settings`.
-
-### Demo mode
-`src/lib/demo.ts`: loads sample people from `public/demo/faces/` (AI-generated faces, public domain, credited) by computing their fingerprints on the device; `src/lib/demoCamera.ts`: a canvas animation of the sample faces plus one not-added face, exposed as a camera stream.
-PRD ref: `prd.md > Features and Behavior > Demo with sample people`.
-
-### Offline cache
-`public/sw.js`: a small service worker that caches the app shell and model files after first load.
-PRD ref: `prd.md > Features and Behavior > Privacy and consent` (works offline after first load).
+### Landing page
+`index.html`, `landing/`: Hallmark Narrative Workflow shape, Counter hero with a real capture, the page speaks a whisper, the six honest limits.
 
 ## Data Model
 ```ts
 type Person = {
-  id: string;            // random UUID
-  name: string;
-  note: string;          // what the user said or typed
-  whisper: string;       // the line that is spoken
-  whisperSource: 'rules' | 'on-device-model' | 'edited';
-  cues: { clothes?: string; hair?: string; glasses?: string; other?: string };
-  descriptors: number[][]; // 3–5 face fingerprints, 128 numbers each
-  thumb: string;         // small JPEG data URL, on device only
-  consentAt: string;     // ISO time the consent tick was given
-  createdAt: string; updatedAt: string;
-  sample?: boolean;      // true for synthetic demo people
+  id; name; note; whisper; whisperSource: 'rules' | 'on-device-model' | 'enhanced' | 'edited';
+  cues: { clothes?; hair?; glasses?; other? };
+  descriptors: number[][];     // 3 to 8 face fingerprints
+  thumb: string;               // small JPEG, on the phone only
+  consentAt: string; consentMethod?: 'in-person' | 'link' | 'owner-confirmed';
+  child?: boolean; sample?: boolean;
+  voiceClip?: { text; audio };          // Enhanced mode, base64 MP3
+  translated?: { lang; text };          // Enhanced mode, editable
+  createdAt; updatedAt;
 };
 ```
-- IndexedDB `face-whisper` → store `people`: `{ id, iv, data }` where `data` is the AES-GCM encrypted JSON of a `Person`. Store `keys`: `{ id: 'main', key: CryptoKey }`, non-extractable.
-- `localStorage` `fw.settings`: theme, voice name, volume, rate, repeat interval, strictness, chime, welcome seen. No personal data.
-- Leaving and returning: everything reloads from IndexedDB. Clearing site data loses it (stated on the privacy page).
-
-## File Structure
-```
-face-whisper/
-├── index.html              # app entry, meta tags, manifest link
-├── run.sh                  # one command: install, build, serve; `fake-camera` mode
-├── package.json
-├── vite.config.ts
-├── playwright.config.ts
-├── public/
-│   ├── models/             # face-api weights, copied from node_modules (not committed)
-│   ├── demo/faces/         # synthetic sample faces + CREDITS.md
-│   ├── sw.js               # offline cache
-│   ├── manifest.webmanifest
-│   └── icon.svg
-├── scripts/
-│   ├── copy-models.mjs     # copies model weights into public/models
-│   ├── make-fake-camera.sh # builds y4m clips from the synthetic faces with ffmpeg
-│   └── fake-camera.sh      # launches Chromium with the fake camera
-├── src/
-│   ├── main.tsx, App.tsx   # entry and shell
-│   ├── styles/             # tokens.css, app.css
-│   ├── lib/                # faceEngine, matcher, vault, whisper, voice, dictation, demo, demoCamera, settings, router
-│   ├── components/         # BottomBar, Button, Sheet, Toggle, Field, PrivacyBadge, Overlay, Toast
-│   └── screens/            # Welcome, Home, Enrol, WhisperMode, Person, Settings, Privacy
-├── tests/
-│   ├── unit/               # whisper, matcher, vault
-│   └── e2e/                # Playwright: enrol, recognise, unknown, delete-all; demo recording
-├── docs/shots/             # screenshots and demo video from Playwright
-├── devpost/                # Devpost Learn planning docs (scope, prd, spec, checklist, app map)
-├── DEMO.md                 # 2-minute click path and narration
-└── README.md
-```
+IndexedDB `face-whisper` (internal name kept from the first build): `people` and `meta` hold AES-GCM ciphertext; `keys` holds one non-extractable key. `meta` keeps today's list, practice cards, practice days and the ledger. `localStorage` keeps settings only.
 
 ## External Services and Dependencies
-- **None at run time.** No API, no server, no key.
-- Browser dictation may use the browser maker's speech service (for example Chrome sends audio to Google unless on-device recognition is available). The app requests on-device processing where the browser supports it, and the privacy page says this plainly. Typing avoids it.
-- Model weights and fonts are bundled; nothing is fetched from a CDN.
+- **Default mode: none.** No network request carries user data; the CSP sets `connect-src 'self'` and `npm run build` fails if the build loads anything from another origin.
+- **Enhanced mode:** Halo's own Worker on the same origin; Workers AI under Cloudflare's no-training, no-retention terms. Payloads and limits in `worker/README.md`.
+- **Browser dictation** may send audio to the browser maker; typing is the default.
 
 ## Important Failure Modes
-- **Camera blocked or unavailable** → calm explanation with how to allow it, retry, and the demo camera.
-- **WebGL unavailable or models slow** → CPU backend; "Getting ready…" progress; detection runs less often.
-- **Wrong or uncertain match** → strict threshold plus margin plus 3-of-4-frame streak; ambiguous faces stay unknown; limits shown on screen.
-- **No speech voices** → captions and the chime still work; settings explain.
+- **Wrong person** → three states, strict limits, track reset on a face swap, children and look-alikes held at maybe, the honest limits on screen.
+- **Camera blocked or missing** → a plain explanation, retry, the demo camera.
+- **No WebGL** → WebAssembly, then CPU.
+- **No or online-only voice** → captions and a buzz; Settings points to an offline voice.
+- **Enhanced mode down** → the phone's voice, the rules and English, as if it were off.
 
 ## What Was Simplified and Why
-- **Browser voice** instead of a generated cloud voice — needs no key and keeps whisper text on the device. The fuller version would add a key-holding proxy.
-- **Rule-based whisper** by default instead of a cloud LLM — the note is short and formulaic; rules are fast, private and predictable. An on-device model is used only if the browser already has one.
-- **One thumbnail per person** instead of keeping enrolment photos — fingerprints are what matching needs; fewer stored images, less to leak.
-- **Local run plus Playwright video** instead of a hosted deployment — Harsh asked to keep everything local for now.
+- **Browser voice by default** instead of generated voices: no key, nothing leaves the phone. Enhanced mode adds a natural voice for those who opt in.
+- **Rules first** for writing whispers: predictable and offline.
+- **Thumbnails, not photos**: fingerprints are what matching needs.
+- **Synthetic accuracy check** instead of a real-world study: the study is planned (`docs/accuracy.md`).
 
 ## Decisions and Open Issues
-- On-device face matching with face-api (brief). Tradeoff: accuracy is below server-grade models, so thresholds are strict and limits are shown.
-- Encrypted IndexedDB vault with a non-extractable key (brief said "encrypted if cheap"; Web Crypto makes it cheap). Tradeoff: protects against casual inspection of the browser's files, not against someone who controls the unlocked phone; the privacy page says so.
-- **Recommendation (accepted):** thresholds Careful 0.45 / Balanced 0.52 (default Careful), 3-of-4 streak, 45 s repeat.
-- **Uncertainty to check during the build:** does the descriptor distance separate the synthetic sample faces cleanly at 0.45 under the fake camera's motion and compression? Evidence: the Playwright run logs best and second-best distances, and the unknown face must stay unknown.
-- From `prd.md > Open Questions`: dictation availability varies by browser; typing fallback built in.
+- On-device matching with face-api (Harsh's brief); accuracy below server-grade models, so Halo is conservative and says so.
+- **Agent recommendation:** the three-state thresholds and timings, the 50 and 5 limits, 45 seconds between repeats.
+- **The uncertainty checked in the build:** do the distances separate people? On the synthetic set, same person 0.05 to 0.21 and different people 0.70 or more (`eval/accuracy-synthetic.json`). Real-world separation is still open.
+- Open: real-world accuracy and bias, offline voices per language, the archived face library.
