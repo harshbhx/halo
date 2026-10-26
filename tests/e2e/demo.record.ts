@@ -20,7 +20,7 @@ const STILLS = `${OUT}/walkthrough`;
 
 test.setTimeout(600_000);
 
-/** Shows a soft amber ring where each tap lands, so taps are visible in the video. */
+/** Shows a soft indigo ring where each tap lands, so taps are visible in the video. */
 async function showTaps(page: Page) {
   await page.addInitScript(() => {
     window.addEventListener(
@@ -28,7 +28,7 @@ async function showTaps(page: Page) {
       (e) => {
         const dot = document.createElement('div');
         dot.style.cssText = `position:fixed;left:${e.clientX - 22}px;top:${e.clientY - 22}px;width:44px;height:44px;border-radius:50%;
-          background:rgba(232,170,90,.25);box-shadow:0 0 0 3px rgba(232,170,90,.9);pointer-events:none;z-index:99999;
+          background:rgba(37,59,119,.22);box-shadow:0 0 0 3px rgba(37,59,119,.85);pointer-events:none;z-index:99999;
           transition:transform .45s ease-out,opacity .45s ease-out;`;
         document.body.appendChild(dot);
         requestAnimationFrame(() => {

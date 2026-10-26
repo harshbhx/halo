@@ -1,0 +1,83 @@
+/*
+ * Halo's palette, in one place. Every page (landing, app, consent, helper) takes
+ * its colours from this file, so a recolour is a single swap.
+ *
+ * Inspiration: Ajrakh, the resist-printed cotton of Kutch and Sindh. The cloth is
+ * printed with wooden blocks and dyed in turn: indigo from the plant, madder from
+ * the root, a black from rusted iron and jaggery, and the cotton's own off-white
+ * kept where a clay resist protected it. Halo uses those four: undyed cotton for
+ * paper, iron black for ink and night, indigo for what you act on, madder for the
+ * mark and for anything serious. The recognition halo is the resist white: a
+ * known face is the part of the cloth left light.
+ */
+:root {
+  color-scheme: light dark;
+
+  /* Day: undyed cotton, iron-black ink. */
+  --color-paper: oklch(96% 0.014 85); --color-paper-2: oklch(93% 0.019 84); --color-paper-3: oklch(89% 0.026 82);
+  --color-ink: oklch(21% 0.014 50); --color-ink-2: oklch(31% 0.014 50); --color-muted: oklch(44% 0.017 55);
+  --color-rule: oklch(85% 0.02 82); --color-rule-2: oklch(90% 0.016 84); --color-field-edge: oklch(55% 0.018 60);
+  /* Indigo: the primary action, links, focus. */
+  --color-accent: oklch(37% 0.105 266); --color-accent-press: oklch(32% 0.1 266); --color-accent-soft: oklch(91.5% 0.022 262); --color-accent-ink: oklch(96.5% 0.012 85);
+  --color-accent-strong: oklch(41% 0.12 266); --color-focus: oklch(42% 0.14 266);
+  /* Madder: the mark, and anything serious. */
+  --color-madder: oklch(47% 0.14 29); --color-madder-soft: oklch(92.5% 0.03 35);
+  --color-error: oklch(47% 0.15 27); --color-error-soft: oklch(95% 0.025 27); --color-success: oklch(46% 0.08 135);
+  --color-band: oklch(17% 0.012 50); --color-band-ink: oklch(94% 0.016 85);
+  --color-slot: oklch(70% 0.03 80);
+  --metal-hi: oklch(97.5% 0.008 85); --metal-lo: oklch(87% 0.014 84); --metal-index: oklch(41% 0.12 266);
+  --edge-light: inset 0 1px 0 oklch(100% 0.005 85 / 0.55);
+  --shadow-part: 0 1px 0 oklch(21% 0.014 50 / 0.22), 0 8px 16px -8px oklch(21% 0.014 50 / 0.28);
+  --shadow-panel: 0 1px 0 oklch(21% 0.014 50 / 0.16), 0 20px 40px -18px oklch(21% 0.02 50 / 0.3);
+  --shadow-bed: inset 0 2px 4px oklch(21% 0.014 50 / 0.18);
+
+  /* The night: Whisper mode, pocket mode and the landing hero always sit on it. Iron black, not blue. */
+  --night-paper: oklch(15.5% 0.012 50); --night-paper-2: oklch(19.5% 0.013 50); --night-paper-3: oklch(24% 0.014 52);
+  --night-ink: oklch(94% 0.016 85); --night-muted: oklch(74% 0.018 75); --night-rule: oklch(32% 0.014 52);
+  --night-scrim: oklch(15.5% 0.012 50 / 0.8); --night-scrim-soft: oklch(15.5% 0.012 50 / 0.45);
+  --night-madder: oklch(70% 0.12 33); --night-rule-strong: oklch(60% 0.016 60);
+  /* The halo is the resist white: solid when sure, dotted for "could be", a faint dash for no match. */
+  --halo: oklch(94% 0.03 85); --halo-ink: oklch(20% 0.014 50); --halo-soft: oklch(94% 0.03 85 / 0.32); --halo-unknown: oklch(94% 0.016 85 / 0.42);
+  --pocket: oklch(5% 0.008 50);
+}
+
+/* Dark: the cloth at night. Iron-black ground, cotton ink, indigo washed pale so it reads. */
+[data-mode="dark"] {
+  color-scheme: dark;
+  --color-paper: oklch(17% 0.012 50); --color-paper-2: oklch(20.5% 0.013 50); --color-paper-3: oklch(24.5% 0.014 52);
+  --color-ink: oklch(93.5% 0.016 85); --color-ink-2: oklch(86% 0.016 84); --color-muted: oklch(73% 0.018 75);
+  --color-rule: oklch(31% 0.014 52); --color-rule-2: oklch(25% 0.013 50); --color-field-edge: oklch(57% 0.018 70);
+  --color-accent: oklch(78% 0.06 262); --color-accent-press: oklch(73% 0.065 262); --color-accent-soft: oklch(29% 0.035 262); --color-accent-ink: oklch(18% 0.02 262);
+  --color-accent-strong: oklch(80% 0.07 262); --color-focus: oklch(80% 0.09 262);
+  --color-madder: oklch(70% 0.12 33); --color-madder-soft: oklch(29% 0.05 30);
+  --color-error: oklch(72% 0.13 28); --color-error-soft: oklch(26% 0.05 28); --color-success: oklch(75% 0.09 135);
+  --metal-hi: oklch(40% 0.012 55); --metal-lo: oklch(26% 0.012 52); --metal-index: oklch(80% 0.07 262);
+  --edge-light: inset 0 1px 0 oklch(100% 0.005 85 / 0.08);
+  --shadow-part: 0 1px 0 oklch(5% 0.008 50 / 0.6), 0 8px 16px -8px oklch(5% 0.008 50 / 0.7);
+  --shadow-panel: inset 0 0 0 1px oklch(31% 0.014 52);
+  --shadow-bed: inset 0 2px 4px oklch(5% 0.008 50 / 0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-mode]) {
+    color-scheme: dark;
+    --color-paper: oklch(17% 0.012 50); --color-paper-2: oklch(20.5% 0.013 50); --color-paper-3: oklch(24.5% 0.014 52);
+    --color-ink: oklch(93.5% 0.016 85); --color-ink-2: oklch(86% 0.016 84); --color-muted: oklch(73% 0.018 75);
+    --color-rule: oklch(31% 0.014 52); --color-rule-2: oklch(25% 0.013 50); --color-field-edge: oklch(57% 0.018 70);
+    --color-accent: oklch(78% 0.06 262); --color-accent-press: oklch(73% 0.065 262); --color-accent-soft: oklch(29% 0.035 262); --color-accent-ink: oklch(18% 0.02 262);
+    --color-accent-strong: oklch(80% 0.07 262); --color-focus: oklch(80% 0.09 262);
+    --color-madder: oklch(70% 0.12 33); --color-madder-soft: oklch(29% 0.05 30);
+    --color-error: oklch(72% 0.13 28); --color-error-soft: oklch(26% 0.05 28); --color-success: oklch(75% 0.09 135);
+    --metal-hi: oklch(40% 0.012 55); --metal-lo: oklch(26% 0.012 52); --metal-index: oklch(80% 0.07 262);
+    --edge-light: inset 0 1px 0 oklch(100% 0.005 85 / 0.08);
+    --shadow-part: 0 1px 0 oklch(5% 0.008 50 / 0.6), 0 8px 16px -8px oklch(5% 0.008 50 / 0.7);
+    --shadow-panel: inset 0 0 0 1px oklch(31% 0.014 52);
+    --shadow-bed: inset 0 2px 4px oklch(5% 0.008 50 / 0.6);
+  }
+}
+
+/* Higher contrast: muted text and rules step toward the ink. */
+[data-high-contrast] {
+  --color-muted: var(--color-ink-2); --color-rule: var(--color-field-edge); --color-focus: var(--color-ink);
+  --night-muted: var(--night-ink); --night-rule: var(--night-rule-strong);
+}

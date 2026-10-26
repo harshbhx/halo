@@ -1,13 +1,13 @@
 /* Hallmark · shape: app screen · genre: atmospheric · theme: Ribbon (the same locked system as the app and landing) · redesign: full
- * nav: none, one question · signature: the line they will be introduced by, set large · states: ask, answered, broken link · ribbon: dawn paper, amber accent · modes: light+dark
- * axes: light/grotesk-sans/chromatic-amber · posture: committed · contrast: pass · v2.0.0 */
+ * nav: none, one question · signature: the line they will be introduced by, set large · states: ask, answered, broken link · ribbon: undyed-cotton paper, indigo action, madder mark · modes: light+dark
+ * axes: light/grotesk-sans/cool · posture: committed · contrast: pass · v2.0.0 */
 /* Hallmark · pre-emit critique: P4 H5 E4 S5 R5 V3 · weakest: V, it reuses the app's system on purpose so the person sees the same product */
 @import url("../landing/tokens.css");
 @import url("../landing/base.css");
 
 body { background: var(--color-paper); color: var(--color-ink); }
 .ask { max-width: 34rem; margin-inline: auto; padding: var(--space-xl) var(--space-lg) var(--space-2xl); display: grid; gap: var(--space-lg); }
-.ask__brand { font: 500 var(--text-lg)/1 var(--font-display); color: var(--color-accent-strong); }
+.ask__brand { font: 500 var(--text-lg)/1 var(--font-display); color: var(--color-madder); }
 .ask h1 { font-size: var(--text-display-s); }
 .lead { color: var(--color-muted); font-size: var(--text-lead); }
 .label { font-size: var(--text-sm); color: var(--color-muted); }

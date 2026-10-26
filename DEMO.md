@@ -24,7 +24,7 @@ For recording the submission video on a real phone. Bullets and questions only: 
    - (Optional cut) **Not here? Send Sam a link to answer**.
 4. **Photos**: point at the laptop, three shots inside the oval; Continue.
 5. **Cues**: Usual clothes *Green raincoat*, Hair *Brown hair with a fringe*, Where you met *At the climbing gym*; **Save Sam**; "Sam is added."
-6. **Whisper mode**: **Try Whisper mode**, point at the laptop. Wait for the amber halo and the whisper in the earbud. Tap the caption to hear it again. **Who was that?**, Close.
+6. **Whisper mode**: **Try Whisper mode**, point at the laptop. Wait for the light halo and the whisper in the earbud. Tap the caption to hear it again. **Who was that?**, Close.
 7. **Not sure / no match**: Settings, **Add sample people**; People, **Open the demo camera**. Let Maya be recognised, then the face that was never added: "No match", nothing spoken.
 8. **Pocket mode**: phone on a lanyard or in a shirt pocket, camera out; tap the pocket button; the screen goes dark; walk up to the laptop showing Sam's face and let the whisper (or the buzz) come; double-tap to wake.
 9. **Offline**: Control Centre, airplane mode on; back in Halo, demo camera again; Maya is still recognised.

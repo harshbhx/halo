@@ -98,7 +98,7 @@ interface Coach {
 }
 
 const COACH_STEPS = [
-  'Watch for the amber halo: Halo is sure it’s someone you added.',
+  'Watch for the light halo: Halo is sure it’s someone you added.',
   'A second person, a second line. Each whisper says how you know them.',
   'Now a face that was never added: “No match”, nothing said, nothing kept.',
 ];
@@ -530,9 +530,13 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
           ctx.save();
           ctx.globalAlpha = 0.3 + 0.7 * ease;
           ctx.strokeStyle = palette.haloSoft;
-          ctx.lineWidth = 12;
+          ctx.lineWidth = 14;
           ctx.beginPath();
           ctx.ellipse(cx, cy, rx * grow, ry * grow, 0, 0, Math.PI * 2);
+          ctx.stroke();
+          // A dark edge under the light ring keeps it visible against a white wall or bright sky.
+          ctx.strokeStyle = palette.scrim;
+          ctx.lineWidth = 8;
           ctx.stroke();
           ctx.strokeStyle = palette.halo;
           ctx.lineWidth = 4;
@@ -555,7 +559,7 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
             ctx.fillStyle = palette.halo;
             roundRect(ctx, px, py, pw, ph, ph / 2);
             ctx.fill();
-            // A dark edge keeps the amber label readable over warm skin and lamplight.
+            // A dark edge keeps the name tag readable over skin, walls and lamplight.
             ctx.strokeStyle = palette.scrim;
             ctx.lineWidth = 2;
             ctx.stroke();
@@ -568,12 +572,15 @@ export function WhisperMode({ demo, guided = false }: { demo: boolean; guided?: 
           // Could be someone you know: a dotted ring and a question, never a name said aloud.
           const person = peopleRef.current.find((p) => p.id === face.personId);
           ctx.save();
-          ctx.globalAlpha = 0.75;
-          ctx.strokeStyle = palette.halo;
-          ctx.lineWidth = 2;
+          ctx.globalAlpha = 0.85;
           ctx.setLineDash([3, 9]);
           ctx.beginPath();
           ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+          ctx.strokeStyle = palette.scrim;
+          ctx.lineWidth = 5;
+          ctx.stroke();
+          ctx.strokeStyle = palette.halo;
+          ctx.lineWidth = 2.5;
           ctx.stroke();
           ctx.setLineDash([]);
           if (person) {

@@ -119,6 +119,16 @@ Build mode: fast. The slices were built and mechanically verified by the AI codi
   Learner check: Send the helper page to someone at home and ask them to prepare one card.
   Commit: `Helper cards: a trusted person prepares a card as text and sends it as a link`
 
+- [x] **12. A human palette: Ajrakh cotton**
+  Becomes usable: Every page and screen in undyed cotton, iron black, indigo and madder, light and dark, with the halo as the resist white.
+  Why now: Harsh judged the first palette generic and asked for colours from a real human source.
+  PRD ref: `prd.md > Look and Feel`
+  Spec ref: `spec.md > Look and Feel`
+  Build: `src/styles/palette.css` as the only place colours live, imported by the app, landing, consent and helper pages; icons, theme colours and the recognition rings updated; Hallmark dealt Loom as the base.
+  Verify (mechanical): Hallmark `sloplint` 0 FAIL and 0 WARN on every page; axe finds no contrast or other problems in light and dark; all unit and end-to-end tests pass; every screenshot and video re-recorded.
+  Learner check: Look at the before and after contact sheets in `docs/shots/recolour/` and the app on your phone in both modes.
+  Commit: `Recolour Halo with an Ajrakh palette kept in one file`
+
 ## Hands-on Checkpoints
 
 - [ ] Early usable behavior explored: **Harsh**, on his own phone, adding a real friend who agrees.
@@ -161,4 +171,5 @@ Activity mode: pending
 - Optional Enhanced mode added at Harsh's decision: text only, off by default, with a ledger.
 - Second feature round at Harsh's request: pocket mode, event mode, where you met, spoken enrolment, a helper, quiet hours and never whisper, Halo in 60 seconds, an accessibility pass.
 - Helper cards are text only, not "photos and a note" as first asked: photos or face fingerprints in a link would leave the phone through the messaging app, which breaks the core promise. Photos are taken in person on the user's phone.
+- Recoloured from Ribbon's amber and blue-black to an Ajrakh palette (undyed cotton, iron black, indigo, madder) at Harsh's request; the halo became the resist white with a dark edge so it shows on any background, and the three states still differ by line and label.
 - The accessibility pass found focus staying on "Next" between tour parts (fixed: focus moves to each part's heading) and the tour footer overflowing a 375px screen (fixed).
