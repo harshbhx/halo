@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import { APP, enableDebug, passWelcome } from './helpers';
 
 interface FrameEntry {
+  state: 'confident' | 'maybe' | 'unsure';
   personId: string | null;
   distance: number;
   runnerUp: number | null;
@@ -28,16 +29,17 @@ test('sample people are recognised and the stranger stays unknown', async ({ pag
   let captionOverStranger = 0;
   const deadline = Date.now() + 75_000;
   while (Date.now() < deadline && (seenCaptions.size < 3 || unknownDistances.length < 3)) {
-    const caption = await page.locator('.caption__name').textContent({ timeout: 200 }).catch(() => null);
+    // Only a confident caption names someone; "Could be …?" captions are suggestions.
+    const caption = await page.locator('.caption:not(.caption--maybe) .caption__name').textContent({ timeout: 200 }).catch(() => null);
     if (caption) seenCaptions.add(caption.trim().toLowerCase());
     const status = await page.locator('.night__status').textContent({ timeout: 200 }).catch(() => '');
-    if (caption && status?.includes("No one you've added")) captionOverStranger += 1;
+    if (caption && status?.includes('No match')) captionOverStranger += 1;
     const frame = (await page.evaluate(() => (window as unknown as { __fwLastFrame?: unknown }).__fwLastFrame)) as
       | FrameEntry[]
       | undefined;
     for (const f of frame ?? []) {
-      if (f.personId === null) unknownDistances.push(f.distance);
-      else knownDistances.push(f.distance);
+      if (f.state === 'unsure') unknownDistances.push(f.distance);
+      else if (f.state === 'confident') knownDistances.push(f.distance);
     }
     await page.waitForTimeout(250);
   }

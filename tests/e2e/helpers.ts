@@ -38,17 +38,23 @@ export async function takePhotos(page: Page, count: number) {
 /** Adds Sam (an AI-generated face from the fake camera) and stops on the saved screen. */
 export async function enrolSam(page: Page) {
   await page.getByRole('button', { name: 'Add someone' }).first().click();
-  await page.getByLabel('Their name').fill('Sam');
   const continueBtn = page.getByRole('button', { name: 'Continue' });
   await expect(continueBtn).toBeDisabled();
-  await page.getByText('Sam agreed to be added').click();
+  await page.getByLabel('Their name').fill('Sam');
   await continueBtn.click();
-
-  await takePhotos(page, 3);
-  await page.getByRole('button', { name: 'Continue' }).click();
 
   await page.getByLabel('Your note').fill(SAM_NOTE);
   await expect(page.getByLabel('Whisper preview')).toHaveValue(SAM_WHISPER);
+  await page.getByRole('button', { name: 'Continue' }).click();
+
+  // Sam is handed the phone, reads the line and says yes themselves.
+  await expect(page.getByRole('heading', { name: 'Hi Sam.' })).toBeVisible();
+  await expect(page.getByText(SAM_WHISPER)).toBeVisible();
+  await expect(page.getByRole('button', { name: 'I agree' })).toBeDisabled();
+  await page.getByText('I’m Sam, and I agree').click();
+  await page.getByRole('button', { name: 'I agree' }).click();
+
+  await takePhotos(page, 3);
   await page.getByRole('button', { name: 'Continue' }).click();
 
   await page.getByLabel('Usual clothes').fill('Green raincoat');

@@ -78,11 +78,13 @@ test('demo walkthrough', async ({ page }) => {
   await tap(page, page.getByRole('button', { name: 'Add someone' }).first());
   await pause(600);
   await page.getByLabel('Their name').pressSequentially('Sam', { delay: 120 });
-  await pause(500);
-  await tap(page, page.getByText('Sam agreed to be added'));
-  await pause(1200);
-  await shot('04-enrol-consent');
+  await pause(700);
   await tap(page, page.getByRole('button', { name: 'Continue' }));
+  await expect(page.getByRole('heading', { name: 'Hi Sam.' })).toBeVisible();
+  mark('Consent handoff: Sam taps I agree');
+  await pause(2200);
+  await shot('04-enrol-consent');
+  await tap(page, page.getByRole('button', { name: 'I agree' }));
 
   await expect(page.getByRole('button', { name: /^Take photo/ })).toBeEnabled({ timeout: 120_000 });
   await pause(1500);

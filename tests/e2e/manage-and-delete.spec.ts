@@ -9,7 +9,7 @@ test('edit a person, then delete everything and start fresh', async ({ page }) =
   // Edit the whisper on the person page; success is the list itself, no toast.
   await page.getByRole('button', { name: /^Sam/ }).first().click();
   await expect(page.getByRole('heading', { name: 'Sam' })).toBeVisible();
-  await expect(page.getByText(/Agreed /)).toBeVisible();
+  await expect(page.getByText(/Said yes on this phone/)).toBeVisible();
   await page.getByLabel('Whisper', { exact: true }).fill('Sam, from the climbing gym. Owes you a coffee.');
   await page.getByRole('button', { name: 'Save changes' }).click();
   await expect(page.getByRole('button', { name: 'Save changes' })).toBeHidden();

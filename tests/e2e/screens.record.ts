@@ -43,11 +43,14 @@ async function flow(page: Page, dir: string, captureLanding: boolean) {
   // Enrolment, step by step.
   await page.getByRole('button', { name: 'Add someone' }).first().click();
   await page.getByLabel('Their name').fill('Sam');
-  await page.getByText('Sam agreed to be added').click();
   await settle(page);
-  await shot('05-enrol-consent');
-  await forLanding('enrol-consent');
+  await shot('05-enrol-name');
   await page.getByRole('button', { name: 'Continue' }).click();
+  await expect(page.getByRole('heading', { name: 'Hi Sam.' })).toBeVisible();
+  await settle(page);
+  await shot('05b-enrol-consent-handoff');
+  await forLanding('enrol-consent');
+  await page.getByRole('button', { name: 'I agree' }).click();
   await takePhotos(page, 3);
   await settle(page);
   await shot('06-enrol-photos');
