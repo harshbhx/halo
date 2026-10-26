@@ -8,7 +8,7 @@
 <a href="https://halo.dualmindlab.tech/app/#/try"><img src="https://img.shields.io/badge/NO_CAMERA_NEEDED-SEE_IT_IN_60_SECONDS-a63f2c?style=flat-square&labelColor=555" alt="NO CAMERA NEEDED: SEE IT IN 60 SECONDS"></a></p>
 <p><a href="https://github.com/harshbhx/halo/actions/workflows/ci.yml"><img src="https://github.com/harshbhx/halo/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
 <img src="https://img.shields.io/badge/faces-never_leave_the_phone-1c1612?style=flat-square&labelColor=555" alt="faces: never leave the phone">
-<img src="https://img.shields.io/badge/tests-90_unit_%2B_25_e2e-5d7a3a?style=flat-square&labelColor=555" alt="tests: 90 unit + 25 e2e">
+<img src="https://img.shields.io/badge/tests-91_unit_%2B_25_e2e-5d7a3a?style=flat-square&labelColor=555" alt="tests: 91 unit + 25 e2e">
 <img src="https://img.shields.io/badge/axe-WCAG_2.2_A%2FAA_clean-5d7a3a?style=flat-square&labelColor=555" alt="axe: WCAG 2.2 A/AA clean">
 <img src="https://img.shields.io/badge/licence-MIT-6a5d52?style=flat-square&labelColor=555" alt="licence: MIT">
 <img src="https://img.shields.io/badge/status-prototype-8a7d6e?style=flat-square&labelColor=555" alt="status: prototype"></p>
