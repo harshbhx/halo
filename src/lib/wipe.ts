@@ -25,16 +25,26 @@ export async function wipeEverything(): Promise<void> {
   } catch {
     // indexedDB.databases is missing in some browsers; the vault itself is already gone.
   }
-  try {
-    for (const key of await caches.keys()) await caches.delete(key);
-  } catch {
-    // no Cache Storage here
-  }
+  const sweepCaches = async () => {
+    try {
+      for (const key of await caches.keys()) await caches.delete(key);
+    } catch {
+      // no Cache Storage here
+    }
+  };
   try {
     for (const reg of (await navigator.serviceWorker?.getRegistrations()) ?? []) await reg.unregister();
   } catch {
     // no service worker
   }
+  await sweepCaches();
+  // A service worker that was still installing can write its cache after the sweep; keep sweeping for a few seconds.
+  void (async () => {
+    for (let i = 0; i < 12; i += 1) {
+      await new Promise((r) => setTimeout(r, 400));
+      await sweepCaches();
+    }
+  })();
   resetSettings();
   try {
     localStorage.clear();

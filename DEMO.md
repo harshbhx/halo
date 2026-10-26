@@ -36,7 +36,7 @@ For recording the submission video on a real phone. Bullets and questions only: 
 15. **Privacy and honest limits**: the ledger ("0 faces, photos or face fingerprints sent"), scroll the six limits; then **Your data**: what's stored, the two-tap **Wipe now** (do this last, or on a second phone).
     - (Optional) **Lock**: set a passcode in Settings, close and reopen Halo, type it.
     - (Optional) The full **privacy page** in the browser: `/privacy/`.
-16. **Delete everything**, confirm, back to the tour.
+16. **Wipe now** in Your data (two taps), or **Delete everything** in Settings: back to a fresh start.
 
 ## Shot checklist
 

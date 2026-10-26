@@ -59,6 +59,8 @@ test('Your data shows what is stored, removes one person, and Wipe now empties e
   await page.getByRole('button', { name: 'Wipe now' }).click();
   await page.getByRole('button', { name: 'Tap again to wipe everything now' }).click();
   await expect(page.getByRole('heading', { name: /wiped from this browser/ })).toBeVisible();
+  // A service worker caught mid-install may write once more; the wipe keeps sweeping for a few seconds.
+  await expect.poll(() => page.evaluate(async () => (await caches.keys()).length), { timeout: 8_000 }).toBe(0);
   const left = await page.evaluate(async () => ({
     databases: ((await indexedDB.databases?.()) ?? []).map((d) => d.name),
     caches: await caches.keys(),

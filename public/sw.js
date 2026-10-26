@@ -59,6 +59,7 @@ self.addEventListener('fetch', (event) => {
           return (
             (await caches.match(req, { ignoreSearch: true, ignoreVary: true })) ||
             (await caches.match(page, { ignoreSearch: true, ignoreVary: true })) ||
+            (await caches.match(new URL('offline/index.html', self.registration.scope).href, { ignoreSearch: true, ignoreVary: true })) ||
             Response.error()
           );
         }

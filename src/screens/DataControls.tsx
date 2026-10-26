@@ -17,6 +17,8 @@ interface Device {
   worker: boolean;
 }
 
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
 function size(bytes: number | null): string {
   if (bytes === null) return 'unknown';
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
@@ -112,12 +114,12 @@ export function DataControls() {
           <div>
             <dt>Practice</dt>
             <dd>
-              {Object.keys(practice.cards).length} cards, {practice.days.length} days practised
+              {plural(Object.keys(practice.cards).length, 'card')}, {plural(practice.days.length, 'day')} practised
             </dd>
           </div>
           <div>
             <dt>Sent off this phone</dt>
-            <dd>{ledgerCount === 0 ? 'Nothing, ever' : `${ledgerCount} Enhanced mode requests, text only (see Privacy)`}</dd>
+            <dd>{ledgerCount === 0 ? 'Nothing, ever' : `${plural(ledgerCount, 'Enhanced mode request')}, text only (see Privacy)`}</dd>
           </div>
           <div>
             <dt>Wrong-match reports</dt>
