@@ -11,6 +11,10 @@ import { getSettings, updateSettings, useSettings } from '../lib/settings';
 import type { Cues, WhisperSource } from '../lib/types';
 import { speak, unlockAudio } from '../lib/voice';
 import { makeWhisper } from '../lib/whisper';
+import { euclidean } from '../lib/matcher';
+
+/** Shots of one person sit close together; a far-off shot is probably someone else. */
+const SAME_PERSON_LIMIT = 0.55;
 
 export const MIN_SHOTS = 3;
 const MAX_SHOTS = 5;
@@ -97,10 +101,12 @@ export function PhotoStep({
     try {
       const frame = grabFrame(video);
       const result = await describe(frame);
-      if (result.ok) {
+      if (result.ok && shots.length > 0 && Math.min(...shots.map((s) => euclidean(s.descriptor, result.descriptor))) > SAME_PERSON_LIMIT) {
+        toast('That looks like someone else. Keep the same person in view.', 4000);
+      } else if (result.ok) {
         const next = [...shots, { descriptor: result.descriptor, thumb: result.thumb }];
         setShots(next);
-        if (next.length === MIN_SHOTS) toast('Three good photos. Add more or continue.');
+        if (next.length === MIN_SHOTS) toast('Three good photos. Add more or continue.', 2000);
       } else {
         toast(DESCRIBE_MESSAGES[result.reason], 4000);
       }
@@ -367,6 +373,7 @@ export function Enrol() {
   useEffect(() => {
     document.getElementById('step-title')?.focus({ preventScroll: true });
     window.scrollTo({ top: 0 });
+    document.querySelector('.app')?.scrollTo({ top: 0 });
   }, [step]);
 
   const cleanName = name.trim();
@@ -426,6 +433,7 @@ export function Enrol() {
           next();
         }}
       >
+        <div className="step-anim" key={step}>
         {step === 0 && (
           <>
             <div>
@@ -501,6 +509,8 @@ export function Enrol() {
             </div>
           </>
         )}
+
+        </div>
 
         <div className="flow-foot">
           <button type="submit" className="btn btn--primary btn--block btn--lg" disabled={!canContinue || saving}>

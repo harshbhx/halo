@@ -68,6 +68,7 @@ export function WhisperMode({ demo }: { demo: boolean }) {
   const trackerRef = useRef(new Tracker({ need: 3, window: 4, cooldownMs: settings.repeatSeconds * 1000 }));
   const captionSeenRef = useRef(0);
   const confirmedRef = useRef<Set<string>>(new Set());
+  const captionIdRef = useRef<string | null>(null);
 
   const [phase, setPhase] = useState<Phase>('starting');
   const [problem, setProblem] = useState<CameraProblem | null>(null);
@@ -84,6 +85,7 @@ export function WhisperMode({ demo }: { demo: boolean }) {
   const hasPeople = people.length > 0;
 
   peopleRef.current = people;
+  captionIdRef.current = captionId;
   pausedRef.current = paused;
   mutedRef.current = muted;
 
@@ -104,11 +106,18 @@ export function WhisperMode({ demo }: { demo: boolean }) {
     if (!id) return;
     const person = peopleRef.current.find((p) => p.id === id);
     if (!person) return void pumpSpeech();
+    captionIdRef.current = id;
     setCaptionId(id);
     captionSeenRef.current = performance.now();
     if (mutedRef.current) return void pumpSpeech();
     speakingRef.current = true;
     const s = getSettings();
+    // A tiny tap on phones that support it, so a whisper never comes out of nowhere.
+    try {
+      navigator.vibrate?.(25);
+    } catch {
+      // not supported
+    }
     try {
       await speak(person.whisper, { voiceName: s.voiceName, volume: s.volume, rate: s.rate, chime: s.chime });
     } finally {
@@ -193,12 +202,21 @@ export function WhisperMode({ demo }: { demo: boolean }) {
                 seenAt: now,
               };
             });
-            if (update.confirmed.size) captionSeenRef.current = now;
+            // The caption is only for someone in view right now. If its person has gone and a
+            // face we don't know is there instead, hide it at once so the stranger is never
+            // mistaken for them.
+            const shown = captionIdRef.current;
+            if (shown && update.confirmed.has(shown)) captionSeenRef.current = now;
+            else if (shown && frame.some((f) => !f.match.personId)) captionSeenRef.current = 0;
             // The caption follows whoever was just recognised, even inside the repeat
             // interval (speech waits for the interval, the caption doesn't).
             const newlyConfirmed = [...update.confirmed].filter((id) => !confirmedRef.current.has(id));
             confirmedRef.current = update.confirmed;
-            if (newlyConfirmed.length && !update.toSpeak.includes(newlyConfirmed[0])) setCaptionId(newlyConfirmed[0]);
+            if (newlyConfirmed.length && !update.toSpeak.includes(newlyConfirmed[0])) {
+              captionIdRef.current = newlyConfirmed[0];
+              captionSeenRef.current = now;
+              setCaptionId(newlyConfirmed[0]);
+            }
             setFaceCount({
               known: update.confirmed.size,
               unknown: frame.filter((f) => !f.match.personId).length,
@@ -263,8 +281,8 @@ export function WhisperMode({ demo }: { demo: boolean }) {
       const now = performance.now();
       const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      // Captions fade once their person has been out of view for a while.
-      if (now - captionSeenRef.current > 9000) setCaptionId((c) => (c ? null : c));
+      // Captions go once their person has been out of view for a moment.
+      if (now - captionSeenRef.current > 2500) setCaptionId((c) => (c ? null : c));
 
       for (const face of facesRef.current) {
         if (now - face.seenAt > 1200) continue;
@@ -399,7 +417,7 @@ export function WhisperMode({ demo }: { demo: boolean }) {
         : "Looking for people you've added";
 
   return (
-    <div className="whisper" role="application" aria-label="Whisper mode">
+    <main className="whisper" aria-label="Whisper mode">
       <video
         ref={videoRef}
         className={`whisper__video${mirror ? ' whisper__video--mirror' : ''}`}
@@ -453,6 +471,9 @@ export function WhisperMode({ demo }: { demo: boolean }) {
               <span style={{ width: `${Math.max(6, Math.round(progress * 100))}%` }} />
             </div>
             <p className="panel__body">The face reader runs here, on this device. Nothing is uploaded.</p>
+            <p className="panel__body" style={{ fontSize: 16 }}>
+              Tip: one earbud in, phone held at chest height.
+            </p>
           </div>
         </div>
       )}
@@ -543,6 +564,6 @@ export function WhisperMode({ demo }: { demo: boolean }) {
           </>
         )}
       </div>
-    </div>
+    </main>
   );
 }

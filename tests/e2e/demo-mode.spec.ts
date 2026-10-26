@@ -25,10 +25,13 @@ test('sample people are recognised and the stranger stays unknown', async ({ pag
   const seenCaptions = new Set<string>();
   const unknownDistances: number[] = [];
   const knownDistances: number[] = [];
+  let captionOverStranger = 0;
   const deadline = Date.now() + 75_000;
   while (Date.now() < deadline && (seenCaptions.size < 3 || unknownDistances.length < 3)) {
-    const caption = await page.locator('.caption__name').textContent().catch(() => null);
+    const caption = await page.locator('.caption__name').textContent({ timeout: 200 }).catch(() => null);
     if (caption) seenCaptions.add(caption.trim().toLowerCase());
+    const status = await page.locator('.whisper__status').textContent({ timeout: 200 }).catch(() => '');
+    if (caption && status?.includes("No one you've added")) captionOverStranger += 1;
     const frame = (await page.evaluate(() => (window as unknown as { __fwLastFrame?: unknown }).__fwLastFrame)) as
       | FrameEntry[]
       | undefined;
@@ -43,6 +46,8 @@ test('sample people are recognised and the stranger stays unknown', async ({ pag
   console.log('stranger distances (min/max):', Math.min(...unknownDistances).toFixed(3), Math.max(...unknownDistances).toFixed(3));
 
   expect([...seenCaptions].sort()).toEqual(['arjun', 'maya', 'walter']);
+  // A known person's caption is never left showing over the stranger (one transitional frame at most).
+  expect(captionOverStranger).toBeLessThanOrEqual(1);
   expect(unknownDistances.length).toBeGreaterThan(0);
   // The stranger is never closer than the careful threshold to anyone.
   expect(Math.min(...unknownDistances)).toBeGreaterThan(0.45);

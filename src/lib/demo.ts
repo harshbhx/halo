@@ -134,10 +134,10 @@ export async function removeSamplePeople(): Promise<void> {
 
 /* ---------- Demo camera ---------- */
 
-const W = 480;
-const H = 640;
-const SCENE_W = 600;
-const SCENE_H = 800;
+const W = 432; // 9:16 portrait, like a phone camera held upright
+const H = 768;
+const SCENE_W = 540;
+const SCENE_H = 900;
 
 /** Face feathered into a soft, blurred copy of its own background (like a shallow-focus phone photo). */
 function buildScene(img: HTMLImageElement): HTMLCanvasElement {
@@ -145,9 +145,9 @@ function buildScene(img: HTMLImageElement): HTMLCanvasElement {
   scene.width = SCENE_W;
   scene.height = SCENE_H;
   const ctx = scene.getContext('2d')!;
-  const face = 270;
+  const face = 250;
   const fx = (SCENE_W - face) / 2;
-  const fy = 190;
+  const fy = 200;
 
   // Backdrop: the image stretched past the frame and blurred.
   const canFilter = typeof (ctx as { filter?: unknown }).filter === 'string';
@@ -207,8 +207,8 @@ export async function createDemoStream(): Promise<DemoStream> {
   let stopped = false;
 
   const drawScene = (scene: HTMLCanvasElement, t: number, phase: number, alpha: number) => {
-    const x = 60 + 36 * Math.sin((2 * Math.PI * t) / 6000 + phase);
-    const y = 80 + 22 * Math.sin((2 * Math.PI * t) / 4500 + phase);
+    const x = 54 + 30 * Math.sin((2 * Math.PI * t) / 6000 + phase);
+    const y = 66 + 20 * Math.sin((2 * Math.PI * t) / 4500 + phase);
     ctx.globalAlpha = alpha;
     ctx.drawImage(scene, x, y, W, H, 0, 0, W, H);
     ctx.globalAlpha = 1;

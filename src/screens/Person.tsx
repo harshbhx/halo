@@ -125,7 +125,7 @@ export function Person({ id }: { id: string }) {
         </h1>
         <div className="meta-line">
           {original.sample && <span className="chip chip--warn">Sample person, AI-generated face</span>}
-          <span className="chip">Agreed {formatDate(original.consentAt)}</span>
+          {!original.sample && <span className="chip">Agreed {formatDate(original.consentAt)}</span>}
           <span className="chip">
             {original.descriptors.length} face {original.descriptors.length === 1 ? 'fingerprint' : 'fingerprints'}
           </span>
