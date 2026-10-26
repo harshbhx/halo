@@ -2,6 +2,8 @@
 
 What could go wrong with Halo, who it would hurt, what the app does about it today, and what is left over. Written for the code in this repository; "residual" means the risk the app does not remove.
 
+Diagrams of where data goes and how consent works: [architecture](../README.md#architecture), [privacy data flow](../README.md#privacy-data-flow), [recognition flow](../README.md#recognition-flow) and [adding someone with their yes](../README.md#add-someone-with-their-yes).
+
 ## What there is to protect
 
 - **The people a user has added:** names, notes, whisper lines, cue notes, where they met, consent records, 3 to 8 face fingerprints each and one 160 by 160 picture. Stored encrypted in the browser on the user's phone.
