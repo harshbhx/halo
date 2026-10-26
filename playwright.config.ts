@@ -54,8 +54,17 @@ export default defineConfig({
       },
     },
     {
+      name: 'screens',
+      testMatch: /screens\.record\.ts/,
+      use: {
+        ...phone,
+        browserName: 'chromium',
+        launchOptions: { args: chromiumArgs('friend') },
+      },
+    },
+    {
       name: 'record',
-      testMatch: /.*\.record\.ts/,
+      testMatch: /(demo|landing)\.record\.ts/,
       use: {
         ...phone,
         browserName: 'chromium',
