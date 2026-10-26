@@ -16,6 +16,14 @@ export function Welcome() {
   const last = part === 2;
   const lamps = useRef<HTMLCanvasElement>(null);
   const [heard, setHeard] = useState('');
+  const ask = useRef<HTMLDivElement>(null);
+
+  // The question appears under the sticky footer on a phone, so bring it into view.
+  useEffect(() => {
+    if (heard !== 'asked' || !ask.current) return;
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    ask.current.scrollIntoView({ block: 'center', behavior: still ? 'auto' : 'smooth' });
+  }, [heard]);
 
   function checkEarbud() {
     unlockAudio();
@@ -152,7 +160,7 @@ export function Welcome() {
                 <Ear size={18} aria-hidden="true" /> Check your earbud
               </button>
               {heard === 'asked' ? (
-                <div className="stack" aria-live="polite">
+                <div className="stack" aria-live="polite" ref={ask}>
                   <p className="label">Did you hear “This is how a whisper sounds.” in your earbud?</p>
                   <div className="row">
                     <button

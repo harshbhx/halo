@@ -198,7 +198,7 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 .camera__guide { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .camera__guide ellipse { stroke: var(--halo); }
 .camera__shade { fill: var(--night-scrim-soft); }
-.camera__tip { position: absolute; left: 50%; top: var(--space-md); transform: translateX(-50%); padding: var(--space-xs) var(--space-md); border-radius: var(--radius-pill); background: var(--night-scrim); color: var(--night-ink); font-size: var(--text-sm); font-weight: 700; white-space: nowrap; }
+.camera__tip { position: absolute; left: 50%; top: var(--space-md); transform: translateX(-50%); padding: var(--space-xs) var(--space-md); border-radius: var(--radius-pill); background: var(--night-scrim); color: var(--night-ink); font-size: var(--text-sm); font-weight: 700; }
 .camera__state { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: var(--space-sm); padding: var(--space-lg); text-align: center; color: var(--night-ink); }
 .camera__flip { position: absolute; right: var(--space-sm); bottom: var(--space-sm); }
 .camera__flash { position: absolute; inset: 0; background: var(--night-ink); opacity: 0; pointer-events: none; }
@@ -260,7 +260,7 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 .night-btn:disabled { opacity: 0.55; cursor: not-allowed; }
 .night-btn[aria-pressed="true"] { border-color: var(--halo); background: var(--halo); color: var(--halo-ink); }
 .night-btn--lg { width: 68px; height: 68px; }
-.night__status { position: absolute; z-index: var(--z-raised); left: 50%; top: calc(env(safe-area-inset-top) + 76px); transform: translateX(-50%); display: inline-flex; align-items: center; gap: var(--space-xs); padding: var(--space-xs) var(--space-md); border-radius: var(--radius-pill); background: var(--night-scrim); color: var(--night-ink); font-size: var(--text-sm); font-weight: 700; white-space: nowrap; }
+.night__status { position: absolute; z-index: var(--z-raised); left: var(--space-md); right: var(--space-md); width: fit-content; margin-inline: auto; top: calc(env(safe-area-inset-top) + 76px); display: flex; justify-content: center; text-align: center; align-items: center; gap: var(--space-xs); padding: var(--space-xs) var(--space-md); border-radius: var(--radius-pill); background: var(--night-scrim); color: var(--night-ink); font-size: var(--text-sm); font-weight: 700; }
 .night__hint { justify-self: center; display: inline-flex; align-items: center; gap: var(--space-xs); padding: var(--space-xs) var(--space-md); border-radius: var(--radius-pill); background: var(--night-paper-2); border: var(--rule-hair) solid var(--night-rule); color: var(--night-ink); font-size: var(--text-sm); animation: fade-in var(--dur-long) var(--ease-out); }
 @keyframes fade-in { from { opacity: 0; } }
 .caption { width: 100%; display: grid; gap: var(--space-xs); padding: var(--space-md) var(--space-lg); border: var(--rule-hair) solid var(--night-rule); border-radius: var(--radius-card); background: var(--night-paper-2); color: var(--night-ink); text-align: left; font: inherit; cursor: pointer; animation: caption-in var(--dur-long) var(--ease-out); }

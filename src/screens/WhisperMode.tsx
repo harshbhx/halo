@@ -547,7 +547,7 @@ export function WhisperMode({ demo }: { demo: boolean }) {
         ? 'Could be someone you know'
         : faceCount.unknown > 0
           ? 'No match'
-          : 'Looking for people you’ve added';
+          : 'Looking for faces';
 
   return (
     <main className="night" aria-label="Whisper mode">
