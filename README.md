@@ -6,6 +6,7 @@
 
 <p><a href="https://halo.dualmindlab.tech"><img src="https://img.shields.io/badge/TRY_IT-HALO.DUALMINDLAB.TECH-253b77?style=flat-square&labelColor=555" alt="TRY IT: HALO.DUALMINDLAB.TECH"></a>
 <a href="https://halo.dualmindlab.tech/app/#/try"><img src="https://img.shields.io/badge/NO_CAMERA_NEEDED-SEE_IT_IN_60_SECONDS-a63f2c?style=flat-square&labelColor=555" alt="NO CAMERA NEEDED: SEE IT IN 60 SECONDS"></a></p>
+<p>🏆 <b>2nd Place, Devpost Build With AI: Basics</b> · <a href="https://devpost.com/software/halo-az5yd4">see it on Devpost</a></p>
 <p><a href="https://github.com/harshbhx/halo/actions/workflows/ci.yml"><img src="https://github.com/harshbhx/halo/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
 <img src="https://img.shields.io/badge/faces-never_leave_the_phone-1c1612?style=flat-square&labelColor=555" alt="faces: never leave the phone">
 <img src="https://img.shields.io/badge/tests-91_unit_%2B_25_e2e-5d7a3a?style=flat-square&labelColor=555" alt="tests: 91 unit + 25 e2e">
@@ -225,7 +226,7 @@ The build is a static site with a strict CSP that works at the domain root. `wra
 
 ## How it was made
 
-Built for Devpost's [Build With AI: Basics](https://learn-ai-basics.devpost.com/) with the [Devpost Learn skill pack](https://github.com/challengepost/learn-ai-basics) (`npx skills add challengepost/learn-ai-basics --all -y`), run in an AI coding agent. The idea, the users' problem, the privacy rules, the name and the product decisions are Harsh's; the agent wrote the planning documents and the code from his written brief, and each slice was verified with tests before it was committed.
+Built for Devpost's [Build With AI: Basics](https://learn-ai-basics.devpost.com/) with the [Devpost Learn skill pack](https://github.com/challengepost/learn-ai-basics) (`npx skills add challengepost/learn-ai-basics --all -y`), run in an AI coding agent. It won [2nd place](https://devpost.com/software/halo-az5yd4) in that hackathon. The idea, the users' problem, the privacy rules, the name and the product decisions are Harsh's; the agent wrote the planning documents and the code from his written brief, and each slice was verified with tests before it was committed.
 
 - `1-start`: a learner profile, kept out of the repository as the skill intends.
 - `2-scope`: [`scope.md`](scope.md), the kernel, who it's for, what was cut.
